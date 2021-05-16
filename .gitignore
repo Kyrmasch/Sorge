@@ -1,1 +1,5 @@
-/Sorge.Web/Templates/statics/node_modules
+/Web/Templates/statics/node_modules
+/Web/__pycache__
+/UseCases/__pycache__
+/Web/Controllers/__pycache__
+/__pycache__

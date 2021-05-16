@@ -1,0 +1,86 @@
+html, body, #root {
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+.main {
+    width: 100%; 
+    height: 100%; 
+    display: table;
+    position: absolute;
+}
+
+.middle {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.outer {
+    flex-wrap: nowrap; 
+    margin-left: auto; 
+    margin-right: auto; 
+    position: relative; 
+    width: calc(100% - 40px); 
+    max-width: 750px; 
+    min-width: 320px; 
+    padding: 48px
+}
+
+.note > p {
+    text-indent: 25px
+}
+
+@media (max-width: 767px) {
+    .outer {
+        padding: 0px;
+        padding: 48px 0px;
+    }
+
+    .ms-fontSize-68 {
+        font-size: 32pt !important;
+    }
+
+    .ms-fontSize-28 {
+        font-size: 18px !important;
+    }
+
+    .event_panel {
+        margin-top: 35px !important;
+    }
+
+    .event_panel > .ms-Stack {
+        flex-flow: column nowrap
+    }
+
+        .event_panel > .ms-Stack > .ms-Button {
+            width: 200px
+        }
+
+            .event_panel > .ms-Stack > .ms-Button:not(:first-child) {
+                margin-top: 24px;
+                margin-left: 0px
+            }
+
+            .event_panel > .ms-Stack > .ms-TextField:not(:first-child) {
+                margin-top: 24px;
+                margin-left: 0px
+            }
+
+    .note {
+        font-size: 1em !important;
+    }
+
+    .NoteButtons {
+        justify-content: center !important;
+    }
+
+        .NoteButtons > .ms-Button {
+            width: 200px
+        }
+
+    .btn {
+        width: 200px
+    }
+}

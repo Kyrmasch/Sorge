@@ -1,2 +1,4 @@
 dependency-injector
 flask
+pandas
+lxml

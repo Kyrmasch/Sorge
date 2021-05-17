@@ -6,6 +6,12 @@ from flask import Flask
 from Web.Controllers import views
 from Web.Controllers import api
 
+from Infrastruction.socket import SocketProvider 
+
+class SocketIOProvider(containers.DeclarativeContainer):
+    config = providers.Configuration()
+    socket_provider = providers.Singleton(SocketProvider, config)
+
 class ApplicationContainer(containers.DeclarativeContainer):
 
     template_dir = os.path.abspath('Web/Templates/statics')

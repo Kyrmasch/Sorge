@@ -1,7 +1,4 @@
-from containers import ApplicationContainer
-from Infrastruction.socket import SocketProvider 
-
-socket = SocketProvider()
+from containers import ApplicationContainer, SocketIOProvider
 
 def create_app():
 
@@ -20,6 +17,8 @@ def create_app():
                 view_func = container.get_tables_api.as_view(), 
                 methods=['GET',])
 
-    socket.socketio.init_app(app)
+    socket_provider = SocketIOProvider()
+    socket = socket_provider.socket_provider().socketio
+    socket.init_app(app)
 
-    return socket.socketio, app
+    return socket, app

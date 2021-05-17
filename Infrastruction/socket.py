@@ -5,7 +5,7 @@ socketio = SocketIO(cors_allowed_origins="*", async_mode='threading')
 
 class SocketProvider(object):
 
-    def __init__(self):
+    def __init__(self, config):
         self.socketio = socketio
 
     @socketio.on('get')

@@ -2,7 +2,9 @@ import os
 from dependency_injector import providers, containers
 from dependency_injector.ext import flask
 from flask import Flask
+
 from Web.Controllers import views
+from Web.Controllers import api
 
 class ApplicationContainer(containers.DeclarativeContainer):
 
@@ -15,3 +17,6 @@ class ApplicationContainer(containers.DeclarativeContainer):
 
     index_view = flask.View(views.index)
     settings_view = flask.View(views.settings)
+
+    get_tables_api = flask.View(api.get_tables)
+        

@@ -1,4 +1,5 @@
-from flask import request, render_template, current_app
+from os import abort
+from flask import request, render_template, abort
 
 from UseCases.parcer import ParcerProvider
 from Infrastruction.dbcontext import DbProvider
@@ -14,5 +15,5 @@ def index():
 
 def settings():
     return render_template(
-        'settings.html'
-    )
+            'settings.html'
+        )

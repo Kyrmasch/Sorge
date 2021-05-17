@@ -3,5 +3,5 @@
 from app import create_app
 
 if __name__ == '__main__':
-    app = create_app()
-    app.run()
+    socket, app = create_app()
+    socket.run(app)

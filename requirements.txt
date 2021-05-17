@@ -5,3 +5,4 @@ lxml
 flask-socketio==4.3.2
 websocket
 flask-login
+pymongo

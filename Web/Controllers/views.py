@@ -15,5 +15,5 @@ def index():
 
 def settings():
     return render_template(
-            'settings.html'
+            'index.html'
         )

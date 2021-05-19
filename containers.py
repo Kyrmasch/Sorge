@@ -7,10 +7,15 @@ from Web.Controllers import views
 from Web.Controllers import api
 
 from Infrastruction.socket import SocketProvider 
+from Infrastruction.authmanager import AuthProvider 
 
 class SocketIOProvider(containers.DeclarativeContainer):
     config = providers.Configuration()
     socket_provider = providers.Singleton(SocketProvider, config)
+
+class AuthManagerProvider(containers.DeclarativeContainer):
+    config = providers.Configuration()
+    auth_provider = providers.Singleton(AuthProvider, config)
 
 class ApplicationContainer(containers.DeclarativeContainer):
 
@@ -22,6 +27,7 @@ class ApplicationContainer(containers.DeclarativeContainer):
                             static_folder=static_dir)
 
     index_view = flask.View(views.index)
+    login_view = flask.View(views.login)
     settings_view = flask.View(views.settings)
 
     get_tables_api = flask.View(api.get_tables)

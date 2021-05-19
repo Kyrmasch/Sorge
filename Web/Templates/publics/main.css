@@ -32,6 +32,12 @@ html, body, #root {
     text-indent: 25px
 }
 
+.box {
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;         /* Opera/IE 8+ */
+}
+
 @media (max-width: 767px) {
     .outer {
         padding: 0px;

@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { DefaultButton, PrimaryButton } from '@fluentui/react/lib/Button';
 
-export default function Home() {
+export default function Settings() {
     const culture = useParams().culture || 'ru';
     const history = useHistory();
 
-    const start = () => {
-        history.push('/settings')
+    const end = () => {
+        history.push('/')
     }
 
     return (
@@ -15,9 +15,9 @@ export default function Home() {
             <div className="main">
                 <div className="middle">
                     <div className="outer">
-                        <div style={{textAlign: 'center'}} class="ms-fontSize-68">Sorge</div>
+                        <div style={{textAlign: 'center'}} class="ms-fontSize-68">Settings Sorge</div>
                         <div style={{textAlign: 'center'}} class="ms-fontSize-68">
-                            <PrimaryButton text="Начать" onClick={start} allowDisabledFocus disabled={false} checked={false} />
+                            <PrimaryButton text="Назад" onClick={end} allowDisabledFocus disabled={false} checked={false} />
                         </div>
                     </div>
                 </div>

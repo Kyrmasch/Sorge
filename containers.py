@@ -31,4 +31,6 @@ class ApplicationContainer(containers.DeclarativeContainer):
     settings_view = flask.View(views.settings)
 
     get_tables_api = flask.View(api.get_tables)
+    login_api = flask.View(api.signin)
+    logout_api = flask.View(api.signout)
         

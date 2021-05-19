@@ -13,7 +13,7 @@ def create_app():
 
     app.add_url_rule('/login', 
                 view_func = container.login_view.as_view(), 
-                methods=['GET', 'POST'])
+                methods=['GET'])
 
     app.add_url_rule('/settings', 
                 view_func = container.settings_view.as_view(), 
@@ -21,6 +21,14 @@ def create_app():
 
     app.add_url_rule('/api/get_tables', 
                 view_func = container.get_tables_api.as_view(), 
+                methods=['GET',])
+
+    app.add_url_rule('/api/login', 
+                view_func = container.login_api.as_view(), 
+                methods=['POST',])
+
+    app.add_url_rule('/api/logout', 
+                view_func = login_required(container.logout_api.as_view()), 
                 methods=['GET',])
 
     socket_provider = SocketIOProvider()

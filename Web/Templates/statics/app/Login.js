@@ -28,9 +28,24 @@ const styles = {
 export default function Login() {
     const culture = useParams().culture || 'ru';
     const history = useHistory();
+    const [password, setPassword] = React.useState('');
 
     const login = () => {
-        history.push('/')
+        fetch('/api/login', {
+            method: 'post',
+            headers: {
+              'Accept': 'application/json, text/plain, */*',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({login: 'admin', password: password})
+          })
+          .then(res => res.json())
+          .then(res => {
+              console.log(res.result);
+              if (res.result == true) {
+                  history.push('/');
+              }
+          });
     }
 
     return (
@@ -51,13 +66,15 @@ export default function Login() {
                                     <div class="ms-fontSize-24" style={{}}>Введите пароль</div>
                                     <TextField
                                         type="password"
+                                        value={password}
+                                        onChange={e => setPassword(e.target.value)}
                                         canRevealPassword
                                         revealPasswordAriaLabel="Show password"
                                         />
                                     <Checkbox label="Оставаться в системе" onChange={() => {}} />
                                 </Stack>
                                 <Stack horizontal style={{justifyContent: 'flex-end'}}>
-                                    <PrimaryButton text="Войти" onClick={login} allowDisabledFocus disabled={false} checked={false} />
+                                    <PrimaryButton disabled={password == ''} text="Войти" onClick={login} allowDisabledFocus  checked={false} />
                                 </Stack>
                             </Stack>
                         </div>  

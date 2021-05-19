@@ -70,14 +70,14 @@ export default function Login() {
             <div className="main" style={{ backgroundColor: '#eee' }}>
                 <div className="middle">
                     <div className="outer">
-                        <div style={styles.root} className="box">
+                        <div style={styles.root} className="box ms-motion-scaleDownIn">
                             <Stack tokens={{ childrenGap: 24 }}>
                                 <Stack tokens={{ childrenGap: 12 }} horizontal style={{ color: 'grey' }}>
                                     <Icon iconName="TFVCLogo" style={{ fontSize: '32px' }} />
                                     <div class="ms-fontSize-28" style={{}}>Sorge</div>
                                 </Stack>
                                 <Stack tokens={{ childrenGap: 12 }} horizontal>
-                                    <Persona secondaryText="login: admin" text="Администратор" size={PersonaSize.size40} />
+                                    <Persona secondaryText="Username: admin" text="Администратор" size={PersonaSize.size40} />
                                 </Stack>
                                 <Stack tokens={{ childrenGap: 12 }}>
                                     <div class="ms-fontSize-24" style={{}}>Введите пароль</div>
@@ -86,6 +86,7 @@ export default function Login() {
                                         value={password}
                                         onChange={e => setPassword(e.target.value)}
                                         canRevealPassword
+                                        errorMessage={error}
                                         revealPasswordAriaLabel="Show password"
                                     />
                                     <Checkbox
@@ -94,15 +95,6 @@ export default function Login() {
                                         onChange={e => setRemember(e.target.value)}
                                     />
                                 </Stack>
-                                {
-                                    error != '' && (
-                                        <MessageBar
-                                            messageBarType={MessageBarType.error}
-                                            isMultiline={false}>
-                                            {error}
-                                        </MessageBar>
-                                    )
-                                }
                                 <Stack horizontal style={{ justifyContent: 'flex-end' }}>
                                     <PrimaryButton disabled={password == ''} text="Войти" onClick={login} allowDisabledFocus checked={false} />
                                 </Stack>

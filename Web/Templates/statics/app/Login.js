@@ -77,7 +77,7 @@ export default function Login() {
                                     <div class="ms-fontSize-28" style={{}}>Sorge</div>
                                 </Stack>
                                 <Stack tokens={{ childrenGap: 12 }} horizontal>
-                                    <Persona secondaryText="Username: admin" text="Администратор" size={PersonaSize.size40} />
+                                    <Persona secondaryText="Username: admin" text="Администратор" size={PersonaSize.size40} initialsColor={PersonaInitialsColor.lightBlue}/>
                                 </Stack>
                                 <Stack tokens={{ childrenGap: 12 }}>
                                     <div class="ms-fontSize-24" style={{}}>Введите пароль</div>

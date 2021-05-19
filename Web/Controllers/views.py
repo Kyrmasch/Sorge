@@ -7,18 +7,14 @@ from Infrastruction.dbcontext import DbProvider
 parcer = ParcerProvider({})
 db = DbProvider({})
 
+
 def index():
-    tables = parcer.get_data("https://aeroport.kz/online.php?param=KGF|1")
-    return render_template(
-        'index.html'
-    )
+    return render_template("index.html")
+
 
 def login():
-    return render_template(
-            'index.html'
-        )
+    return render_template("index.html")
+
 
 def settings():
-    return render_template(
-            'index.html'
-        )
+    return render_template("index.html")

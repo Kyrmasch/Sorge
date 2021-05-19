@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { DefaultButton, PrimaryButton } from '@fluentui/react/lib/Button'; 
+import { DefaultButton, PrimaryButton } from '@fluentui/react/lib/Button';
 import { Persona, PersonaInitialsColor, PersonaSize } from '@fluentui/react/lib/Persona';
 import { Stack } from '@fluentui/react/lib/Stack';
 import { Icon } from '@fluentui/react/lib/Icon';
 import { TextField } from '@fluentui/react/lib/TextField';
 import { Checkbox } from '@fluentui/react/lib/Checkbox';
 import { initializeIcons } from '@fluentui/font-icons-mdl2';
+import { MessageBar, MessageBarType } from '@fluentui/react/lib/MessageBar'
 
 initializeIcons();
 
@@ -29,38 +30,54 @@ export default function Login() {
     const culture = useParams().culture || 'ru';
     const history = useHistory();
     const [password, setPassword] = React.useState('');
+    const [remember, setRemember] = React.useState(false);
+    const [error, setError] = React.useState('');
 
     const login = () => {
         fetch('/api/login', {
             method: 'post',
             headers: {
-              'Accept': 'application/json, text/plain, */*',
-              'Content-Type': 'application/json'
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({login: 'admin', password: password})
-          })
-          .then(res => res.json())
-          .then(res => {
-              console.log(res.result);
-              if (res.result == true) {
-                  history.push('/');
-              }
-          });
+            body: JSON.stringify({ login: 'admin', password: password, remember: remember })
+        })
+            .then(res => {
+                switch (res.status) {
+                    case 200: {
+                        return res.json()
+                    }
+                    default:
+                        return res.text();
+                }
+                
+            })
+            .then(data => {
+                if (typeof data === 'string' || data instanceof String) {
+                    setError(data);
+                }
+                else if (data.result == true) {
+                    history.push('/');
+                }
+            })
+            .catch((err, m) => {
+                console.log(err, m);
+            });
     }
 
     return (
         <React.Fragment>
-            <div className="main" style={{backgroundColor: '#eee'}}>
+            <div className="main" style={{ backgroundColor: '#eee' }}>
                 <div className="middle">
                     <div className="outer">
                         <div style={styles.root} className="box">
                             <Stack tokens={{ childrenGap: 24 }}>
-                                <Stack tokens={{ childrenGap: 12 }} horizontal style={{color: 'grey'}}>
-                                    <Icon iconName="TFVCLogo" style={{fontSize: '32px'}} />
+                                <Stack tokens={{ childrenGap: 12 }} horizontal style={{ color: 'grey' }}>
+                                    <Icon iconName="TFVCLogo" style={{ fontSize: '32px' }} />
                                     <div class="ms-fontSize-28" style={{}}>Sorge</div>
                                 </Stack>
                                 <Stack tokens={{ childrenGap: 12 }} horizontal>
-                                    <Persona secondaryText="" text="Администратор" size={PersonaSize.size40} />
+                                    <Persona secondaryText="login: admin" text="Администратор" size={PersonaSize.size40} />
                                 </Stack>
                                 <Stack tokens={{ childrenGap: 12 }}>
                                     <div class="ms-fontSize-24" style={{}}>Введите пароль</div>
@@ -70,14 +87,27 @@ export default function Login() {
                                         onChange={e => setPassword(e.target.value)}
                                         canRevealPassword
                                         revealPasswordAriaLabel="Show password"
-                                        />
-                                    <Checkbox label="Оставаться в системе" onChange={() => {}} />
+                                    />
+                                    <Checkbox
+                                        label="Оставаться в системе"
+                                        checked={remember}
+                                        onChange={e => setRemember(e.target.value)}
+                                    />
                                 </Stack>
-                                <Stack horizontal style={{justifyContent: 'flex-end'}}>
-                                    <PrimaryButton disabled={password == ''} text="Войти" onClick={login} allowDisabledFocus  checked={false} />
+                                {
+                                    error != '' && (
+                                        <MessageBar
+                                            messageBarType={MessageBarType.error}
+                                            isMultiline={false}>
+                                            {error}
+                                        </MessageBar>
+                                    )
+                                }
+                                <Stack horizontal style={{ justifyContent: 'flex-end' }}>
+                                    <PrimaryButton disabled={password == ''} text="Войти" onClick={login} allowDisabledFocus checked={false} />
                                 </Stack>
                             </Stack>
-                        </div>  
+                        </div>
                     </div>
                 </div>
             </div>

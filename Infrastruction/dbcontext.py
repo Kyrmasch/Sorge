@@ -1,10 +1,10 @@
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 
-class DbProvider(object):
 
+class DbProvider(object):
     def __init__(self, config):
-        self.client = MongoClient('mongodb://localhost:27017/')
+        self.client = MongoClient("mongodb://localhost:27017/")
 
     def check(self):
         if self.check() == False:
@@ -18,11 +18,7 @@ class DbProvider(object):
 
         if type(array) == "list":
             for item in array:
-                self.client.sorge.insert(
-                    {
-                        '_id': ObjectId(item["id"])
-                    }
-                )
+                self.client.sorge.insert({"_id": ObjectId(item["id"])})
         else:
             print("MONGO: add first parament in not array")
 
@@ -35,10 +31,10 @@ class DbProvider(object):
         if self.check() == False:
             return
 
-        return self.client.sorge.find_one({'_id': ObjectId(id)})
+        return self.client.sorge.find_one({"_id": ObjectId(id)})
 
     def remove(self, id):
         if self.check() == False:
             return
-        
-        self.client.sorge.delete_one({'_id': ObjectId(id)})  
+
+        self.client.sorge.delete_one({"_id": ObjectId(id)})

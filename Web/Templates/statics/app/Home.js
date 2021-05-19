@@ -7,7 +7,7 @@ export default function Home() {
     const history = useHistory();
 
     const start = () => {
-        history.push('/settings')
+        window.location.href = '/api/logout';
     }
 
     return (

@@ -96,7 +96,7 @@ export default function Login() {
                                     />
                                 </Stack>
                                 <Stack horizontal style={{ justifyContent: 'flex-end' }}>
-                                    <PrimaryButton disabled={password == ''} text="Войти" onClick={login} allowDisabledFocus checked={false} />
+                                    <PrimaryButton disabled={false} text="Войти" onClick={login} allowDisabledFocus checked={false} />
                                 </Stack>
                             </Stack>
                         </div>

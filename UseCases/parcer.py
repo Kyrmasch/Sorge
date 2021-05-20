@@ -1,7 +1,7 @@
 import pandas as pd
 
-class ParcerProvider(object):
 
+class ParcerProvider(object):
     def __init__(self, config):
         pass
 

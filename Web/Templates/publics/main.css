@@ -5,6 +5,12 @@ html, body, #root {
     margin: 0;
 }
 
+.header {
+    padding: 0 32px 0 32px!important;
+    height: 54px;
+    margin-bottom: 2px;
+}
+
 .main {
     width: 100%; 
     height: 100%; 
@@ -33,9 +39,42 @@ html, body, #root {
 }
 
 .box {
-    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
-    box-sizing: border-box;         /* Opera/IE 8+ */
+    -webkit-box-sizing: border-box; 
+    -moz-box-sizing: border-box;   
+    box-sizing: border-box;    
+}
+
+.logo{
+    display: inline-flex;
+    color: grey;
+    height: 54px;
+    padding: 8px;
+    box-sizing: border-box;
+    gap: 8px;
+}
+
+.pipe {
+    position: relative;
+    padding: 0px 16px;
+}
+
+.noselect {
+    -webkit-touch-callout: none; 
+      -webkit-user-select: none;
+       -khtml-user-select: none;
+         -moz-user-select: none;
+          -ms-user-select: none; 
+              user-select: none; 
+  }
+
+.pipe::before {
+    border-left: 2px solid #000;
+    height: 24px;
+    content: " ";
+    margin-left: 7px;
+    position: absolute;
+    top: 15px;
+    left: 0;
 }
 
 @media (max-width: 767px) {

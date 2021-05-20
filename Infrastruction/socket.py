@@ -3,6 +3,7 @@ from flask import current_app
 
 socketio = SocketIO(cors_allowed_origins="*", async_mode="threading")
 
+
 class SocketProvider(object):
     def __init__(self, config):
         self.socketio = socketio

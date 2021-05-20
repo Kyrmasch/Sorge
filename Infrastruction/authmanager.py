@@ -30,9 +30,9 @@ class AuthProvider(object):
                 user = u
         return user
 
-    def signin(self, user, remember = None):
+    def signin(self, user, remember=None):
         if user is not None:
-            login_user(user, remember = remember)
+            login_user(user, remember=remember)
             return True
         return False
 

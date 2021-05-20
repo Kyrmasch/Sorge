@@ -67,7 +67,7 @@ export default function Login() {
 
     return (
         <React.Fragment>
-            <div className="main" style={{ backgroundColor: '#eee' }}>
+            <div className="main" style={{ backgroundColor: '#faf9f8' }}>
                 <div className="middle">
                     <div className="outer">
                         <div style={styles.root} className="box ms-motion-scaleDownIn">

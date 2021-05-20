@@ -13,6 +13,7 @@ export default function App() {
     return (
         <div>
             <Route exact path='/' component={Home} io={io} />
+            <Route exact path='/parser' component={Home} io={io} />
             <Route exact path='/login' component={Login} io={io} />
             <Route exact path='/settings' component={Settings} />
         </div>

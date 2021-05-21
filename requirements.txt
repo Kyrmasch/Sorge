@@ -11,3 +11,4 @@ pymongo
 html5lib
 BeautifulSoup4
 simplejson
+python-interface

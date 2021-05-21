@@ -6,8 +6,8 @@ from flask import Flask
 from Web.Controllers import views
 from Web.Controllers import api
 
-from Infrastruction.socket import SocketProvider
-from Infrastruction.authmanager import AuthProvider
+from ApplicationService.Implementation.Socket import SocketProvider
+from Infrastruction.Implementations.AuthManager import AuthProvider
 
 
 class SocketIOProvider(containers.DeclarativeContainer):

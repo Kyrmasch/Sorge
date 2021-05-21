@@ -8,12 +8,12 @@ from flask import (
     Response,
 )
 import simplejson
-from Infrastruction.authmanager import AuthProvider
+from Infrastruction.Implementations.AuthManager import AuthProvider
 from Infrastruction.Exceptions.exception import (
     AuthCredentionsException,
     AuthUserNotFoundException,
 )
-from UseCases.parcer import ParcerProvider
+from UseCases.Implementations.Parcer import ParcerProvider
 
 
 parcer = ParcerProvider({})

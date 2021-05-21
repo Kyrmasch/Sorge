@@ -1,6 +1,6 @@
 from os import abort
 from flask import request, render_template
-from Infrastruction.dbcontext import DbProvider
+from Infrastruction.Implementations.DbContext import DbProvider
 
 db = DbProvider({})
 

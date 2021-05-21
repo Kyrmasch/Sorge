@@ -1,6 +1,8 @@
 import pandas as pd
+from interface import implements
+from UseCases.Interfaces.IParser import IParser
 
-class ParcerProvider(object):
+class ParcerProvider(implements(IParser)):
     def __init__(self, config):
         pass
 

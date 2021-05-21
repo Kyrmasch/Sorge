@@ -6,7 +6,9 @@ import { DefaultButton, PrimaryButton } from '@fluentui/react/lib/Button';
 import { Stack } from '@fluentui/react/lib/Stack';
 import { SearchBox } from '@fluentui/react/lib/SearchBox';
 import { Separator } from '@fluentui/react/lib/Separator';
-import { DetailsList, DetailsListLayoutMode, Selection, SelectionMode } from '@fluentui/react/lib/DetailsList';
+import { Spinner } from '@fluentui/react/lib/Spinner';
+import { Label } from '@fluentui/react/lib/Label';
+import { DetailsList, DetailsListLayoutMode, SelectionMode } from '@fluentui/react/lib/DetailsList';
 
 import Header from './Header'
 
@@ -27,6 +29,7 @@ export default function Home() {
 
     const [url, setUrl] = React.useState('https://aktau-airport.kz/ru/flights/');
     const [tables, setTables] = React.useState([]);
+    const [load, setLoad] = React.useState(false);
 
     const start = () => {
         window.location.href = '/api/logout';
@@ -34,6 +37,7 @@ export default function Home() {
 
     const get_table = (url) => {
         if (url) {
+            setLoad(true);
             fetch('/api/get_tables', {
                 method: 'post',
                 headers: {
@@ -83,7 +87,11 @@ export default function Home() {
                         });
 
                         setTables(Titems);
+                        setLoad(false);
                     }
+                })
+                .catch((err) => {
+                    setLoad(false);
                 })
         }
     }
@@ -122,6 +130,13 @@ export default function Home() {
                                     checked={false} />
                             </Stack>
                             <Stack tokens={{ childrenGap: 24 }} style={{marginTop: 24}}>
+                                {
+                                    load == true && (
+                                        <>
+                                            <Spinner label="Пару секунд..." />
+                                        </>
+                                    )
+                                }
                                 {
                                     tables.length > 0 && (
                                         <>

@@ -31,9 +31,9 @@ def create_app():
 
     app.add_url_rule(
         "/api/get_tables",
-        view_func=container.get_tables_api.as_view(),
+        view_func=login_required(container.get_tables_api.as_view()),
         methods=[
-            "GET",
+            "POST",
         ],
     )
 
@@ -61,6 +61,7 @@ def create_app():
     auth = auth_provider.auth_provider().loginManager
     auth.init_app(app)
 
+    app.config['JSON_AS_ASCII'] = False
     app.config["SECRET_KEY"] = "q1w2e3r4#"
     app.config.update(
         SESSION_COOKIE_SECURE=True,

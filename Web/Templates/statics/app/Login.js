@@ -65,6 +65,12 @@ export default function Login() {
             });
     }
 
+    const onKeyPress = (key) => {
+        if (key == 13) {
+            login();
+        }
+    }
+
     return (
         <React.Fragment>
             <div className="main" style={{ backgroundColor: '#faf9f8' }}>
@@ -87,6 +93,7 @@ export default function Login() {
                                         onChange={e => setPassword(e.target.value)}
                                         canRevealPassword
                                         errorMessage={error}
+                                        onKeyDown={e => onKeyPress(e.keyCode)}
                                         revealPasswordAriaLabel="Show password"
                                     />
                                     <Checkbox

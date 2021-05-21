@@ -14,7 +14,7 @@ const app = document.getElementById('root');
 
 ReactDOM.render(
     <BrowserRouter>
-      <ThemeProvider applyTo="body" theme={lightTheme}>
+      <ThemeProvider applyTo="body" theme={lightTheme} style={{ height: '100%'}}>
         <App />
       </ThemeProvider>
     </BrowserRouter>, app);

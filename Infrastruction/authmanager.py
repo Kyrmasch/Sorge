@@ -5,7 +5,7 @@ from Entity.user import UserEntity
 
 loginManager = LoginManager()
 users = []
-users.append(UserEntity(0, "admin", "Администратор", "adm"))
+users.append(UserEntity(0, "admin", "Администратор", "4899443"))
 
 
 class AuthProvider(object):
@@ -19,7 +19,6 @@ class AuthProvider(object):
         result = None
         for u in users:
             if int(id) == int(u.id):
-                print("auth")
                 result = u
         return result
 

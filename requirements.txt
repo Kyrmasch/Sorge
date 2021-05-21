@@ -8,3 +8,6 @@ python-socketio==4.6.0
 websocket
 flask-login
 pymongo
+html5lib
+BeautifulSoup4
+simplejson

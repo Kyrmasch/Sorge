@@ -1,13 +1,13 @@
-from Entity.user import UserEntity
 from flask import current_app
 from flask_login import LoginManager, login_user, logout_user
-from Entity.user import UserEntity
+from Entity.User import UserEntity
 from interface import implements
 from Infrastruction.Interfaces.IAuthManager import IAuthManager
 
 loginManager = LoginManager()
 users = []
 users.append(UserEntity(0, "admin", "Администратор", "4899443"))
+
 
 class AuthProvider(implements(IAuthManager)):
     def __init__(self, config):

@@ -1,7 +1,7 @@
 from interface import Interface
 
-class IDbContext(Interface):
 
+class IDbContext(Interface):
     def check(self):
         pass
 

@@ -1,7 +1,7 @@
 from interface import Interface
 
-class IAuthManager(Interface):
 
+class IAuthManager(Interface):
     def get_user(self, login, password):
         pass
 

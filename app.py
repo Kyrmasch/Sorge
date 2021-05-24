@@ -61,7 +61,7 @@ def create_app():
     auth = auth_provider.auth_provider().loginManager
     auth.init_app(app)
 
-    app.config['JSON_AS_ASCII'] = False
+    app.config["JSON_AS_ASCII"] = False
     app.config["SECRET_KEY"] = "q1w2e3r4#"
     app.config.update(
         SESSION_COOKIE_SECURE=True,

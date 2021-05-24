@@ -16,12 +16,12 @@ initializeIcons();
 
 const theme = createTheme({
     fonts: {
-      medium: {
-        fontFamily: 'Monaco, Menlo, Consolas',
-        fontSize: '25px',
-      },
+        medium: {
+            fontFamily: 'Monaco, Menlo, Consolas',
+            fontSize: '25px',
+        },
     },
-  });
+});
 
 export default function Home() {
     const culture = useParams().culture || 'ru';
@@ -108,66 +108,71 @@ export default function Home() {
         <React.Fragment>
             <Header />
             <div className="main" style={{ bottom: '0px', height: 'calc(100% - 54px)', backgroundColor: '#faf9f8', position: 'relative' }}>
-                <Stack tokens={{ childrenGap: 10 }}>
-                    <div style={{ padding: '0px 32px', height: '100%' }}>
-                        <header style={{ padding: '52px 0px', minHeight: 136, boxSizing: 'border-box' }} className="row">
-                            <h1 className="h1">Парсер</h1>
-                        </header>
-                    </div>
-                    <div className="row">
-                        <div style={{ maxWidth: 800, width: 660 }}>
-                            <Stack horizontal tokens={{ childrenGap: 10 }}>
-                                <SearchBox
-                                    placeholder="Поиск таблиц на сайте"
-                                    style={{ width: 500 }}
-                                    onChange={e => setUrl(e.target.value)}
-                                    value={url} />
-                                <PrimaryButton
-                                    disabled={false}
-                                    text="Найти"
-                                    onClick={e => get_table(url)}
-                                    allowDisabledFocus
-                                    checked={false} />
-                            </Stack>
-                            <Stack tokens={{ childrenGap: 24 }} style={{marginTop: 24}}>
-                                {
-                                    load == true && (
-                                        <>
-                                            <Spinner label="Пару секунд..." />
-                                        </>
-                                    )
-                                }
-                                {
-                                    tables.length > 0 && (
-                                        <>
-                                            {
-                                                tables.map((table, index) => {
-                                                    return (
-                                                        <div>
-                                                            <Separator theme={theme}>{`Таблица #${index}`}</Separator>
-                                                            <DetailsList
-                                                                items={table.rows}
-                                                                compact={true}
-                                                                columns={table.columns}
-                                                                selectionMode={SelectionMode.none}
-                                                                getKey={_getKey}
-                                                                setKey="none"
-                                                                layoutMode={DetailsListLayoutMode.justified}
-                                                                isHeaderVisible={true}
-                                                                onItemInvoked={_onItemInvoked}
-                                                            />
-                                                        </div>
-                                                    )
-                                                })
-                                            }
-                                        </>
-                                    )
-                                }
+                <div class="ms-Grid" dir="ltr">
+                    <div class="ms-Grid-row">
+                        <div class="ms-Grid-col ms-sm3 ms-md3 ms-lg3"></div>
+                        <div class="ms-Grid-col ms-sm6 ms-md6 ms-lg6">
+                            <Stack tokens={{ childrenGap: 10 }}>
+                                <div style={{ padding: '0px 32px', height: '100%' }}>
+                                    <header style={{ padding: '52px 0px', minHeight: 136, boxSizing: 'border-box' }} className="row">
+                                        <h1 className="h1">Парсер</h1>
+                                    </header>
+                                </div>
+                                <div style={{backgroundColor: '#fff', padding: '28px', boxSizing: 'border-box'}} className={tables.length > 0 ? 'ms-depth-4' : ''}>
+                                    <Stack horizontal tokens={{ childrenGap: 10 }} style={{justifyContent: 'center'}}>
+                                        <SearchBox
+                                            placeholder="Поиск таблиц на сайте"
+                                            styles={{ root: { width: 600} }}
+                                            onChange={e => setUrl(e.target.value)}
+                                            value={url} />
+                                        <PrimaryButton
+                                            disabled={false}
+                                            text="Найти"
+                                            onClick={e => get_table(url)}
+                                            allowDisabledFocus
+                                            checked={false} />
+                                    </Stack>
+                                    <Stack tokens={{ childrenGap: 24 }} style={{ marginTop: 24 }} horizontal={false}>
+                                        {
+                                            load == true && (
+                                                <>
+                                                    <Spinner label="Пару секунд..." />
+                                                </>
+                                            )
+                                        }
+                                        {
+                                            tables.length > 0 && (
+                                                <>
+                                                    {
+                                                        tables.map((table, index) => {
+                                                            return (
+                                                                <div>
+                                                                    <Separator theme={theme}>{`Таблица #${index}`}</Separator>
+                                                                    <DetailsList
+                                                                        items={table.rows}
+                                                                        compact={true}
+                                                                        columns={table.columns}
+                                                                        selectionMode={SelectionMode.none}
+                                                                        getKey={_getKey}
+                                                                        setKey="none"
+                                                                        layoutMode={DetailsListLayoutMode.justified}
+                                                                        isHeaderVisible={true}
+                                                                        onItemInvoked={_onItemInvoked}
+                                                                    />
+                                                                </div>
+                                                            )
+                                                        })
+                                                    }
+                                                </>
+                                            )
+                                        }
+                                    </Stack>
+                                </div>
                             </Stack>
                         </div>
+                        <div class="ms-Grid-col ms-sm3 ms-md3 ms-lg3"></div>
                     </div>
-                </Stack>
-
+                </div>
             </div>
         </React.Fragment>
     )

@@ -4,19 +4,12 @@ from flask import (
     request,
     redirect,
     url_for,
-    abort,
-    Response,
 )
-import simplejson
 from Infrastruction.Implementations.AuthManager import AuthProvider
 from Infrastruction.Exceptions.exception import (
     AuthCredentionsException,
     AuthUserNotFoundException,
 )
-from UseCases.Implementations.Parcer import ParcerProvider
-
-
-parcer = ParcerProvider({})
 
 auth = AuthProvider({})
 
@@ -47,15 +40,3 @@ def signin():
 def signout():
     auth.signout()
     return redirect(url_for("login"))
-
-
-def get_tables():
-    data = request.json
-    tables = []
-    if data["url"] is not None:
-        url = data["url"]
-        tables = parcer.get_data(url)
-
-    result = simplejson.dumps({"result": tables}, ignore_nan=True, encoding='utf-8')
-
-    return result

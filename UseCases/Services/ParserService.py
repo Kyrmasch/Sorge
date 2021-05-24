@@ -1,8 +1,8 @@
 import pandas as pd
 from interface import implements
-from UseCases.Interfaces.IParser import IParser
+from UseCases.Interfaces.IParserService import IParserService
 
-class ParcerProvider(implements(IParser)):
+class ParserService(implements(IParserService)):
     def __init__(self, config):
         pass
 

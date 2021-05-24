@@ -1,6 +1,6 @@
 from interface import Interface
 
-class IParser(Interface):
+class IParserService(Interface):
 
     def get_data(self, url):
         pass

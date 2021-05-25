@@ -3,9 +3,9 @@ from flask import (
     request,
 )
 import simplejson
-from UseCases.Services.ParserService import ParserService
+from UseCases.DepentencyInjection import ParserServiceProvider
 
-parcer = ParserService({})
+parcer = ParserServiceProvider().parser_provider()
 
 def get_tables():
     data = request.json

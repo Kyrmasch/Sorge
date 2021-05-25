@@ -5,7 +5,7 @@ from ApplicationService.Interfaces.ISocket import ISocket
 
 socketio = SocketIO(cors_allowed_origins="*", async_mode="threading")
 
-class SocketProvider(implements(ISocket)):
+class Socket(implements(ISocket)):
     def __init__(self, config):
         self.socketio = socketio
 

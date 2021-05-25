@@ -1,10 +1,10 @@
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from interface import implements
-from Infrastruction.Interfaces.IDbContext import IDbContext
+from Infrastructure.Interfaces.IDbContext import IDbContext
 
 
-class DbProvider(implements(IDbContext)):
+class DbContext(implements(IDbContext)):
     def __init__(self, config):
         self.client = MongoClient("mongodb://localhost:27017/")
 

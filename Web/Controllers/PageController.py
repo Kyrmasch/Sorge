@@ -1,8 +1,5 @@
 from os import abort
 from flask import request, render_template
-from Infrastruction.Implementations.DbContext import DbProvider
-
-db = DbProvider({})
 
 def index():
     return render_template("index.html")

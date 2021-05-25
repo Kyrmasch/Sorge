@@ -5,31 +5,19 @@ from flask import (
     redirect,
     url_for,
 )
-from Infrastruction.Implementations.AuthManager import AuthProvider
-from Infrastruction.Exceptions.exception import (
-    AuthCredentionsException,
-    AuthUserNotFoundException,
-)
-
-auth = AuthProvider({})
+from Infrastructure.DepentencyInjection import auth
 
 def signin():
     data = request.json
     isauth = False
 
     try:
-        if data["login"] is not None and data["password"] is not None:
-            remember = data["remember"] is None and False or data["remember"]
-            username = data["login"]
-            password = data["password"]
+        remember = data["remember"] is None and False or data["remember"]
+        username = data["login"]
+        password = data["password"]
 
-            user = auth.get_user(username, password)
-            if user is not None:
-                isauth = auth.signin(user, remember)
-            else:
-                raise AuthCredentionsException()
-        else:
-            raise AuthCredentionsException()
+        user = auth.get_user(username, password)
+        isauth = auth.signin(user, remember)
 
     except Exception as e:
         return str(e), 404

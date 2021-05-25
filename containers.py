@@ -5,20 +5,6 @@ from flask import Flask
 
 from Web.Controllers import PageController, ApiController, AuthController
 
-from ApplicationService.Implementation.Socket import SocketProvider
-from Infrastruction.Implementations.AuthManager import AuthProvider
-
-
-class SocketIOProvider(containers.DeclarativeContainer):
-    config = providers.Configuration()
-    socket_provider = providers.Singleton(SocketProvider, config)
-
-
-class AuthManagerProvider(containers.DeclarativeContainer):
-    config = providers.Configuration()
-    auth_provider = providers.Singleton(AuthProvider, config)
-
-
 class ApplicationContainer(containers.DeclarativeContainer):
 
     template_dir = os.path.abspath("Web/Templates/statics")

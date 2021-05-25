@@ -1,7 +1,8 @@
 from flask.json import jsonify
-from containers import ApplicationContainer, SocketIOProvider, AuthManagerProvider
+from containers import ApplicationContainer
+from ApplicationService.DepentencyInjection import socket
+from Infrastructure.DepentencyInjection import auth
 from flask_login import login_required
-
 
 def create_app():
 
@@ -53,13 +54,9 @@ def create_app():
         ],
     )
 
-    socket_provider = SocketIOProvider()
-    socket = socket_provider.socket_provider().socketio
-    socket.init_app(app)
-
-    auth_provider = AuthManagerProvider()
-    auth = auth_provider.auth_provider().loginManager
-    auth.init_app(app)
+    io = socket.socketio
+    io.init_app(app)
+    auth.loginManager.init_app(app)
 
     app.config["JSON_AS_ASCII"] = False
     app.config["SECRET_KEY"] = "q1w2e3r4#"
@@ -69,4 +66,4 @@ def create_app():
         SESSION_COOKIE_SAMESITE="Lax",
     )
 
-    return socket, app
+    return io, app

@@ -1,11 +1,12 @@
 from interface import Interface
-
+from Infrastructure.Dto.Auth.LoginDto import LoginDto
+from Infrastructure.Dto.Auth.SignInDto import SignInDto
 
 class IAuthManager(Interface):
-    def get_user(self, login, password):
+    def get_user(self, loginDto: LoginDto):
         pass
 
-    def signin(self, user, remember=None):
+    def signin(self, signinDto: SignInDto):
         pass
 
     def signout(self):

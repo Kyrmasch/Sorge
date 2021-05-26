@@ -6,8 +6,8 @@ from flask import (
     url_for,
 )
 from Infrastructure.DepentencyInjection import auth
-from Infrastructure.Dto.Auth.LoginDto import LoginDto 
-from Infrastructure.Dto.Auth.SignInDto import SignInDto
+from Infrastructure.Interfaces.Auth.Dto.LoginDto import LoginDto 
+from Infrastructure.Interfaces.Auth.Dto.SignInDto import SignInDto
 
 def signin():
     data = request.json
@@ -15,12 +15,11 @@ def signin():
 
     try:
         loginDto = LoginDto(data["login"], data["password"])
-        remember = data["remember"] is None and False or data["remember"]
 
-        user = auth.get_user(loginDto)
+        signInDto = auth.get_user(loginDto)
+        signInDto.remember = data["remember"] is None and False or data["remember"]
 
-        signinDto = SignInDto(user, remember)
-        isauth = auth.signin(signinDto)
+        isauth = auth.signin(signInDto)
 
     except Exception as e:
         return str(e), 404

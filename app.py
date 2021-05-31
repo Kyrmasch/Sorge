@@ -54,7 +54,7 @@ def create_app():
         ],
     )
 
-    io = socket.socketio
+    io = socket
     io.init_app(app)
     auth.loginManager.init_app(app)
 

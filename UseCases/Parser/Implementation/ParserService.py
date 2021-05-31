@@ -1,9 +1,9 @@
 from typing import List
 import pandas as pd
 from interface import implements
-from UseCases.Interfaces.IParserService import IParserService
-from UseCases.Dto.Parser.ParseDto import ParseDto
-from UseCases.Dto.Parser.ResultTablesDto import ResultTablesDto
+from UseCases.Parser.Interfaces.IParserService import IParserService
+from UseCases.Parser.Dto.ParseDto import ParseDto
+from UseCases.Parser.Dto.ResultTablesDto import ResultTablesDto
 
 class ParserService(implements(IParserService)):
     def __init__(self, config):

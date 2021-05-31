@@ -1,5 +1,5 @@
 from dependency_injector import providers, containers
-from UseCases.Services.ParserService import ParserService
+from UseCases.Parser.Implementation.ParserService import ParserService
 
 class ParserServiceProvider(containers.DeclarativeContainer):
     config = providers.Configuration()

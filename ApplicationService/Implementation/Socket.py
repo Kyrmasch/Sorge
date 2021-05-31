@@ -9,6 +9,8 @@ class Socket(implements(ISocket)):
     def __init__(self, config):
         self.socketio = socketio
 
-    @socketio.on("get")
+    @staticmethod
     def get(self, message):
         self.socketio.emit("get", {"result": []})
+
+socketio.on("get", Socket.get)

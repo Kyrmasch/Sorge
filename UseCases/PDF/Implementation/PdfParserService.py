@@ -7,6 +7,7 @@ import tabula
 import pandas as pd
 import string
 import numpy as np
+from Utils.DataFrame import NaN
 
 class PdfParserService(implements(IPdfParserService)):
     def __init__(self, config):
@@ -18,11 +19,7 @@ class PdfParserService(implements(IPdfParserService)):
             tables = tabula.read_pdf(data.url, pages='all', multiple_tables=True) #320-328
             list = []
             for t in tables:
-                
-                df = t.replace(r'\r+|\n+|\t+|\/+',' ', regex=True)
-                df = df.replace(r'\s+',' ', regex=True)
-                df = df.dropna(axis=1, how='all')
-                df = df.replace(np.nan, '-', regex=True)
+                df = NaN(t)
                 json = df.to_dict("records")
                 list.append(json)
             return ResultTablesDto(list)

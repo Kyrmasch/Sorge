@@ -17,7 +17,7 @@ def get_tables():
         if (file_extension == ".pdf"):
             resultTablesDto: ResultTablesDto = pdf.get_data(parseDto)
         if (file_extension in [".jpg", ".png", "jpeg"]):
-            resultTablesDto: ResultTablesDto = image.get_data(parseDto)
+            resultTablesDto: ResultTablesDto = image.get_data_cv(parseDto)
         else:
             resultTablesDto: ResultTablesDto = html.get_data(parseDto)
 

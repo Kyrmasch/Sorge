@@ -1,11 +1,11 @@
 from typing import List
 import pandas as pd
 from interface import implements
-from UseCases.Parser.Interfaces.IParserService import IParserService
+from UseCases.HTML.Interfaces.IHtmlParserService import IHtmlParserService
 from ApplicationService.Dtos.ParseDto import ParseDto
 from ApplicationService.Dtos.ResultTablesDto import ResultTablesDto
 
-class ParserService(implements(IParserService)):
+class HtmlParserService(implements(IHtmlParserService)):
     def __init__(self, config):
         pass
 

@@ -1,3 +1,8 @@
+# sudo apt-get install libleptonica-dev 
+# sudo apt-get install tesseract-ocr tesseract-ocr-dev
+# sudo apt-get install libtesseract-dev
+# sudo apt install tesseract-ocr
+
 dependency-injector
 flask
 pandas
@@ -14,3 +19,4 @@ simplejson
 python-interface
 tabula-py
 opencv-python
+table_ocr

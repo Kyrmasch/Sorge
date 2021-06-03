@@ -3,7 +3,7 @@ from flask import (
     request,
 )
 import simplejson
-from UseCases.DepentencyInjection import parser, pdf
+from UseCases.DepentencyInjection import html, pdf, image
 from ApplicationService.Dtos.ParseDto import ParseDto
 from ApplicationService.Dtos.ResultTablesDto import ResultTablesDto
 import os
@@ -16,8 +16,10 @@ def get_tables():
         filename, file_extension = os.path.splitext(data["url"])
         if (file_extension == ".pdf"):
             resultTablesDto: ResultTablesDto = pdf.get_data(parseDto)
+        if (file_extension in [".jpg", ".png", "jpeg"]):
+            resultTablesDto: ResultTablesDto = image.get_data(parseDto)
         else:
-            resultTablesDto: ResultTablesDto = parser.get_data(parseDto)
+            resultTablesDto: ResultTablesDto = html.get_data(parseDto)
 
     result = simplejson.dumps(
         {"result": resultTablesDto.tables}, ignore_nan=True, encoding="utf-8"

@@ -23,17 +23,22 @@ const theme = createTheme({
     },
 });
 
+//https://www.bagsurb.ru/about/journal/svezhiy-nomer/Krasulina.pdf
+//https://ecsocman.hse.ru/data/2010/05/26/1212617593/Doklad-Pages-001-392-posle-obreza-170x240mm.pdf
+
 export default function Home() {
     const culture = useParams().culture || 'ru';
     const history = useHistory();
 
-    const [url, setUrl] = React.useState('https://aktau-airport.kz/ru/flights/');
+    const [url, setUrl] = React.useState('https://ecsocman.hse.ru/data/2010/05/26/1212617593/Doklad-Pages-001-392-posle-obreza-170x240mm.pdf'); //https://aktau-airport.kz/ru/flights/
     const [tables, setTables] = React.useState([]);
     const [load, setLoad] = React.useState(false);
 
     const start = () => {
         window.location.href = '/api/logout';
     }
+
+    const getByKey = (arr,key) => (arr.find(x => Object.keys(x)[0] === key) || {})[key]
 
     const get_table = (url) => {
         if (url) {
@@ -52,45 +57,63 @@ export default function Home() {
 
                         let Titems = []
                         data.result.map(table => {
-                            let keys = Object.keys(table[0]);
+                            try {
+                                let keys = Object.keys(table[0]);
+                                keys = keys.map(k => {
+                                    return k.replace(/(\r\n|\n|\r)/gm, ' ').replace('/', ' ');
+                                })
 
-                            let columns = keys.map((k, index) => {
-                                return {
-                                    key: `column${index}`,
-                                    name: k,
-                                    fieldName: k,
-                                    minWidth: 100,
-                                    maxWidth: 200,
-                                    isRowHeader: true,
-                                    isResizable: true,
-                                    isSorted: index == 0,
-                                    isSortedDescending: false,
-                                    sortAscendingAriaLabel: 'Sorted A to Z',
-                                    sortDescendingAriaLabel: 'Sorted Z to A',
-                                    data: 'string',
-                                    isPadded: true,
-                                }
-                            });
+                                let columns = keys.map((k, index) => {
+                                    return {
+                                        key: `column${index}`,
+                                        name: k,
+                                        fieldName: k,
+                                        minWidth: 100,
+                                        maxWidth: 200,
+                                        isRowHeader: true,
+                                        isResizable: true,
+                                        isSorted: index == 0,
+                                        isSortedDescending: false,
+                                        sortAscendingAriaLabel: 'Sorted A to Z',
+                                        sortDescendingAriaLabel: 'Sorted Z to A',
+                                        data: 'string',
+                                        isPadded: true,
+                                    }
+                                });
+                                
+                                
+                                  let rows = table.map((row, index) => {
+                                    
+                                    let Nrow = {}
+                                    Nrow.key = index;
 
-                            let rows = table.map((row, index) => {
-                                row.key = index;
-                                if (!row[keys[0]]) {
-                                    row[keys[0]] = 'Неопределено'
-                                }
-                                return row
-                            });
+                                    row.key = function(n) {
+                                        return this[Object.keys(this)[n]];
+                                    }
 
-                            Titems.push({
-                                columns: columns,
-                                rows: rows
-                            });
+                                    for (let k = 0; k < keys.length; k++) {
+                                        let value = row.key(k)
+                                        Nrow[`${keys[k]}`] = value
+                                    }
+
+                                    return Nrow
+                                });
+
+                                Titems.push({
+                                    columns: columns,
+                                    rows: rows
+                                });
+                            }
+                            catch(e) {
+                                console.error(e)
+                            }
                         });
-
                         setTables(Titems);
                         setLoad(false);
                     }
                 })
                 .catch((err) => {
+                    setTables([]);
                     setLoad(false);
                 })
         }

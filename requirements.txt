@@ -20,3 +20,4 @@ python-interface
 tabula-py
 opencv-python
 table_ocr
+wikipedia

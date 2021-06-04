@@ -1,6 +1,6 @@
 from typing import List
 from interface import implements
-from UseCases.PDF.Interfaces.IPdfParserService import IPdfParserService
+from UseCases.pdf.Interfaces.IPdfParserService import IPdfParserService
 from ApplicationService.Dtos.ParseDto import ParseDto
 from ApplicationService.Dtos.ResultTablesDto import ResultTablesDto
 import tabula
@@ -14,14 +14,16 @@ class PdfParserService(implements(IPdfParserService)):
         pass
 
     def get_data(self, data: ParseDto) -> ResultTablesDto:
-        
         if data.url is not None:
-            tables = tabula.read_pdf(data.url, pages='all', multiple_tables=True) #320-328
-            list = []
-            for t in tables:
-                df = NaN(t)
-                json = df.to_dict("records")
-                list.append(json)
-            return ResultTablesDto(list)
+            try:
+                tables = tabula.read_pdf(data.url, pages='320-328', multiple_tables=True) #320-328
+                list = []
+                for t in tables:
+                    df = NaN(t)
+                    json = df.to_dict("records")
+                    list.append(json)
+                return ResultTablesDto(list)
+            except Exception as err:
+                print(str(err))
 
         return ResultTablesDto([])

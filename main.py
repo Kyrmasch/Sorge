@@ -1,6 +1,6 @@
 # pip install -r requirements.txt
 
-from UseCases.PDF.Implementation.PdfParserService import PdfParserService
+from UseCases.pdf.Implementation.PdfParserService import PdfParserService
 from ApplicationService.Dtos.ParseDto import ParseDto
 from werkzeug import debug
 from app import create_app

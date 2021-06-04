@@ -3,7 +3,7 @@ from flask import (
     request,
 )
 import simplejson
-from UseCases.DepentencyInjection import html, pdf, image
+from UseCases.DepentencyInjection import html, pdf, image, wiki
 from ApplicationService.Dtos.ParseDto import ParseDto
 from ApplicationService.Dtos.ResultTablesDto import ResultTablesDto
 import os
@@ -14,12 +14,16 @@ def get_tables():
     if data["url"] is not None:
         parseDto = ParseDto(data["url"])
         filename, file_extension = os.path.splitext(data["url"])
-        if (file_extension == ".pdf"):
+       
+        if (file_extension in [".pdf"]):
             resultTablesDto: ResultTablesDto = pdf.get_data(parseDto)
-        if (file_extension in [".jpg", ".png", "jpeg"]):
+        elif (file_extension in [".jpg", ".png", "jpeg"]):
             resultTablesDto: ResultTablesDto = image.get_data_cv(parseDto)
         else:
             resultTablesDto: ResultTablesDto = html.get_data(parseDto)
+
+        word = wiki.search("Isuzu Motors")
+        print(word, wiki.get_page(word[0]))
 
     result = simplejson.dumps(
         {"result": resultTablesDto.tables}, ignore_nan=True, encoding="utf-8"

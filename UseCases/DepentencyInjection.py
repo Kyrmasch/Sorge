@@ -1,7 +1,8 @@
 from dependency_injector import providers, containers
-from UseCases.HTML.Implementation.HtmlParserService import HtmlParserService
-from UseCases.PDF.Implementation.PdfParserService import PdfParserService
-from UseCases.IMAGE.Implementation.ImageParserService import ImageParserService
+from UseCases.html.Implementation.HtmlParserService import HtmlParserService
+from UseCases.pdf.Implementation.PdfParserService import PdfParserService
+from UseCases.image.Implementation.ImageParserService import ImageParserService
+from UseCases.wiki.Implementation.WikiService import WikiService
 
 class HtmlParserServiceProvider(containers.DeclarativeContainer):
     config = providers.Configuration()
@@ -15,6 +16,11 @@ class ImageParserServiceProvider(containers.DeclarativeContainer):
     config = providers.Configuration()
     image_parser_provider = providers.Singleton(ImageParserService, config)
 
-html = HtmlParserServiceProvider().html_parser_provider()
-pdf = PdfParserServiceProvider().pdf_parser_provider()
-image = ImageParserServiceProvider().image_parser_provider()
+class WikiServiceProvider(containers.DeclarativeContainer):
+    config = providers.Configuration()
+    wiki_provider = providers.Singleton(WikiService, config)
+
+html    = HtmlParserServiceProvider().html_parser_provider()
+pdf     = PdfParserServiceProvider().pdf_parser_provider()
+image   = ImageParserServiceProvider().image_parser_provider()
+wiki    = WikiServiceProvider().wiki_provider()

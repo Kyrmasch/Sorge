@@ -3,6 +3,12 @@
 # sudo apt-get install libtesseract-dev
 # sudo apt install tesseract-ocr
 
+# http://exploringafrica.matrix.msu.edu/wp-content/uploads/2015/06/Economic-data-table-pt.-1.png
+# http://exploringafrica.matrix.msu.edu/wp-content/uploads/2015/06/Economic-data-table-pt-2.png
+# http://exploringafrica.matrix.msu.edu/wp-content/uploads/2016/02/Table-7-pt.-3.png
+# https://illinoisepi.org/site/wp-content/uploads/economic-table.jpg
+# https://d3i71xaburhd42.cloudfront.net/feedf5b8040023d71b9f90cfddb8775fb16ff078/27-Table1-1.png
+
 dependency-injector
 flask
 pandas

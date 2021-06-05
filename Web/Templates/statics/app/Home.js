@@ -37,6 +37,7 @@ export default function Home() {
     const get_table = (url) => {
         if (url) {
             setLoad(true);
+            setTables([]);
             fetch('/api/get_tables', {
                 method: 'post',
                 headers: {
@@ -139,7 +140,7 @@ export default function Home() {
                                             onChange={e => setUrl(e.target.value)}
                                             value={url} />
                                         <PrimaryButton
-                                            disabled={false}
+                                            disabled={load == true}
                                             text="Найти"
                                             onClick={e => get_table(url)}
                                             allowDisabledFocus

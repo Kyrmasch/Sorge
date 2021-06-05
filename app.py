@@ -19,6 +19,10 @@ def create_app():
     )
 
     app.add_url_rule(
+        "/favicon.ico", view_func=container.favicon.as_view(), methods=["GET"]
+    )
+
+    app.add_url_rule(
         "/login", view_func=container.login_view.as_view(), methods=["GET"]
     )
 

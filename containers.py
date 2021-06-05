@@ -16,6 +16,7 @@ class ApplicationContainer(containers.DeclarativeContainer):
     index_view = flask.View(PageController.index)
     login_view = flask.View(PageController.login)
     settings_view = flask.View(PageController.settings)
+    favicon = flask.View(PageController.favicon)
 
     get_tables_api = flask.View(ApiController.get_tables)
 

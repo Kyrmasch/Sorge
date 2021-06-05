@@ -5,12 +5,11 @@ import { createTheme } from '@fluentui/react/lib/Styling';
 import { DefaultButton, PrimaryButton } from '@fluentui/react/lib/Button';
 import { Stack } from '@fluentui/react/lib/Stack';
 import { SearchBox } from '@fluentui/react/lib/SearchBox';
-import { Separator } from '@fluentui/react/lib/Separator';
 import { Spinner } from '@fluentui/react/lib/Spinner';
-import { Label } from '@fluentui/react/lib/Label';
-import { DetailsList, DetailsListLayoutMode, SelectionMode } from '@fluentui/react/lib/DetailsList';
+import { Label, Pivot, PivotItem } from '@fluentui/react';
 
 import Header from './Header'
+import DataFrame from './components/DataFrame'
 
 initializeIcons();
 
@@ -23,22 +22,17 @@ const theme = createTheme({
     },
 });
 
-//https://www.bagsurb.ru/about/journal/svezhiy-nomer/Krasulina.pdf
-//https://ecsocman.hse.ru/data/2010/05/26/1212617593/Doklad-Pages-001-392-posle-obreza-170x240mm.pdf
+const labelStyles = {
+    root: { marginTop: 10 },
+};
 
 export default function Home() {
     const culture = useParams().culture || 'ru';
     const history = useHistory();
 
-    const [url, setUrl] = React.useState('https://ecsocman.hse.ru/data/2010/05/26/1212617593/Doklad-Pages-001-392-posle-obreza-170x240mm.pdf'); //https://aktau-airport.kz/ru/flights/
+    const [url, setUrl] = React.useState('https://ecsocman.hse.ru/data/2010/05/26/1212617593/Doklad-Pages-001-392-posle-obreza-170x240mm.pdf');
     const [tables, setTables] = React.useState([]);
     const [load, setLoad] = React.useState(false);
-
-    const start = () => {
-        window.location.href = '/api/logout';
-    }
-
-    const getByKey = (arr,key) => (arr.find(x => Object.keys(x)[0] === key) || {})[key]
 
     const get_table = (url) => {
         if (url) {
@@ -77,17 +71,20 @@ export default function Home() {
                                         sortAscendingAriaLabel: 'Sorted A to Z',
                                         sortDescendingAriaLabel: 'Sorted Z to A',
                                         data: 'string',
+                                        onRender: (item) => {
+                                            return <span>{item[`${k}`]}</span>;
+                                        },
                                         isPadded: true,
                                     }
                                 });
-                                
-                                
-                                  let rows = table.map((row, index) => {
-                                    
+
+
+                                let rows = table.map((row, index) => {
+
                                     let Nrow = {}
                                     Nrow.key = index;
 
-                                    row.key = function(n) {
+                                    row.key = function (n) {
                                         return this[Object.keys(this)[n]];
                                     }
 
@@ -104,7 +101,7 @@ export default function Home() {
                                     rows: rows
                                 });
                             }
-                            catch(e) {
+                            catch (e) {
                                 console.error(e)
                             }
                         });
@@ -119,33 +116,26 @@ export default function Home() {
         }
     }
 
-    const _getKey = (item) => {
-        return item.key
-    }
-
-    const _onItemInvoked = (item) => {
-
-    }
 
     return (
         <React.Fragment>
             <Header />
             <div className="main" style={{ bottom: '0px', height: 'calc(100% - 54px)', backgroundColor: '#faf9f8', position: 'relative' }}>
-                <div class="ms-Grid" dir="ltr" style={{height: '100%'}}>
-                    <div class="ms-Grid-row" style={{height: '100%'}}>
+                <div class="ms-Grid" dir="ltr" style={{ height: '100%' }}>
+                    <div class="ms-Grid-row" style={{ height: '100%' }}>
                         <div class="ms-Grid-col ms-sm2 ms-md2ms-lg2"></div>
-                        <div class="ms-Grid-col ms-sm8 ms-md8 ms-lg8" style={{height: '100%', backgroundColor: '#fff', }}>
+                        <div class="ms-Grid-col ms-sm8 ms-md8 ms-lg8" style={{ height: '100%', backgroundColor: '#fff', }}>
                             <Stack tokens={{ childrenGap: 10 }}>
                                 <div style={{ padding: '0px 32px', height: '100%', marginTop: 12 }}>
                                     <header style={{ padding: '12px 0px', minHeight: 50, boxSizing: 'border-box' }} className="row">
                                         <h1 className="h1">Парсер</h1>
                                     </header>
                                 </div>
-                                <div style={{padding: '12px', boxSizing: 'border-box'}}>
-                                    <Stack horizontal tokens={{ childrenGap: 10 }} style={{justifyContent: 'center'}}>
+                                <div style={{ padding: '12px', boxSizing: 'border-box' }}>
+                                    <Stack horizontal tokens={{ childrenGap: 10 }} style={{ justifyContent: 'center' }}>
                                         <SearchBox
                                             placeholder="Поиск таблиц на сайте"
-                                            styles={{ root: { width: 600} }}
+                                            styles={{ root: { width: 600 } }}
                                             onChange={e => setUrl(e.target.value)}
                                             value={url} />
                                         <PrimaryButton
@@ -165,28 +155,22 @@ export default function Home() {
                                         }
                                         {
                                             tables.length > 0 && (
-                                                <>
+                                                <Pivot aria-label="Basic Pivot Example" styles={{root: {
+                                                    display: 'flex', justifyContent: 'center'
+                                                }}}>
                                                     {
                                                         tables.map((table, index) => {
                                                             return (
-                                                                <div>
-                                                                    <Separator theme={theme}>{`Таблица #${index}`}</Separator>
-                                                                    <DetailsList
-                                                                        items={table.rows}
-                                                                        compact={true}
-                                                                        columns={table.columns}
-                                                                        selectionMode={SelectionMode.none}
-                                                                        getKey={_getKey}
-                                                                        setKey="none"
-                                                                        layoutMode={DetailsListLayoutMode.justified}
-                                                                        isHeaderVisible={true}
-                                                                        onItemInvoked={_onItemInvoked}
-                                                                    />
-                                                                </div>
+                                                                <PivotItem headerText={`Таблица #${index + 1}`}>
+                                                                    <div>
+                                                                        <DataFrame table={table} index={index} />
+                                                                    </div>
+                                                                </PivotItem>
+
                                                             )
                                                         })
                                                     }
-                                                </>
+                                                </Pivot>
                                             )
                                         }
                                     </Stack>

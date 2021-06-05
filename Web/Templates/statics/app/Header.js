@@ -45,8 +45,8 @@ export default function Header() {
     }
 
     return (
-        <header style={{ width: '100%', height: '54px' }}>
-            <div className="header">
+        <header style={{ width: '100%', height: '54px', borderBottom: 'solid 1px #E6EDF3' }}>
+            <div className="header" style={{}}>
                 <div className="ms-Grid" dir="ltr">
                     <div class="ms-Grid-row">
                         <div class="ms-Grid-col ms-sm7 ms-md8 ms-lg9">

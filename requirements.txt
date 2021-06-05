@@ -21,3 +21,4 @@ tabula-py
 opencv-python
 table_ocr
 wikipedia
+camelot-py

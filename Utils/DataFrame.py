@@ -5,5 +5,6 @@ def NaN(dataframe):
     df = df.replace(r"\s+", " ", regex=True)
     df = df.dropna(axis=1, how="all")
     df = df.replace(np.nan, "-", regex=True)
+    df.dropna(axis=1, how='any', inplace=True)
 
     return df

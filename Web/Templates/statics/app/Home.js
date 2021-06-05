@@ -131,17 +131,17 @@ export default function Home() {
         <React.Fragment>
             <Header />
             <div className="main" style={{ bottom: '0px', height: 'calc(100% - 54px)', backgroundColor: '#faf9f8', position: 'relative' }}>
-                <div class="ms-Grid" dir="ltr">
-                    <div class="ms-Grid-row">
-                        <div class="ms-Grid-col ms-sm3 ms-md3 ms-lg3"></div>
-                        <div class="ms-Grid-col ms-sm6 ms-md6 ms-lg6">
+                <div class="ms-Grid" dir="ltr" style={{height: '100%'}}>
+                    <div class="ms-Grid-row" style={{height: '100%'}}>
+                        <div class="ms-Grid-col ms-sm2 ms-md2ms-lg2"></div>
+                        <div class="ms-Grid-col ms-sm8 ms-md8 ms-lg8" style={{height: '100%', backgroundColor: '#fff', }}>
                             <Stack tokens={{ childrenGap: 10 }}>
-                                <div style={{ padding: '0px 32px', height: '100%' }}>
-                                    <header style={{ padding: '52px 0px', minHeight: 136, boxSizing: 'border-box' }} className="row">
+                                <div style={{ padding: '0px 32px', height: '100%', marginTop: 12 }}>
+                                    <header style={{ padding: '12px 0px', minHeight: 50, boxSizing: 'border-box' }} className="row">
                                         <h1 className="h1">Парсер</h1>
                                     </header>
                                 </div>
-                                <div style={{backgroundColor: '#fff', padding: '28px', boxSizing: 'border-box'}} className={tables.length > 0 ? 'ms-depth-4' : ''}>
+                                <div style={{padding: '12px', boxSizing: 'border-box'}}>
                                     <Stack horizontal tokens={{ childrenGap: 10 }} style={{justifyContent: 'center'}}>
                                         <SearchBox
                                             placeholder="Поиск таблиц на сайте"
@@ -159,7 +159,7 @@ export default function Home() {
                                         {
                                             load == true && (
                                                 <>
-                                                    <Spinner label="Пару секунд..." />
+                                                    <Spinner label="Извелечение данных..." />
                                                 </>
                                             )
                                         }
@@ -193,7 +193,7 @@ export default function Home() {
                                 </div>
                             </Stack>
                         </div>
-                        <div class="ms-Grid-col ms-sm3 ms-md3 ms-lg3"></div>
+                        <div class="ms-Grid-col ms-sm2 ms-md2 ms-lg2"></div>
                     </div>
                 </div>
             </div>

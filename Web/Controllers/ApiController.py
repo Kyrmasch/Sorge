@@ -22,9 +22,6 @@ def get_tables():
         else:
             resultTablesDto: ResultTablesDto = html.get_data(parseDto)
 
-        word = wiki.search("Isuzu Motors")
-        print(word, wiki.get_page(word[0]))
-
     result = simplejson.dumps(
         {"result": resultTablesDto.tables}, ignore_nan=True, encoding="utf-8"
     )

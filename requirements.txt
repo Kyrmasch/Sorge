@@ -8,6 +8,7 @@
 # http://exploringafrica.matrix.msu.edu/wp-content/uploads/2016/02/Table-7-pt.-3.png
 # https://illinoisepi.org/site/wp-content/uploads/economic-table.jpg
 # https://d3i71xaburhd42.cloudfront.net/feedf5b8040023d71b9f90cfddb8775fb16ff078/27-Table1-1.png
+# https://rus.azattyq-ruhy.kz/userfiles/%D1%8D%D0%BA%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F/c0bb2f80-f8ad-46d8-bdbd-08f8ef672f7e.jpg
 
 dependency-injector
 flask

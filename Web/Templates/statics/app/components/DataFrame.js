@@ -25,6 +25,7 @@ const theme = createTheme({
 export default function DataFrame(props) {
     const [table, setTable] = React.useState(props.table);
     const [index, setIndex] = React.useState(props.index);
+    const [core, setCore] = React.useState(props.core);
     const [selection, setSelection] = React.useState(new Selection(
         {
             onSelectionChanged: () => {
@@ -34,6 +35,23 @@ export default function DataFrame(props) {
             },
         })
     );
+
+    const wiki = (value) => {
+        if (value) {
+            fetch('/api/wiki_pages', {
+                method: 'post',
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ word: value })
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log(data.pages)
+            })
+        }
+    }
 
     const _getKey = (item) => {
         return item.key
@@ -45,16 +63,20 @@ export default function DataFrame(props) {
 
     const _getSelectionDetails = () => {
         const selectionCount = selection.getSelectedCount();
-
-        switch (selectionCount) {
-            case 0:
-                return 'No items selected';
-            case 1:
-                return '1 item selected: ' + (selection.getSelection()[0]).name;
-            default:
-                return `${selectionCount} items selected`;
-        }
     }
+
+    const _renderItemColumn = (item, index, column) =>  {
+        const fieldContent = item[column.fieldName];
+        let isCore = false;
+        if (core != undefined) {
+            if (`${column.fieldName}` == `${core}`) {
+                isCore = true
+            }
+        }
+
+        return isCore == false ? <span>{fieldContent}</span> : <b className="core_column" onClick={() => wiki(fieldContent)}>{fieldContent}</b>;
+    }
+
     return (
         <MarqueeSelection selection={selection}>
             <DetailsList
@@ -66,6 +88,7 @@ export default function DataFrame(props) {
                 setKey="multiple"
                 selection={selection}
                 selectionPreservedOnEmptyClick={true}
+                onRenderItemColumn={_renderItemColumn}
                 layoutMode={DetailsListLayoutMode.justified}
                 isHeaderVisible={true}
                 enterModalSelectionOnTouch={true}

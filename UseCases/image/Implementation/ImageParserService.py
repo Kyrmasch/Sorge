@@ -16,7 +16,7 @@ import cv2
 import urllib
 import shutil
 from io import StringIO
-from Utils.DataFrame import NaN
+from Utils.DataFrame import NaN, GetCoreColumn
 import pytesseract
 import os.path
 
@@ -55,6 +55,8 @@ class ImageParserService(implements(IImageParserService)):
         if data.url is not None:
             website_is_up = False
             Rlist = []
+            cores = []
+
             try:
                 status_code = urllib.request.urlopen(data.url).getcode()
                 website_is_up = status_code == 200
@@ -174,10 +176,16 @@ class ImageParserService(implements(IImageParserService)):
                 arr = np.array(outer)
                 dataframe = pd.DataFrame(arr.reshape(len(row), countcol))
                 dataframe = NaN(dataframe)
+                core = GetCoreColumn(dataframe)
+                if (core is not None):
+                    cores.append(core)
                 json = dataframe.to_dict("records")
                 Rlist.append(json)
 
-                return ResultTablesDto(Rlist)
+                result = ResultTablesDto(Rlist)
+                result.core_columns = cores
+
+                return result
 
 
         return ResultTablesDto([])
@@ -200,6 +208,7 @@ class ImageParserService(implements(IImageParserService)):
             image_tables = table_ocr.extract_tables.main([image_filepath])
             for image, tables in image_tables:
                 list = []
+                cores = []
                 for table in tables:
                     cells = table_ocr.extract_cells.main(table)
                     ocr = [table_ocr.ocr_image.main(cell, None) for cell in cells]
@@ -207,10 +216,16 @@ class ImageParserService(implements(IImageParserService)):
                     csv = table_ocr.ocr_to_csv.text_files_to_csv(ocr)
                     df = pd.read_csv(StringIO(csv), sep=",")
                     df = NaN(df)
+                    core = GetCoreColumn(df)
+                    if (core is not None):
+                        cores.append(core)
                     json = df.to_dict("records")
                     list.append(json)
 
-                return ResultTablesDto(list)
+                result = ResultTablesDto(list)
+                result.core_columns = cores
+
+                return result
 
             try:
                 shutil.rmtree("/home/user/Sorge/Sorge/ApplicationService/Files/test")

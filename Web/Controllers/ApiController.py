@@ -1,3 +1,4 @@
+from Web.Dtos.GetTablesDto import GetTablesDto
 from flask import (
     request,
     request,
@@ -23,7 +24,18 @@ def get_tables():
             resultTablesDto: ResultTablesDto = html.get_data(parseDto)
 
     result = simplejson.dumps(
-        {"result": resultTablesDto.tables}, ignore_nan=True, encoding="utf-8"
+        GetTablesDto(resultTablesDto.tables, resultTablesDto.core_columns).__dict__, 
+        ignore_nan=True, 
+        encoding="utf-8"
     )
 
     return result
+
+def get_wiki():
+    data = request.json
+    pages = []
+    if data["word"] is not None:
+        pages = wiki.search(data["word"])
+    return simplejson.dumps({ 'pages': pages }, 
+        ignore_nan=True, 
+        encoding="utf-8")

@@ -22,3 +22,5 @@ class ApplicationContainer(containers.DeclarativeContainer):
 
     login_api = flask.View(AuthController.signin)
     logout_api = flask.View(AuthController.signout)
+
+    wiki_pages = flask.View(ApiController.get_wiki)

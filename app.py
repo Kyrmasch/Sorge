@@ -43,6 +43,14 @@ def create_app():
     )
 
     app.add_url_rule(
+        "/api/wiki_pages",
+        view_func=login_required(container.wiki_pages.as_view()),
+        methods=[
+            "POST",
+        ],
+    )
+
+    app.add_url_rule(
         "/api/login",
         view_func=container.login_api.as_view(),
         methods=[

@@ -6,7 +6,7 @@ import { DefaultButton, PrimaryButton } from '@fluentui/react/lib/Button';
 import { Stack } from '@fluentui/react/lib/Stack';
 import { SearchBox } from '@fluentui/react/lib/SearchBox';
 import { Spinner } from '@fluentui/react/lib/Spinner';
-import { Label, Pivot, PivotItem } from '@fluentui/react';
+import { correctHSV, Label, Pivot, PivotItem } from '@fluentui/react';
 
 import Header from './Header'
 import DataFrame from './components/DataFrame'
@@ -31,13 +31,20 @@ export default function Home() {
     const history = useHistory();
 
     const [url, setUrl] = React.useState('https://ecsocman.hse.ru/data/2010/05/26/1212617593/Doklad-Pages-001-392-posle-obreza-170x240mm.pdf');
-    const [tables, setTables] = React.useState([]);
+    const [tables, setTables] = React.useState({
+        data: [],
+        cores: []
+    });
     const [load, setLoad] = React.useState(false);
 
     const get_table = (url) => {
         if (url) {
             setLoad(true);
-            setTables([]);
+            setTables({
+                data: [],
+                cores: []
+            });
+            
             fetch('/api/get_tables', {
                 method: 'post',
                 headers: {
@@ -72,9 +79,6 @@ export default function Home() {
                                         sortAscendingAriaLabel: 'Sorted A to Z',
                                         sortDescendingAriaLabel: 'Sorted Z to A',
                                         data: 'string',
-                                        onRender: (item) => {
-                                            return <span>{item[`${k}`]}</span>;
-                                        },
                                         isPadded: true,
                                     }
                                 });
@@ -106,12 +110,19 @@ export default function Home() {
                                 console.error(e)
                             }
                         });
-                        setTables(Titems);
+
+                        setTables({
+                            data: Titems,
+                            cores: data.cores
+                        });
                         setLoad(false);
                     }
                 })
                 .catch((err) => {
-                    setTables([]);
+                    setTables({
+                        data: [],
+                        cores: []
+                    });
                     setLoad(false);
                 })
         }
@@ -155,16 +166,16 @@ export default function Home() {
                                             )
                                         }
                                         {
-                                            tables.length > 0 && (
+                                            tables.data.length > 0 && (
                                                 <Pivot aria-label="Basic Pivot Example" styles={{root: {
                                                     display: 'flex', justifyContent: 'center'
                                                 }}}>
                                                     {
-                                                        tables.map((table, index) => {
+                                                        tables.data.map((table, index) => {
                                                             return (
                                                                 <PivotItem headerText={`Таблица #${index + 1}`}>
                                                                     <div>
-                                                                        <DataFrame table={table} index={index} />
+                                                                        <DataFrame table={table} index={index} core={tables.cores[index]} />
                                                                     </div>
                                                                 </PivotItem>
 

@@ -17,9 +17,13 @@ class PdfParserService(implements(IPdfParserService)):
     def get_data(self, data: ParseDto) -> ResultTablesDto:
         if data.url is not None:
             try:
+                pages = "all"
+                if data.settings._from > 0 or data.settings._to > 0:
+                    pages = "%s-%s" % (data.settings._from, data.settings._to)
+                
                 tables = tabula.read_pdf(
                     data.url,
-                    pages="327",
+                    pages=pages,
                     lattice=False,
                     java_options=[
                         "-Dorg.slf4j.simpleLogger.defaultLogLevel=off",
@@ -36,7 +40,7 @@ class PdfParserService(implements(IPdfParserService)):
                     df = NaN(t)
 
                     core = GetCoreColumn(df)
-                    if (core is not None):
+                    if core is not None:
                         cores.append(core)
 
                     json = df.to_dict("records")

@@ -1,15 +1,13 @@
 import React from 'react';
-import { useParams, useHistory } from 'react-router-dom';
 import { initializeIcons } from '@fluentui/font-icons-mdl2';
 import { createTheme } from '@fluentui/react/lib/Styling';
-import { DefaultButton, PrimaryButton } from '@fluentui/react/lib/Button';
+import { PrimaryButton } from '@fluentui/react/lib/Button';
 import { MarqueeSelection } from '@fluentui/react/lib/MarqueeSelection';
 import { Dialog, DialogType, DialogFooter } from '@fluentui/react/lib/Dialog';
 import { ContextualMenu } from '@fluentui/react/lib/ContextualMenu';
 import { DetailsList, DetailsListLayoutMode, Selection, SelectionMode } from '@fluentui/react/lib/DetailsList';
-import { ActivityItem, mergeStyleSets, Icon } from '@fluentui/react';
+import { ActivityItem, Icon } from '@fluentui/react';
 import { Spinner } from '@fluentui/react/lib/Spinner';
-import { correctHSV, Label, Pivot, PivotItem } from '@fluentui/react';
 
 
 initializeIcons();

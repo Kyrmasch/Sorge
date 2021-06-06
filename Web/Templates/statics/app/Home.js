@@ -2,14 +2,15 @@ import React from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { initializeIcons } from '@fluentui/font-icons-mdl2';
 import { createTheme } from '@fluentui/react/lib/Styling';
-import { DefaultButton, PrimaryButton } from '@fluentui/react/lib/Button';
+import { PrimaryButton } from '@fluentui/react/lib/Button';
 import { Stack } from '@fluentui/react/lib/Stack';
 import { SearchBox } from '@fluentui/react/lib/SearchBox';
 import { Spinner } from '@fluentui/react/lib/Spinner';
-import { correctHSV, Label, Pivot, PivotItem } from '@fluentui/react';
+import { Pivot, PivotItem } from '@fluentui/react';
 
-import Header from './Header'
-import DataFrame from './components/DataFrame'
+import Header from './Header';
+import DataFrame from './components/DataFrame';
+import SettingsUrl from './components/SettingsUrl';
 
 initializeIcons();
 
@@ -31,11 +32,37 @@ export default function Home() {
     const history = useHistory();
 
     const [url, setUrl] = React.useState('https://ecsocman.hse.ru/data/2010/05/26/1212617593/Doklad-Pages-001-392-posle-obreza-170x240mm.pdf');
+    const [openSettingsUrl, setOpenSettingsUrl] = React.useState(false);
+    const [settingUrl, setSettingsUrl] = React.useState({
+        from: 327,
+        to: 328
+    });
+
     const [tables, setTables] = React.useState({
         data: [],
         cores: []
     });
+
     const [load, setLoad] = React.useState(false);
+
+    const isFile = (link) => {
+        let segment = link.substring(link.lastIndexOf('/') + 1).split('.');
+        let extention = segment[segment.length - 1].toLowerCase();
+        if (['pdf'].includes(extention)) {
+            return true;
+        }
+        return false;
+    }
+
+    const changeUrl = (e, value) => {
+        if (e) {
+            setUrl(value);
+        }
+    }
+
+    const openSettings = () => {
+        setOpenSettingsUrl(true);
+    }
 
     const get_table = (url) => {
         if (url) {
@@ -51,7 +78,7 @@ export default function Home() {
                     'Accept': 'application/json, text/plain, */*',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ url: url })
+                body: JSON.stringify({ url: url, settings: settingUrl })
             })
                 .then(res => res.json())
                 .then(data => {
@@ -148,7 +175,17 @@ export default function Home() {
                                         <SearchBox
                                             placeholder="Поиск таблиц на сайте"
                                             styles={{ root: { width: 600 } }}
-                                            onChange={e => setUrl(e.target.value)}
+                                            iconProps={{
+                                                iconName: 'Link'
+                                            }}
+                                            onChange={changeUrl}
+                                            clearButtonProps={{
+                                                iconProps: {
+                                                    iconName: "Settings"
+                                                },
+                                                disabled: !isFile(url)
+                                            }}
+                                            onClear={openSettings}
                                             value={url} />
                                         <PrimaryButton
                                             disabled={load == true}
@@ -193,6 +230,11 @@ export default function Home() {
                     </div>
                 </div>
             </div>
+            {
+                openSettingsUrl == true && (
+                    <SettingsUrl settings={settingUrl} toggle={setOpenSettingsUrl} change={setSettingsUrl} hidden={!openSettingsUrl} />
+                )
+            }
         </React.Fragment>
     )
 }

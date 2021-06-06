@@ -34,8 +34,21 @@ def get_tables():
 def get_wiki():
     data = request.json
     pages = []
+    info = None
     if data["word"] is not None:
         pages = wiki.search(data["word"])
-    return simplejson.dumps({ 'pages': pages }, 
+        wds = wiki.get_wd(data["word"])       
+        if wds.shape[1] > 0:
+            wds = wds[wds['type.value']=="http://www.wikidata.org/entity/Q4830453"]
+            try:
+                wd = wds["item.value"].iloc[0]
+                wd = "wd:%s" % (wd.rsplit('/', 1)[-1])
+                props = wiki.get_props(wd)
+                ls = props["objectLabel.value"].tolist()
+                info = ', '.join(ls)
+            except:
+                pass
+    return simplejson.dumps({ 'pages': pages, 'info': info }, 
         ignore_nan=True, 
         encoding="utf-8")
+

@@ -8,6 +8,8 @@ import { Dialog, DialogType, DialogFooter } from '@fluentui/react/lib/Dialog';
 import { ContextualMenu } from '@fluentui/react/lib/ContextualMenu';
 import { DetailsList, DetailsListLayoutMode, Selection, SelectionMode } from '@fluentui/react/lib/DetailsList';
 import { ActivityItem, mergeStyleSets, Icon } from '@fluentui/react';
+import { Spinner } from '@fluentui/react/lib/Spinner';
+import { correctHSV, Label, Pivot, PivotItem } from '@fluentui/react';
 
 
 initializeIcons();
@@ -51,6 +53,7 @@ export default function DataFrame(props) {
     const [wikiDialog, setWikiDialog] = React.useState(true);
     const [wikiContent, setWikiContent] = React.useState(dialogContentProps);
     const [wikiData, setWikiData] = React.useState([]);
+    const [wikiLoad, setWikiLoad] = React.useState(false);
     const modalProps = React.useMemo(
         () => ({
             isBlocking: true,
@@ -66,6 +69,14 @@ export default function DataFrame(props) {
 
     const wiki = (value) => {
         if (value) {
+            setWikiLoad(true);
+            setWikiDialog(false);
+            setWikiData([]);
+            let content = dialogContentProps;
+            content.title = value
+            content.subText = ''
+            setWikiContent(content);  
+
             fetch('/api/wiki_pages', {
                 method: 'post',
                 headers: {
@@ -78,9 +89,8 @@ export default function DataFrame(props) {
                 .then(data => {
                     let content = dialogContentProps;
                     content.title = value
-                    content.subText = 'Информация из Wikipedia'
-                    setWikiContent(content);
-                    setWikiDialog(false);
+                    content.subText = data.info
+                    setWikiContent(content);                   
 
                     let list = data.pages.map((p, index) => {
                         return {
@@ -95,7 +105,8 @@ export default function DataFrame(props) {
                             isCompact: true,
                           }
                     })
-                    setWikiData(list)
+                    setWikiData(list || [])
+                    setWikiLoad(false);
                 })
         }
     }
@@ -157,6 +168,13 @@ export default function DataFrame(props) {
                 dialogContentProps={wikiContent}
                 modalProps={modalProps}
                 >
+                {
+                    wikiLoad == true && (
+                        <>
+                            <Spinner label="Wiki поиск ..." />
+                        </>
+                    )
+                }
                 {
                     wikiData.map(w => {
                         return(

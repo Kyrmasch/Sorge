@@ -159,7 +159,7 @@ export default function Home() {
     return (
         <React.Fragment>
             <Header />
-            <div className="main" style={{ bottom: '0px', height: 'calc(100% - 54px)', backgroundColor: '#faf9f8', position: 'relative' }}>
+            <div className="main" style={{ bottom: '0px', height: 'calc(100% - 56px)', backgroundColor: '#faf9f8', position: 'relative' }}>
                 <div class="ms-Grid" dir="ltr" style={{ height: '100%' }}>
                     <div class="ms-Grid-row" style={{ height: '100%' }}>
                         <div class="ms-Grid-col ms-sm2 ms-md2ms-lg2"></div>

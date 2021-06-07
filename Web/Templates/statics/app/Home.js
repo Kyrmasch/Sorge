@@ -7,6 +7,8 @@ import { Stack } from '@fluentui/react/lib/Stack';
 import { SearchBox } from '@fluentui/react/lib/SearchBox';
 import { Spinner } from '@fluentui/react/lib/Spinner';
 import { Pivot, PivotItem } from '@fluentui/react';
+import { FontIcon } from '@fluentui/react/lib/Icon';
+import { Text } from '@fluentui/react/lib/Text';
 
 import Header from './Header';
 import DataFrame from './components/DataFrame';
@@ -22,6 +24,13 @@ const theme = createTheme({
             fontSize: '25px',
         },
     },
+    empty: {
+        fontSize: 50,
+        height: 50,
+        width: 50,
+        margin: '0 25px',
+        color: 'lightgray'
+    }
 });
 
 const labelStyles = {
@@ -200,6 +209,20 @@ export default function Home() {
                                             checked={false} />
                                     </Stack>
                                     <Stack tokens={{ childrenGap: 24 }} style={{ marginTop: 24 }} horizontal={false}>
+                                        {
+                                            tables.data.length == 0 && load == false && (
+                                                <>
+                                                    <div style={{display: 'flex', justifyContent: 'center', marginTop: '150px'}}>
+                                                        <Stack tokens={{ childrenGap: 24 }} style={{ marginTop: 24 }} horizontal={false}>
+                                                            <FontIcon aria-label="Compass" iconName="ProductRelease" style={theme.empty} />
+                                                            <Text variant={'medium'} nowrap block style={{textAlign: 'center', color: 'lightgray'}}>
+                                                                Нет данных
+                                                            </Text>
+                                                        </Stack>
+                                                    </div>
+                                                </>
+                                            )
+                                        }
                                         {
                                             load == true && (
                                                 <>

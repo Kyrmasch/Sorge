@@ -25,7 +25,7 @@ class WikiService(implements(IWikiService)):
         self.sparql.setQuery(query)
         self.sparql.setReturnFormat(JSON)
         results = self.sparql.query().convert()
-        return pd.io.json.json_normalize(results["results"]["bindings"])
+        return pd.json_normalize(results["results"]["bindings"])
 
     def get_wd(self, word: str):
         query = (

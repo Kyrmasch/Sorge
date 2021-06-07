@@ -31,8 +31,6 @@ class PdfParserService(implements(IPdfParserService)):
                     ],
                 )
 
-                # 320-328
-
                 list = []
                 cores = []
 

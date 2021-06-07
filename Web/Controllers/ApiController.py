@@ -18,7 +18,7 @@ def get_tables():
         parseDto = ParseDto(data["url"])
         parseDto.settings = (
             data["settings"] is not None
-            and SettingsUrlDto(data["settings"]["from"], data["settings"]["from"])
+            and SettingsUrlDto(data["settings"]["from"], data["settings"]["to"])
             or SettingsUrlDto(0, 0)
         )
 

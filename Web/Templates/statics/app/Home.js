@@ -11,6 +11,7 @@ import { Pivot, PivotItem } from '@fluentui/react';
 import Header from './Header';
 import DataFrame from './components/DataFrame';
 import SettingsUrl from './components/SettingsUrl';
+import YesNoDialog from './components/YesNoDialog';
 
 initializeIcons();
 
@@ -31,6 +32,7 @@ export default function Home() {
     const culture = useParams().culture || 'ru';
     const history = useHistory();
 
+    const [openYnDialog, setYnDialogState] = React.useState(false)
     const [url, setUrl] = React.useState('https://ecsocman.hse.ru/data/2010/05/26/1212617593/Doklad-Pages-001-392-posle-obreza-170x240mm.pdf');
     const [openSettingsUrl, setOpenSettingsUrl] = React.useState(false);
     const [settingUrl, setSettingsUrl] = React.useState({
@@ -64,14 +66,17 @@ export default function Home() {
         setOpenSettingsUrl(true);
     }
 
-    const get_table = (url) => {
+    const get_table = () => {
+
+        setYnDialogState(false);
+
         if (url) {
             setLoad(true);
             setTables({
                 data: [],
                 cores: []
             });
-            
+
             fetch('/api/get_tables', {
                 method: 'post',
                 headers: {
@@ -160,7 +165,7 @@ export default function Home() {
         <React.Fragment>
             <Header />
             <div className="main" style={{ bottom: '0px', height: 'calc(100% - 56px)', backgroundColor: '#faf9f8', position: 'relative' }}>
-                <div class="ms-Grid" dir="ltr" style={{ height: '100%' }}>
+                <div class="ms-Grid" dir="ltr" style={{ height: '100%', overflowY: 'scroll', overflowX: 'auto' }}>
                     <div class="ms-Grid-row" style={{ height: '100%' }}>
                         <div class="ms-Grid-col ms-sm2 ms-md2ms-lg2"></div>
                         <div class="ms-Grid-col ms-sm8 ms-md8 ms-lg8" style={{ height: '100%', backgroundColor: '#fff', }}>
@@ -190,7 +195,7 @@ export default function Home() {
                                         <PrimaryButton
                                             disabled={load == true}
                                             text="Найти"
-                                            onClick={e => get_table(url)}
+                                            onClick={e => setYnDialogState(true)}
                                             allowDisabledFocus
                                             checked={false} />
                                     </Stack>
@@ -198,15 +203,22 @@ export default function Home() {
                                         {
                                             load == true && (
                                                 <>
-                                                    <Spinner label="Извелечение данных..." />
+                                                    <Spinner
+                                                        label="Извелечение данных..."
+                                                        styles={{ root: { paddingTop: '25px' } }} />
                                                 </>
                                             )
                                         }
                                         {
                                             tables.data.length > 0 && (
-                                                <Pivot aria-label="Basic Pivot Example" styles={{root: {
-                                                    display: 'flex', justifyContent: 'center'
-                                                }}}>
+                                                <Pivot
+                                                    aria-label="Basic Pivot Example"
+                                                    overflowBehavior={'menu'}
+                                                    styles={{
+                                                        root: {
+                                                            display: 'flex', justifyContent: 'center', padding: '0 200px'
+                                                        }
+                                                    }}>
                                                     {
                                                         tables.data.map((table, index) => {
                                                             return (
@@ -232,7 +244,21 @@ export default function Home() {
             </div>
             {
                 openSettingsUrl == true && (
-                    <SettingsUrl settings={settingUrl} toggle={setOpenSettingsUrl} change={setSettingsUrl} hidden={!openSettingsUrl} />
+                    <SettingsUrl
+                        settings={settingUrl}
+                        toggle={setOpenSettingsUrl}
+                        change={setSettingsUrl}
+                        hidden={!openSettingsUrl} />
+                )
+            }
+            {
+                openYnDialog == true && (
+                    <YesNoDialog
+                        title={`Sorge`}
+                        subtext={`Выполнить поиск таблиц?`}
+                        toggle={setYnDialogState}
+                        yes={get_table}
+                        hidden={!openYnDialog} />
                 )
             }
         </React.Fragment>

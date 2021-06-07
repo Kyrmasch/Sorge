@@ -1,7 +1,7 @@
 import React from 'react';
 import { initializeIcons } from '@fluentui/font-icons-mdl2';
 import { createTheme } from '@fluentui/react/lib/Styling';
-import { PrimaryButton } from '@fluentui/react/lib/Button';
+import { DefaultButton, PrimaryButton } from '@fluentui/react/lib/Button';
 import { MarqueeSelection } from '@fluentui/react/lib/MarqueeSelection';
 import { Dialog, DialogType, DialogFooter } from '@fluentui/react/lib/Dialog';
 import { ContextualMenu } from '@fluentui/react/lib/ContextualMenu';
@@ -28,7 +28,7 @@ const theme = createTheme({
 });
 
 const dialogContentProps = {
-    type: DialogType.normal,
+    type: DialogType.largeHeader,
     title: '',
     subText: '',
 };
@@ -83,29 +83,32 @@ export default function DataFrame(props) {
                 },
                 body: JSON.stringify({ word: value })
             })
-                .then(res => res.json())
-                .then(data => {
-                    let content = dialogContentProps;
-                    content.title = value
-                    content.subText = data.info
-                    setWikiContent(content);                   
+            .then(res => res.json())
+            .then(data => {
+                let content = dialogContentProps;
+                content.title = value
+                content.subText = data.info
+                setWikiContent(content);                   
 
-                    let list = data.pages.map((p, index) => {
-                        return {
-                            key: index,
-                            activityDescription: [
-                              <span key={1} style={{ fontWeight: 'bold'}}>
-                                {p}
-                              </span>,
-                              <span key={2}>{}</span>,
-                            ],
-                            activityIcon: <Icon iconName={'PageLink'} />,
-                            isCompact: true,
-                          }
-                    })
-                    setWikiData(list || [])
-                    setWikiLoad(false);
+                let list = data.pages.map((p, index) => {
+                    return {
+                        key: index,
+                        activityDescription: [
+                            <span key={1} style={{ fontWeight: 'bold'}}>
+                            {p}
+                            </span>,
+                            <span key={2}>{}</span>,
+                        ],
+                        activityIcon: <Icon iconName={'PageLink'} />,
+                        isCompact: true,
+                        }
                 })
+                setWikiData(list || [])
+                setWikiLoad(false);
+            })
+            .catch(err => {
+                setWikiLoad(false);
+            });
         }
     }
 
@@ -165,11 +168,16 @@ export default function DataFrame(props) {
                 onDismiss={toggleHideDialog}
                 dialogContentProps={wikiContent}
                 modalProps={modalProps}
+                styles={{
+                    root: {
+                        minHeight: 50
+                    }
+                }}
                 >
                 {
                     wikiLoad == true && (
                         <>
-                            <Spinner label="Wiki поиск ..." />
+                            <Spinner label="Поиск ..." styles={{ root: { paddingTop: '25px' }}} />
                         </>
                     )
                 }
@@ -181,7 +189,7 @@ export default function DataFrame(props) {
                     })
                 }
                 <DialogFooter>
-                    <PrimaryButton onClick={toggleHideDialog} text="Закрыть" />
+                    <DefaultButton onClick={toggleHideDialog} text="Закрыть" />
                 </DialogFooter>
             </Dialog>
         </>

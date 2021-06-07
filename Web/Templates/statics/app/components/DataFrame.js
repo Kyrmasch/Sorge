@@ -125,15 +125,27 @@ export default function DataFrame(props) {
     }
 
     const _renderItemColumn = (item, index, column) => {
+        console.log(core);
         const fieldContent = item[column.fieldName];
         let isCore = false;
         if (core != undefined) {
-            if (`${column.fieldName}` == `${core}`) {
+            if (`${column.fieldName}` == `${core}` && fieldContent != '-') {
                 isCore = true
             }
         }
 
-        return isCore == false ? <span>{fieldContent}</span> : <b className="core_column" onClick={() => wiki(fieldContent)}>{fieldContent}</b>;
+        return isCore == false 
+            ? <span>{fieldContent}</span> 
+            : <b className="core_column" onClick={() => wiki(fieldContent)}>{fieldContent}</b>;
+    }
+
+    const _columnHeaderClick = (e, column) => {
+        if (!props.core && column) {
+            setCore(column.fieldName);
+            let Btable = Object.assign({}, props.table)
+            Btable.rows = [...props.table.rows]
+            setTable(Btable);
+        }
     }
 
     const toggleHideDialog = () => {
@@ -147,6 +159,7 @@ export default function DataFrame(props) {
                     items={table.rows}
                     compact={false}
                     columns={table.columns}
+                    onColumnHeaderClick={_columnHeaderClick}
                     selectionMode={SelectionMode.multiple}
                     getKey={_getKey}
                     setKey="multiple"

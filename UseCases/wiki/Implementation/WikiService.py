@@ -45,7 +45,11 @@ class WikiService(implements(IWikiService)):
                 ORDER BY  DESC(?type)'
             % (word)
         )
-        return self.execute_query(query)
+
+        try:
+            return self.execute_query(query)
+        except:
+            return None
 
     def get_props(
         self,

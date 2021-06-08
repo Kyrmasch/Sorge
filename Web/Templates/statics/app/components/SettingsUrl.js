@@ -5,6 +5,7 @@ import { DefaultButton, PrimaryButton } from '@fluentui/react/lib/Button';
 import { Dialog, DialogType, DialogFooter } from '@fluentui/react/lib/Dialog';
 import { ContextualMenu } from '@fluentui/react/lib/ContextualMenu';
 import { SpinButton, Stack } from '@fluentui/react';
+import { Toggle } from '@fluentui/react/lib/Toggle';
 
 
 initializeIcons();
@@ -16,11 +17,11 @@ const theme = createTheme({
 
 
 export default function SettingsUrl(props) {
-    const onChange = props.change;
     const toggleState = props.toggle;
     const [hidden, setHidden] = React.useState(props.hidden);
     const [from, setFrom] = React.useState(props.settings.from || 0);
     const [to, setTo] = React.useState(props.settings.to || 0);
+    const [merge, setMerge] = React.useState(props.settings.merge || false);
 
     const modalProps = React.useMemo(
         () => ({
@@ -47,7 +48,7 @@ export default function SettingsUrl(props) {
     const styles = { spinButtonWrapper: { width: 75 }, labelWrapper: { width: 150 } };
 
     React.useEffect(() => {
-
+        
     }, []);
 
     const changeFrom = React.useCallback((event, newValue) => {
@@ -62,10 +63,15 @@ export default function SettingsUrl(props) {
         }
     }, []);
 
+    const mergetToOne = (e, checked) => {
+        setMerge(checked);
+    }
+
     const set = () => {
-        onChange({
+        props.change({
             from,
-            to
+            to,
+            merge
         });
         toggleState();
     }
@@ -106,10 +112,22 @@ export default function SettingsUrl(props) {
                             value={to}
                             styles={styles}
                         />
+                        <Toggle 
+                            label="Объединить в одну" 
+                            inlineLabel
+                            styles={{
+                                label: {
+                                    width: 150
+                                }
+                            }}
+                            onText="Да" 
+                            offText="Нет" 
+                            checked={merge}
+                            onChange={mergetToOne} />
                     </Stack>
                 </div>
                 <DialogFooter>
-                    <DefaultButton onClick={set} text="Применить" />
+                    <DefaultButton onClick={(e) => set()} text="Применить" />
                     <PrimaryButton onClick={toggleState} text="Закрыть" />
                 </DialogFooter>
             </Dialog>

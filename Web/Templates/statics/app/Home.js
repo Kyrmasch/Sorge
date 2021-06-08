@@ -33,28 +33,46 @@ const theme = createTheme({
     }
 });
 
-const labelStyles = {
-    root: { marginTop: 10 },
-};
+const defaultTables = {
+    data: [],
+    cores: []
+}
 
 export default function Home() {
     const culture = useParams().culture || 'ru';
     const history = useHistory();
 
     const [openYnDialog, setYnDialogState] = React.useState(false)
-    const [url, setUrl] = React.useState('https://ecsocman.hse.ru/data/2010/05/26/1212617593/Doklad-Pages-001-392-posle-obreza-170x240mm.pdf');
+    const [url, setUrl] = React.useState('');
     const [openSettingsUrl, setOpenSettingsUrl] = React.useState(false);
     const [settingUrl, setSettingsUrl] = React.useState({
         from: 327,
-        to: 328
+        to: 328,
+        merge: false
     });
 
-    const [tables, setTables] = React.useState({
-        data: [],
-        cores: []
-    });
+    const [tables, setTables] = React.useState(defaultTables);
 
     const [load, setLoad] = React.useState(false);
+
+    React.useState(() => {
+        if (window.localStorage.getItem('tables')) {
+            let url = window.localStorage.getItem('url') || '';
+            let storage = JSON.parse(window.localStorage.getItem('tables'));
+
+            setUrl(url);
+            setTables(storage || defaultTables);
+        }
+    }, [])
+
+    React.useEffect(() => {
+        window.localStorage.setItem('tables', JSON.stringify(tables));
+        window.localStorage.setItem('url', url);
+    }, [tables])
+
+    React.useState(() => {
+        
+    }, [settingUrl])
 
     const isFile = (link) => {
         let segment = link.substring(link.lastIndexOf('/') + 1).split('.');
@@ -212,10 +230,10 @@ export default function Home() {
                                         {
                                             tables.data.length == 0 && load == false && (
                                                 <>
-                                                    <div style={{display: 'flex', justifyContent: 'center', marginTop: '150px'}}>
+                                                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '150px' }}>
                                                         <Stack tokens={{ childrenGap: 24 }} style={{ marginTop: 24 }} horizontal={false}>
                                                             <FontIcon aria-label="Compass" iconName="ProductRelease" style={theme.empty} />
-                                                            <Text variant={'medium'} nowrap block style={{textAlign: 'center', color: 'lightgray'}}>
+                                                            <Text variant={'medium'} nowrap block style={{ textAlign: 'center', color: 'lightgray' }}>
                                                                 Нет данных
                                                             </Text>
                                                         </Stack>

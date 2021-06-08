@@ -1,6 +1,4 @@
 
-from ApplicationService.Dtos.SettingsUrlDto import SettingsUrlDto
-
 
 class MaxMinDto(object):
     def __init__(self, max: int, min: int):

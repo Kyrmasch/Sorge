@@ -7,7 +7,7 @@ import tabula
 import pandas as pd
 import camelot
 import numpy as np
-from Utils.DataFrame import NaN, GetCoreColumn
+from ApplicationService.DepentencyInjection import table as Atable
 
 
 class PdfParserService(implements(IPdfParserService)):
@@ -20,9 +20,10 @@ class PdfParserService(implements(IPdfParserService)):
                 pages = "all"
                 if data.settings._from > 0 or data.settings._to > 0:
                     pages = "%s-%s" % (data.settings._from, data.settings._to)
-                
+
                 tables = tabula.read_pdf(
                     data.url,
+                    multiple_tables=data.settings._merge == False,
                     pages=pages,
                     lattice=False,
                     java_options=[
@@ -35,9 +36,9 @@ class PdfParserService(implements(IPdfParserService)):
                 cores = []
 
                 for t in tables:
-                    df = NaN(t)
+                    df = Atable.NaN(t)
 
-                    core = GetCoreColumn(df)
+                    core = Atable.getCoreColumn(df)
                     if core is not None:
                         cores.append(core)
 

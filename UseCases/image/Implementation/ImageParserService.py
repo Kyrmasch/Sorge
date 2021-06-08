@@ -16,9 +16,9 @@ import cv2
 import urllib
 import shutil
 from io import StringIO
-from Utils.DataFrame import NaN, GetCoreColumn
 import pytesseract
 import os.path
+from ApplicationService.DepentencyInjection import table as Atable
 
 
 class ImageParserService(implements(IImageParserService)):
@@ -175,8 +175,8 @@ class ImageParserService(implements(IImageParserService)):
 
                 arr = np.array(outer)
                 dataframe = pd.DataFrame(arr.reshape(len(row), countcol))
-                dataframe = NaN(dataframe)
-                core = GetCoreColumn(dataframe)
+                dataframe = Atable.NaN(dataframe)
+                core = Atable.getCoreColumn(dataframe)
                 if (core is not None):
                     cores.append(core)
                 json = dataframe.to_dict("records")
@@ -215,8 +215,8 @@ class ImageParserService(implements(IImageParserService)):
 
                     csv = table_ocr.ocr_to_csv.text_files_to_csv(ocr)
                     df = pd.read_csv(StringIO(csv), sep=",")
-                    df = NaN(df)
-                    core = GetCoreColumn(df)
+                    df = Atable.NaN(df)
+                    core = Atable.getCoreColumn(df)
                     if (core is not None):
                         cores.append(core)
                     json = df.to_dict("records")

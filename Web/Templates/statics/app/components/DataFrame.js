@@ -125,7 +125,6 @@ export default function DataFrame(props) {
     }
 
     const _renderItemColumn = (item, index, column) => {
-        console.log(core);
         const fieldContent = item[column.fieldName];
         let isCore = false;
         if (core != undefined) {

@@ -3,6 +3,7 @@
 # sudo apt-get install libtesseract-dev
 # sudo apt install tesseract-ocr
 
+# https://ecsocman.hse.ru/data/2010/05/26/1212617593/Doklad-Pages-001-392-posle-obreza-170x240mm.pdf
 # http://exploringafrica.matrix.msu.edu/wp-content/uploads/2015/06/Economic-data-table-pt.-1.png
 # http://exploringafrica.matrix.msu.edu/wp-content/uploads/2015/06/Economic-data-table-pt-2.png
 # http://exploringafrica.matrix.msu.edu/wp-content/uploads/2016/02/Table-7-pt.-3.png

@@ -175,7 +175,7 @@ class ImageParserService(implements(IImageParserService)):
 
                 arr = np.array(outer)
                 dataframe = pd.DataFrame(arr.reshape(len(row), countcol))
-                dataframe = Atable.NaN(dataframe)
+                dataframe, isSave = Atable.aks(dataframe)
                 core = Atable.getCoreColumn(dataframe)
                 if (core is not None):
                     cores.append(core)
@@ -215,7 +215,7 @@ class ImageParserService(implements(IImageParserService)):
 
                     csv = table_ocr.ocr_to_csv.text_files_to_csv(ocr)
                     df = pd.read_csv(StringIO(csv), sep=",")
-                    df = Atable.NaN(df)
+                    df, isSave = Atable.aks(df)
                     core = Atable.getCoreColumn(df)
                     if (core is not None):
                         cores.append(core)

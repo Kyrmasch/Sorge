@@ -4,6 +4,9 @@ from ApplicationService.Dtos.MaxMinDto import MaxMinDto
 import numpy as np
 from itertools import groupby
 import pandas as pd
+from pandas.util import hash_pandas_object
+import os
+import codecs
 
 
 class Table(implements(ITable)):
@@ -89,7 +92,7 @@ class Table(implements(ITable)):
 
         return df
 
-    def NaN(self, dataframe):
+    def aks(self, dataframe):
 
         df = dataframe.replace(r"\r+|\n+|\t+|\/+", " ", regex=True)
         df = df.replace(r"\s+", " ", regex=True)
@@ -97,7 +100,18 @@ class Table(implements(ITable)):
         df = self.transform(df)
         df = self.merge(df)
         df = df.replace(np.nan, "-", regex=True)
-        return df
+
+        sha = abs(hash_pandas_object(df).sum())
+        path = "/home/user/Sorge/Sorge/ApplicationService/Files/tables/%s.json" % (sha)
+        save = False
+        if os.path.exists(path) == False:
+            save = True
+            data = df.to_json(orient='index')
+            jsonFile = codecs.open(path, "w", 'utf-8')
+            jsonFile.write(data)
+            jsonFile.close()
+
+        return df, save
 
     def getCoreColumn(self, dataFrame):
         dtypes = dataFrame.dtypes

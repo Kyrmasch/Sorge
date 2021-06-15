@@ -36,7 +36,7 @@ class PdfParserService(implements(IPdfParserService)):
                 cores = []
 
                 for t in tables:
-                    df = Atable.NaN(t)
+                    df, isSave = Atable.aks(t)
 
                     core = Atable.getCoreColumn(df)
                     if core is not None:

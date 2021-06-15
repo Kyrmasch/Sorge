@@ -10,7 +10,7 @@ class ITable(Interface):
     def transform(self, df):
         pass
 
-    def NaN(self, dataframe):
+    def aks(self, dataframe):
         pass
 
     def getCoreColumn(self, dataFrame):

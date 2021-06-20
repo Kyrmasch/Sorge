@@ -121,7 +121,14 @@ class Table(implements(ITable)):
         for i, c in columns:
             unique = dataFrame[i].unique()
             if rows == len(unique):
-                column = i
-                break
+                try:
+                    v = str(dataFrame[i].iloc[1])
+                    if v.isnumeric() == False:
+                        dataFrame[i] = dataFrame[i].str.replace('\d+', '', regex=True)
+                        column = i
+                        break
+                except Exception as err:
+                    print(str(err))
+                    pass
 
-        return column
+        return column, dataFrame

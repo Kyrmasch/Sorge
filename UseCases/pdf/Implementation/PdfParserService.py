@@ -38,7 +38,7 @@ class PdfParserService(implements(IPdfParserService)):
                 for t in tables:
                     df, isSave = Atable.aks(t)
 
-                    core = Atable.getCoreColumn(df)
+                    core, df = Atable.getCoreColumn(df)
                     if core is not None:
                         cores.append(core)
 

@@ -41,7 +41,13 @@ class ImageParserService(implements(IImageParserService)):
     def download_image_to_tempdir(self, url, filename=None):
         if filename is None:
             filename = os.path.basename(url)
-        headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+        headers = {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET',
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Max-Age': '3600',
+                'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'
+        }
 
         response = requests.get(url, stream=True, headers=headers)
         tempdir = table_ocr.util.make_tempdir("demo")
@@ -176,16 +182,16 @@ class ImageParserService(implements(IImageParserService)):
                 arr = np.array(outer)
                 dataframe = pd.DataFrame(arr.reshape(len(row), countcol))
                 dataframe, isSave = Atable.aks(dataframe)
-                core = Atable.getCoreColumn(dataframe)
+                core, dataframe = Atable.getCoreColumn(dataframe)
                 if (core is not None):
                     cores.append(core)
                 json = dataframe.to_dict("records")
                 Rlist.append(json)
 
-                result = ResultTablesDto(Rlist)
-                result.core_columns = cores
+                Tresult = ResultTablesDto(Rlist)
+                Tresult.core_columns = cores
 
-                return result
+                return Tresult
 
 
         return ResultTablesDto([])

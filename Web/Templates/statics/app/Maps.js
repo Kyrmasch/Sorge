@@ -3,7 +3,7 @@ import { useParams, useHistory } from 'react-router-dom';
 import { DefaultButton, PrimaryButton } from '@fluentui/react/lib/Button';
 import Header from './Header'
 
-export default function Settings() {
+export default function Maps() {
     const culture = useParams().culture || 'ru';
     const history = useHistory();
 
@@ -19,7 +19,7 @@ export default function Settings() {
             <div className="main" style={{ bottom: '0px', height: 'calc(100% - 54px)', backgroundColor: '#faf9f8', position: 'relative' }}>
                 <div style={{ padding: '0px 32px', height: '100%'}}>
                     <header style={{ padding: '52px 0px', minHeight: 136 }} className="row">
-                        <h1 className="h1">Настройки</h1>
+                        <h1 className="h1">Концепт карты</h1>
                     </header>
                 </div>
             </div>

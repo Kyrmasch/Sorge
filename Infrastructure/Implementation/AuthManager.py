@@ -16,7 +16,8 @@ class AuthManager(implements(IAuthManager)):
         self.loginManager.login_view = "login"
 
         users = []
-        users.append(UserEntity(0, "admin", "Администратор", "4899443"))
+        users.append(UserEntity(0, "admin", "Администратор", "4899443", 'sorge'))
+        users.append(UserEntity(1, "admin", "Администратор", "122335719", 'maps'))
 
         self.users = users
 

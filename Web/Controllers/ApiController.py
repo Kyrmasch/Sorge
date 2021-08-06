@@ -4,12 +4,30 @@ from flask import (
     request,
     request,
 )
+from flask_login import current_user
 import simplejson
 from UseCases.DepentencyInjection import html, pdf, image, wiki
 from ApplicationService.Dtos.ParseDto import ParseDto
 from ApplicationService.Dtos.ResultTablesDto import ResultTablesDto
 import os
 
+def get_tabs():
+    tabs = []
+
+    if current_user.system == 'sorge':
+        tabs.append({
+                    'text': 'Парсер', 'code': '', 'itemKey': 1
+                })
+    elif current_user.system == 'maps':
+        tabs.append({
+                    'text': 'Концепт карта', 'code': 'maps', 'itemKey': 1
+                })
+    
+    tabs.append({
+                    'text': 'Настройки', 'code': 'settings', 'itemKey': 2
+                })
+
+    return simplejson.dumps(tabs, ignore_nan=True, encoding="utf-8")
 
 def get_tables():
     data = request.json

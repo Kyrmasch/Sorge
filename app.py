@@ -27,8 +27,24 @@ def create_app():
     )
 
     app.add_url_rule(
+        "/maps",
+        view_func=login_required(container.maps_view.as_view()),
+        methods=[
+            "GET",
+        ],
+    )
+
+    app.add_url_rule(
         "/settings",
-        view_func=container.settings_view.as_view(),
+        view_func=login_required(container.settings_view.as_view()),
+        methods=[
+            "GET",
+        ],
+    )
+
+    app.add_url_rule(
+        "/api/get_tabs",
+        view_func=login_required(container.get_tabs_api.as_view()),
         methods=[
             "GET",
         ],

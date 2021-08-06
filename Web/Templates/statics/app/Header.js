@@ -11,32 +11,42 @@ import { Persona, PersonaInitialsColor, PersonaSize } from '@fluentui/react/lib/
 
 initializeIcons();
 
-export default function Header() {
+export default function Header(props) {
     const culture = useParams().culture || 'ru';
     const history = useHistory();
     const location = useLocation();
 
-    const [tabs, setTabs] = React.useState(
-        [
-            {
-                text: 'Парсер', code: '', itemKey: 1
-            },
-            {
-                text: 'Настройки', code: 'settings', itemKey: 2
-            }
-        ]
-    );
-    const [current, setCurrent] = React.useState(tabs[0].itemKey);
+    const [tabs, setTabs] = React.useState([]);
+    const [current, setCurrent] = React.useState(0);
 
     React.useEffect(() => {
-        let path = location.pathname.replace('/', '');
-        let tab = tabs.filter(x => x.code == path);
-        if (tab.length == 1) {
-            setCurrent(tab[0].itemKey)
-        }
+        fetch('/api/get_tabs', {
+            method: 'get',
+        })
+        .then(res => res.json())
+        .then(data => {
+            setTabs(data);     
+            if ('' == location.pathname.replace('/', ''))
+            {
+                history.push(`/${data[0].code}`)     
+            }
+
+            props.setReady(true);
+        })
     }, [])
 
+    React.useEffect(() => {
+        if (tabs.length > 0) {
+            let path = location.pathname.replace('/', '');
+            let tab = tabs.filter(x => x.code == path);
+            if (tab.length == 1) {
+                setCurrent(tab[0].itemKey)
+            }
+        }
+    }, [tabs]);
+
     const onChange = (tab, e) => {
+        setCurrent(tab.props.itemKey);
         history.push(`/${tab.props.code}`)
     }
 

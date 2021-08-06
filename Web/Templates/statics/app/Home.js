@@ -50,20 +50,23 @@ export default function Home() {
         to: 328,
         merge: false
     });
+    const [ready, setReady] = React.useState(false);
 
     const [tables, setTables] = React.useState(defaultTables);
 
     const [load, setLoad] = React.useState(false);
 
     React.useState(() => {
-        if (window.localStorage.getItem('tables')) {
-            let url = window.localStorage.getItem('url') || '';
-            let storage = JSON.parse(window.localStorage.getItem('tables'));
+        if (ready == true) {
+            if (window.localStorage.getItem('tables')) {
+                let url = window.localStorage.getItem('url') || '';
+                let storage = JSON.parse(window.localStorage.getItem('tables'));
 
-            setUrl(url);
-            setTables(storage || defaultTables);
+                setUrl(url);
+                setTables(storage || defaultTables);
+            }
         }
-    }, [])
+    }, [ready])
 
     React.useEffect(() => {
         window.localStorage.setItem('tables', JSON.stringify(tables));
@@ -71,7 +74,7 @@ export default function Home() {
     }, [tables])
 
     React.useState(() => {
-        
+
     }, [settingUrl])
 
     const isFile = (link) => {
@@ -190,99 +193,103 @@ export default function Home() {
 
     return (
         <React.Fragment>
-            <Header />
-            <div className="main" style={{ bottom: '0px', height: 'calc(100% - 56px)', backgroundColor: '#faf9f8', position: 'relative' }}>
-                <div class="ms-Grid" dir="ltr" style={{ height: '100%', overflowY: 'scroll', overflowX: 'auto' }}>
-                    <div class="ms-Grid-row" style={{ height: '100%' }}>
-                        <div class="ms-Grid-col ms-sm2 ms-md2ms-lg2"></div>
-                        <div class="ms-Grid-col ms-sm8 ms-md8 ms-lg8" style={{ height: '100%', backgroundColor: '#fff', }}>
-                            <Stack tokens={{ childrenGap: 10 }}>
-                                <div style={{ padding: '0px 32px', height: '100%', marginTop: 12 }}>
-                                    <header style={{ padding: '12px 0px', minHeight: 50, boxSizing: 'border-box' }} className="row">
-                                        <h1 className="h1">Парсер</h1>
-                                    </header>
-                                </div>
-                                <div style={{ padding: '12px', boxSizing: 'border-box' }}>
-                                    <Stack horizontal tokens={{ childrenGap: 10 }} style={{ justifyContent: 'center' }}>
-                                        <SearchBox
-                                            placeholder="Поиск таблиц на сайте"
-                                            styles={{ root: { width: 600 } }}
-                                            iconProps={{
-                                                iconName: 'Link'
-                                            }}
-                                            onChange={changeUrl}
-                                            clearButtonProps={{
-                                                iconProps: {
-                                                    iconName: "Settings"
-                                                },
-                                                disabled: !isFile(url)
-                                            }}
-                                            onClear={openSettings}
-                                            value={url} />
-                                        <PrimaryButton
-                                            disabled={load == true}
-                                            text="Найти"
-                                            onClick={e => setYnDialogState(true)}
-                                            allowDisabledFocus
-                                            checked={false} />
-                                    </Stack>
-                                    <Stack tokens={{ childrenGap: 24 }} style={{ marginTop: 24 }} horizontal={false}>
-                                        {
-                                            tables.data.length == 0 && load == false && (
-                                                <>
-                                                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '150px' }}>
-                                                        <Stack tokens={{ childrenGap: 24 }} style={{ marginTop: 24 }} horizontal={false}>
-                                                            <FontIcon aria-label="Compass" iconName="ProductRelease" style={theme.empty} />
-                                                            <Text variant={'medium'} nowrap block style={{ textAlign: 'center', color: 'lightgray' }}>
-                                                                Нет данных
-                                                            </Text>
-                                                        </Stack>
-                                                    </div>
-                                                </>
-                                            )
-                                        }
-                                        {
-                                            load == true && (
-                                                <>
-                                                    <Spinner
-                                                        label="Извелечение данных..."
-                                                        styles={{ root: { paddingTop: '25px' } }} />
-                                                </>
-                                            )
-                                        }
-                                        {
-                                            tables.data.length > 0 && (
-                                                <Pivot
-                                                    aria-label="Basic Pivot Example"
-                                                    overflowBehavior={'menu'}
-                                                    styles={{
-                                                        root: {
-                                                            display: 'flex', justifyContent: 'center', padding: '0 200px'
-                                                        }
-                                                    }}>
-                                                    {
-                                                        tables.data.map((table, index) => {
-                                                            return (
-                                                                <PivotItem headerText={`Таблица #${index + 1}`}>
-                                                                    <div>
-                                                                        <DataFrame table={table} index={index} core={tables.cores[index]} />
-                                                                    </div>
-                                                                </PivotItem>
+            <Header setReady={setReady} />
+            {
+                ready && (
+                    <div className="main" style={{ bottom: '0px', height: 'calc(100% - 56px)', backgroundColor: '#faf9f8', position: 'relative' }}>
+                        <div class="ms-Grid" dir="ltr" style={{ height: '100%', overflowY: 'scroll', overflowX: 'auto' }}>
+                            <div class="ms-Grid-row" style={{ height: '100%' }}>
+                                <div class="ms-Grid-col ms-sm2 ms-md2ms-lg2"></div>
+                                <div class="ms-Grid-col ms-sm8 ms-md8 ms-lg8" style={{ height: '100%', backgroundColor: '#fff', }}>
+                                    <Stack tokens={{ childrenGap: 10 }}>
+                                        <div style={{ padding: '0px 32px', height: '100%', marginTop: 12 }}>
+                                            <header style={{ padding: '12px 0px', minHeight: 50, boxSizing: 'border-box' }} className="row">
+                                                <h1 className="h1">Парсер</h1>
+                                            </header>
+                                        </div>
+                                        <div style={{ padding: '12px', boxSizing: 'border-box' }}>
+                                            <Stack horizontal tokens={{ childrenGap: 10 }} style={{ justifyContent: 'center' }}>
+                                                <SearchBox
+                                                    placeholder="Поиск таблиц на сайте"
+                                                    styles={{ root: { width: 600 } }}
+                                                    iconProps={{
+                                                        iconName: 'Link'
+                                                    }}
+                                                    onChange={changeUrl}
+                                                    clearButtonProps={{
+                                                        iconProps: {
+                                                            iconName: "Settings"
+                                                        },
+                                                        disabled: !isFile(url)
+                                                    }}
+                                                    onClear={openSettings}
+                                                    value={url} />
+                                                <PrimaryButton
+                                                    disabled={load == true}
+                                                    text="Найти"
+                                                    onClick={e => setYnDialogState(true)}
+                                                    allowDisabledFocus
+                                                    checked={false} />
+                                            </Stack>
+                                            <Stack tokens={{ childrenGap: 24 }} style={{ marginTop: 24 }} horizontal={false}>
+                                                {
+                                                    tables.data.length == 0 && load == false && (
+                                                        <>
+                                                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '150px' }}>
+                                                                <Stack tokens={{ childrenGap: 24 }} style={{ marginTop: 24 }} horizontal={false}>
+                                                                    <FontIcon aria-label="Compass" iconName="ProductRelease" style={theme.empty} />
+                                                                    <Text variant={'medium'} nowrap block style={{ textAlign: 'center', color: 'lightgray' }}>
+                                                                        Нет данных
+                                                                    </Text>
+                                                                </Stack>
+                                                            </div>
+                                                        </>
+                                                    )
+                                                }
+                                                {
+                                                    load == true && (
+                                                        <>
+                                                            <Spinner
+                                                                label="Извелечение данных..."
+                                                                styles={{ root: { paddingTop: '25px' } }} />
+                                                        </>
+                                                    )
+                                                }
+                                                {
+                                                    tables.data.length > 0 && (
+                                                        <Pivot
+                                                            aria-label="Basic Pivot Example"
+                                                            overflowBehavior={'menu'}
+                                                            styles={{
+                                                                root: {
+                                                                    display: 'flex', justifyContent: 'center', padding: '0 200px'
+                                                                }
+                                                            }}>
+                                                            {
+                                                                tables.data.map((table, index) => {
+                                                                    return (
+                                                                        <PivotItem headerText={`Таблица #${index + 1}`}>
+                                                                            <div>
+                                                                                <DataFrame table={table} index={index} core={tables.cores[index]} />
+                                                                            </div>
+                                                                        </PivotItem>
 
-                                                            )
-                                                        })
-                                                    }
-                                                </Pivot>
-                                            )
-                                        }
+                                                                    )
+                                                                })
+                                                            }
+                                                        </Pivot>
+                                                    )
+                                                }
+                                            </Stack>
+                                        </div>
                                     </Stack>
                                 </div>
-                            </Stack>
+                                <div class="ms-Grid-col ms-sm2 ms-md2 ms-lg2"></div>
+                            </div>
                         </div>
-                        <div class="ms-Grid-col ms-sm2 ms-md2 ms-lg2"></div>
                     </div>
-                </div>
-            </div>
+                )
+            }
             {
                 openSettingsUrl == true && (
                     <SettingsUrl

@@ -58,11 +58,12 @@ export default function Home(props) {
     const [load, setLoad] = React.useState(false);
 
     React.useEffect(() => {
-        console.log(io)
-        io.on("connection", (socket) => {
-            console.log(socket.id);
+        var socket = io.connect();
+        console.log('check 1', socket.connected);
+        socket.on('connect', function() {
+            console.log('check 2', socket.connected);
         });
-        io.on('progress', io_progress);
+        socket.on('progress', io_progress);
     }, [])
 
     React.useState(() => {

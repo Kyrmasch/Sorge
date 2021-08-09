@@ -14,4 +14,4 @@ class Socket(implements(ISocket)):
     def join(self, message):
         print(message)
 
-socketio.on_event("join", Socket.join)
+socketio.on_event("join", Socket.join, '/')

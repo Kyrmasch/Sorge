@@ -3,7 +3,7 @@ from flask import current_app
 from interface import implements
 from ApplicationService.Interfaces.ISocket import ISocket
 
-socketio = SocketIO(cors_allowed_origins="*", async_mode="threading")
+socketio = SocketIO(cors_allowed_origins="https://sorge.ektu.kz")
 socket_clients = {}
 
 class Socket(implements(ISocket)):

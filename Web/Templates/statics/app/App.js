@@ -13,11 +13,11 @@ const io = wss(`https://sorge.ektu.kz`, {
 export default function App() {
     return (
         <React.Fragment>
-            <Route exact path='/' component={Home} io={io} />
-            <Route exact path='/parser' component={Home} io={io} />
-            <Route exact path='/login' component={Login} io={io} />
-            <Route exact path='/maps' component={Maps} />
-            <Route exact path='/settings' component={Settings} />
+            <Route exact path='/' component={() => <Home io={io} />}/>
+            <Route exact path='/parser' component={() => <Home io={io} />}/>
+            <Route exact path='/login' component={() => <Login io={io} />}/>
+            <Route exact path='/maps' component={() => <Maps io={io} />}/>
+            <Route exact path='/settings' component={() => <Settings io={io} />}/>
         </React.Fragment>
     );
 }

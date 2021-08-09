@@ -38,9 +38,10 @@ const defaultTables = {
     cores: []
 }
 
-export default function Home() {
+export default function Home(props) {
     const culture = useParams().culture || 'ru';
     const history = useHistory();
+    const [io, setIO] = React.useState(props.io);
 
     const [openYnDialog, setYnDialogState] = React.useState(false)
     const [url, setUrl] = React.useState('');
@@ -55,6 +56,14 @@ export default function Home() {
     const [tables, setTables] = React.useState(defaultTables);
 
     const [load, setLoad] = React.useState(false);
+
+    React.useEffect(() => {
+        console.log(io)
+        io.on("connection", (socket) => {
+            console.log(socket.id);
+        });
+        io.on('progress', io_progress);
+    }, [])
 
     React.useState(() => {
         if (ready == true) {
@@ -188,6 +197,10 @@ export default function Home() {
                     setLoad(false);
                 })
         }
+    }
+
+    const io_progress = (data) => {
+        console.log(data);
     }
 
 

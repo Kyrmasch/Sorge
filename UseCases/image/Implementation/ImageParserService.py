@@ -19,6 +19,8 @@ from io import StringIO
 import pytesseract
 import os.path
 from ApplicationService.DepentencyInjection import table as Atable
+from Infrastructure.DepentencyInjection import mediatr
+from UseCases.Commands.SetProgressCommanddHandler import ProgressCommand
 
 
 class ImageParserService(implements(IImageParserService)):
@@ -68,6 +70,9 @@ class ImageParserService(implements(IImageParserService)):
                 website_is_up = status_code == 200
             except:
                 pass
+
+            mediatr.send(ProgressCommand(10, "Загрузка изображения по ссылке"))
+
             image_filepath = (
                 website_is_up == True
                 and self.download_image_to_tempdir(data.url)
@@ -75,6 +80,9 @@ class ImageParserService(implements(IImageParserService)):
             )
 
             if os.path.isfile(image_filepath):
+
+                mediatr.send(ProgressCommand(30, "Обработка изображения OpenCV"))
+
                 img = cv2.imread(image_filepath,0)
                 img.shape
 
@@ -96,6 +104,8 @@ class ImageParserService(implements(IImageParserService)):
                 thresh, img_vh = cv2.threshold(img_vh,128,255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
                 bitxor = cv2.bitwise_xor(img,img_vh)
                 bitnot = cv2.bitwise_not(bitxor)
+
+                mediatr.send(ProgressCommand(50, "Поиск контуров таблиц на изображении"))
 
                 contours, hierarchy = cv2.findContours(img_vh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
                 contours, boundingBoxes = self.sort_contours(contours, method="top-to-bottom")
@@ -156,6 +166,7 @@ class ImageParserService(implements(IImageParserService)):
                         lis[indexing].append(row[i][j])
                     finalboxes.append(lis)
 
+                mediatr.send(ProgressCommand(70, "Сортировка позиций найденных ячеек таблиц и распознание текста"))
 
                 outer=[]
                 for i in range(len(finalboxes)):
@@ -178,6 +189,8 @@ class ImageParserService(implements(IImageParserService)):
                                     out = pytesseract.image_to_string(erosion, config='--psm 3', lang='eng+rus')
                                 inner = inner +" "+ out
                             outer.append(inner)
+
+                mediatr.send(ProgressCommand(90, "Форматирование таблицы"))
 
                 arr = np.array(outer)
                 dataframe = pd.DataFrame(arr.reshape(len(row), countcol))

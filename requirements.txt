@@ -34,3 +34,5 @@ table_ocr
 wikipedia
 camelot-py
 SPARQLWrapper
+mediatr
+asyncio

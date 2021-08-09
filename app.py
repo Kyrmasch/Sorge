@@ -4,11 +4,14 @@ from ApplicationService.DepentencyInjection import socket
 from Infrastructure.DepentencyInjection import auth
 from flask_login import login_required
 
-def create_app():
+container = ApplicationContainer()
+app = container.app()
+app.container = container
 
-    container = ApplicationContainer()
-    app = container.app()
-    app.container = container
+io = socket
+io.init_app(app)
+
+def create_app():
 
     app.add_url_rule(
         "/",
@@ -81,9 +84,7 @@ def create_app():
             "GET",
         ],
     )
-
-    io = socket
-    io.init_app(app)
+    
     auth.loginManager.init_app(app)
 
     app.config["JSON_AS_ASCII"] = False

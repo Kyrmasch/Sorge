@@ -4,13 +4,14 @@ from interface import implements
 from ApplicationService.Interfaces.ISocket import ISocket
 
 socketio = SocketIO(cors_allowed_origins="*", async_mode="threading")
+socket_clients = {}
 
 class Socket(implements(ISocket)):
     def __init__(self, config):
         self.socketio = socketio
 
     @staticmethod
-    def get(self, message):
-        self.socketio.emit("get", {"result": []})
+    def join(self, message):
+        print(message)
 
-socketio.on("get", Socket.get)
+socketio.on_event("join", Socket.join)

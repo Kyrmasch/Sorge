@@ -21,17 +21,20 @@ class RedisApi(implements(IRedisApi)):
             pass
 
     def send(self):
+        time.sleep(5)
         while True:
-            try:
-                if self.redis.ping() == True:
-                    message = self.redis.get('sorge')
-                    self.redis.delete('sorge')
-                    if (message is not None):
-                        data = json.loads(message)
-                        socket.emit(data['command'], data['value'])
-                time.sleep(0.5)
-            except  Exception as e:
-                print(str(e))
+            if socket is not None:
+                try:
+                    socket.emit("progress", { "Work": "A" }, broadcast=True)
+                    if self.redis.ping() == True:
+                        message = self.redis.get('sorge')
+                        self.redis.delete('sorge')
+                        if (message is not None):
+                            data = json.loads(message)
+                            socket.emit(data['command'], data['value'], broadcast=True)
+                    time.sleep(0.5)
+                except  Exception as e:
+                    print(str(e))
 
     def write(self, key, message):
         try:

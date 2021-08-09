@@ -10,6 +10,7 @@ import { Pivot, PivotItem } from '@fluentui/react';
 import { FontIcon } from '@fluentui/react/lib/Icon';
 import { Text } from '@fluentui/react/lib/Text';
 
+import { socket } from './IO'
 import Header from './Header';
 import DataFrame from './components/DataFrame';
 import SettingsUrl from './components/SettingsUrl';
@@ -38,10 +39,9 @@ const defaultTables = {
     cores: []
 }
 
-export default function Home(props) {
+export default function Home() {
     const culture = useParams().culture || 'ru';
     const history = useHistory();
-    const [io, setIO] = React.useState(props.io);
 
     const [openYnDialog, setYnDialogState] = React.useState(false)
     const [url, setUrl] = React.useState('');
@@ -58,11 +58,8 @@ export default function Home(props) {
     const [load, setLoad] = React.useState(false);
 
     React.useEffect(() => {
-        console.log('check 1', io);
-        io.on('connect', function() {
-            console.log('check 2', io.connected);
-        });
-        io.on('progress', io_progress);
+        socket.emit('join', {'data' : {'user': 'Admin'}})
+        socket.on('progress', io_progress);
     }, [])
 
     React.useState(() => {

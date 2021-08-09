@@ -6,18 +6,14 @@ import Login from './Login';
 import Settings from './Settings';
 import Maps from './Maps';
 
-const io = wss(`https://sorge.ektu.kz`, {
-    path: '/socket.io'
-});
-
 export default function App() {
     return (
         <React.Fragment>
-            <Route exact path='/' component={() => <Home io={io} />}/>
-            <Route exact path='/parser' component={() => <Home io={io} />}/>
-            <Route exact path='/login' component={() => <Login io={io} />}/>
-            <Route exact path='/maps' component={() => <Maps io={io} />}/>
-            <Route exact path='/settings' component={() => <Settings io={io} />}/>
+            <Route exact path='/' component={Home}/>
+            <Route exact path='/parser' component={Home}/>
+            <Route exact path='/login' component={Login}/>
+            <Route exact path='/maps' component={Maps}/>
+            <Route exact path='/settings' component={Settings}/>
         </React.Fragment>
     );
 }

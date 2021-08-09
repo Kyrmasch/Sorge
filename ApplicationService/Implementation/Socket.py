@@ -1,9 +1,8 @@
-from flask_socketio import SocketIO, join_room, leave_room
-from flask import current_app
+from flask_socketio import SocketIO, join_room, leave_room, emit
 from interface import implements
 from ApplicationService.Interfaces.ISocket import ISocket
 
-socketio = SocketIO(cors_allowed_origins="*", async_mode="threading")
+socketio = SocketIO()
 socket_clients = {}
 
 class Socket(implements(ISocket)):
@@ -14,4 +13,4 @@ class Socket(implements(ISocket)):
     def join(self, message):
         print(message)
 
-socketio.on_event("join", Socket.join, '/')
+socketio.on_event("join", Socket.join)

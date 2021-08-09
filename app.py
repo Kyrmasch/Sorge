@@ -8,8 +8,7 @@ container = ApplicationContainer()
 app = container.app()
 app.container = container
 
-io = socket
-io.init_app(app)
+socket.init_app(app, cors_allowed_origins="https://sorge.ektu.kz/", async_mode="threading")
 
 def create_app():
 
@@ -87,12 +86,12 @@ def create_app():
     
     auth.loginManager.init_app(app)
 
-    app.config["JSON_AS_ASCII"] = False
-    app.config["SECRET_KEY"] = "q1w2e3r4#"
+    app.config["JSON_AS_ASCII"]     =   False
+    app.config["SECRET_KEY"]        =   "q1w2e3r4#"
     app.config.update(
-        SESSION_COOKIE_SECURE=True,
-        SESSION_COOKIE_HTTPONLY=True,
-        SESSION_COOKIE_SAMESITE="Lax",
+        SESSION_COOKIE_SECURE       =   True,
+        SESSION_COOKIE_HTTPONLY     =   True,
+        SESSION_COOKIE_SAMESITE     =   "Lax",
     )
 
-    return io, app
+    return socket, app

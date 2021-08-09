@@ -58,7 +58,7 @@ export default function Home(props) {
     const [load, setLoad] = React.useState(false);
 
     React.useEffect(() => {
-        console.log('check 1', io.connected);
+        console.log('check 1', io);
         io.on('connect', function() {
             console.log('check 2', io.connected);
         });

@@ -36,3 +36,4 @@ camelot-py
 SPARQLWrapper
 mediatr
 asyncio
+redis

@@ -9,5 +9,4 @@ logging.basicConfig(filename='log.log', level=logging.ERROR)
 
 if __name__ == "__main__":
     socket, app = create_app()
-    app.app_context().push()
-    socket.run(app, debug=True)
+    socket.run(app, port = 5000, debug=True)

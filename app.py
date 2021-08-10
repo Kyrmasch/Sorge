@@ -83,6 +83,14 @@ def create_app():
             "GET",
         ],
     )
+
+    app.add_url_rule(
+        "/maps/build",
+        view_func=login_required(container.map_build.as_view()),
+        methods=[
+            "POST",
+        ],
+    )
     
     auth.loginManager.init_app(app)
 

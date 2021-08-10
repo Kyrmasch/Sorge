@@ -62,7 +62,7 @@ export default function Home() {
 
     React.useState(() => {
         if (window.localStorage.getItem('tables')) {
-                
+
             let url = window.localStorage.getItem('url') || '';
             let storage = JSON.parse(window.localStorage.getItem('tables'));
 

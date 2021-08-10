@@ -3,7 +3,7 @@ from dependency_injector import providers, containers
 from dependency_injector.ext import flask
 from flask import Flask
 
-from Web.Controllers import PageController, ApiController, AuthController
+from Web.Controllers import PageController, ApiController, AuthController, MapsController
 
 class ApplicationContainer(containers.DeclarativeContainer):
 
@@ -26,3 +26,5 @@ class ApplicationContainer(containers.DeclarativeContainer):
     logout_api = flask.View(AuthController.signout)
 
     wiki_pages = flask.View(ApiController.get_wiki)
+
+    map_build = flask.View(MapsController.build)

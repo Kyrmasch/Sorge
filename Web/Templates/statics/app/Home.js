@@ -51,32 +51,31 @@ export default function Home() {
         to: 328,
         merge: false
     });
+    const [spinnerText, setSpinerText] = React.useState(null);
     const [ready, setReady] = React.useState(false);
-
     const [tables, setTables] = React.useState(defaultTables);
-
     const [load, setLoad] = React.useState(false);
 
     React.useEffect(() => {
-        socket.emit('join', {'data' : {'user': 'Admin'}})
         socket.on('progress', io_progress);
     }, [])
 
     React.useState(() => {
-        if (ready == true) {
-            if (window.localStorage.getItem('tables')) {
-                let url = window.localStorage.getItem('url') || '';
-                let storage = JSON.parse(window.localStorage.getItem('tables'));
+        if (window.localStorage.getItem('tables')) {
+                
+            let url = window.localStorage.getItem('url') || '';
+            let storage = JSON.parse(window.localStorage.getItem('tables'));
 
-                setUrl(url);
-                setTables(storage || defaultTables);
-            }
+            setUrl(url);
+            setTables(storage || defaultTables);
         }
     }, [ready])
 
     React.useEffect(() => {
-        window.localStorage.setItem('tables', JSON.stringify(tables));
-        window.localStorage.setItem('url', url);
+        if (url) {
+            window.localStorage.setItem('tables', JSON.stringify(tables));
+            window.localStorage.setItem('url', url);
+        }
     }, [tables])
 
     React.useState(() => {
@@ -105,6 +104,7 @@ export default function Home() {
     const get_table = () => {
 
         setYnDialogState(false);
+        setSpinerText(null)
 
         if (url) {
             setLoad(true);
@@ -197,7 +197,7 @@ export default function Home() {
     }
 
     const io_progress = (data) => {
-        console.log(data);
+        setSpinerText(data.description)
     }
 
 
@@ -260,7 +260,7 @@ export default function Home() {
                                                     load == true && (
                                                         <>
                                                             <Spinner
-                                                                label="Извелечение данных..."
+                                                                label={spinnerText || 'Извелечение данных...'}
                                                                 styles={{ root: { paddingTop: '25px' } }} />
                                                         </>
                                                     )

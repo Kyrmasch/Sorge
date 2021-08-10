@@ -8,7 +8,7 @@ container = ApplicationContainer()
 app = container.app()
 app.container = container
 
-socket.init_app(app, cors_allowed_origins="https://sorge.ektu.kz/", async_mode="threading")
+socket.init_app(app, cors_allowed_origins="*", async_mode="threading")
 
 def create_app():
 

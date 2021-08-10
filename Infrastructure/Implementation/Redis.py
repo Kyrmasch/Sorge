@@ -25,14 +25,13 @@ class RedisApi(implements(IRedisApi)):
         while True:
             if socket is not None:
                 try:
-                    socket.emit("progress", { "Work": "A" }, broadcast=True)
                     if self.redis.ping() == True:
                         message = self.redis.get('sorge')
                         self.redis.delete('sorge')
                         if (message is not None):
                             data = json.loads(message)
                             socket.emit(data['command'], data['value'], broadcast=True)
-                    time.sleep(0.5)
+                    time.sleep(0.1)
                 except  Exception as e:
                     print(str(e))
 

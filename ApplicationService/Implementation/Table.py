@@ -7,6 +7,7 @@ import pandas as pd
 from pandas.util import hash_pandas_object
 import os
 import codecs
+import string
 
 
 class Table(implements(ITable)):
@@ -92,6 +93,15 @@ class Table(implements(ITable)):
 
         return df
 
+    def punctuation(self, df):
+        for col in df.columns:
+            a = df[col].unique()
+            if len(a) == 1:
+                if a[0] in string.punctuation:
+                    print(a[0])
+
+        return df
+
     def aks(self, dataframe):
 
         df = dataframe.replace(r"\r+|\n+|\t+|\/+", " ", regex=True)
@@ -100,6 +110,9 @@ class Table(implements(ITable)):
         df = self.transform(df)
         df = self.merge(df)
         df = df.replace(np.nan, "-", regex=True)
+        df = df.replace(",", "-", regex=True)
+
+        self.punctuation(df)
 
         sha = abs(hash_pandas_object(df).sum())
         path = "/home/user/Sorge/Sorge/ApplicationService/Files/tables/%s.json" % (sha)

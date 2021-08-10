@@ -88,7 +88,7 @@ class Table(implements(ITable)):
             for index, value in Lempty.items():
                 if ((value * 100) / Ncolumn) < 20 and df.index[index] not in LDrop:
                     LDrop.append(df.index[index])
-
+            
             df = df.drop(LDrop)
 
         return df
@@ -97,7 +97,7 @@ class Table(implements(ITable)):
         for col in df.columns:
             a = df[col].unique()
             if len(a) == 1:
-                if a[0] in string.punctuation:
+                if a[0] in string.punctuation:   
                     print(a[0])
 
         return df
@@ -109,10 +109,11 @@ class Table(implements(ITable)):
         df = df.dropna(axis=1, how="all")
         df = self.transform(df)
         df = self.merge(df)
+        
         df = df.replace(np.nan, "-", regex=True)
-        df = df.replace(",", "-", regex=True)
+        df = df.replace(",", "-", regex=False)
 
-        self.punctuation(df)
+        # self.punctuation(df)
 
         sha = abs(hash_pandas_object(df).sum())
         path = "/home/user/Sorge/Sorge/ApplicationService/Files/tables/%s.json" % (sha)
@@ -133,11 +134,12 @@ class Table(implements(ITable)):
         column = None
         for i, c in columns:
             unique = dataFrame[i].unique()
-            if rows == len(unique):
+            p = (rows * 100) / len(unique)
+            if p > 80:
                 try:
                     v = str(dataFrame[i].iloc[1])
                     if v.isnumeric() == False:
-                        dataFrame[i] = dataFrame[i].str.replace('\d+', '', regex=True)
+                        dataFrame[i] = dataFrame[i].str.replace('\d+ ', '', regex=True)
                         column = i
                         break
                 except Exception as err:

@@ -13,27 +13,27 @@ class RedisApi(implements(IRedisApi)):
             host="localhost", port=6379, password="", decode_responses=True)
         if self.redis.ping() == True:
             redis_thread = threading.Thread(
-                target=self.send, args=())
+                target=self.send, args=(self.redis, ))
             redis_thread.daemon = True
             redis_thread.name = "Redis"
             redis_thread.start()
         else:
             pass
 
-    def send(self):
+    def send(self, redis):
         time.sleep(5)
         while True:
             if socket is not None:
                 try:
-                    if self.redis.ping() == True:
-                        message = self.redis.get('sorge')
-                        self.redis.delete('sorge')
+                    if redis.ping() == True:
+                        message = redis.get('sorge')
+                        redis.delete('sorge')
                         if (message is not None):
                             data = json.loads(message)
-                            socket.emit(data['command'], data['value'], broadcast=True)
-                    time.sleep(0.1)
+                            socket.emit(data['command'], data['value'], broadcast=True)                
                 except  Exception as e:
                     print(str(e))
+            time.sleep(0.1)
 
     def write(self, key, message):
         try:

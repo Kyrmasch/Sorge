@@ -1,3 +1,4 @@
+from Web.Dtos.GetGraphDto import GetGraphDto
 import simplejson
 from flask import (
     request,
@@ -14,6 +15,15 @@ def build():
     text = data["text"]
     time.sleep(5)
 
+    graph = getGraph()
+
+    return simplejson.dumps(
+        { "data": graph.__dict__ }, 
+        ignore_nan      =   True, 
+        encoding        =   "utf-8"
+    )
+
+def getGraph()-> GetGraphDto: 
     nodes = [
         {"id": 1, "value": 2, "label": "Algie"},
         {"id": 2, "value": 31, "label": "Alston"},
@@ -40,6 +50,5 @@ def build():
         {"from": 5, "to": 3, "value": 1, "title": "1 emails per week"},
         {"from": 2, "to": 7, "value": 4, "title": "4 emails per week"},
     ]
-    return simplejson.dumps(
-        {"data": {"nodes": nodes, "edges": edges}}, ignore_nan=True, encoding="utf-8"
-    )
+
+    return GetGraphDto(nodes, edges)

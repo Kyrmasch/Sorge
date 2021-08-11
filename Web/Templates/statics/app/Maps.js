@@ -28,6 +28,12 @@ export default function Maps() {
         setText(value);
     }
 
+    const onLanguageDetect = (lang) => {
+        for (l in lang.languages) {
+            console.log(l.language, l.percentage)
+        }
+    }
+
     const handleBuildMap = () => {
         if (text.length > 0) {
             setLoad(true);

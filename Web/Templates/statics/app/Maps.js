@@ -5,11 +5,40 @@ import { Stack } from '@fluentui/react/lib/Stack';
 import Header from './Header'
 import { TextField } from '@fluentui/react/lib/TextField';
 import { Spinner } from '@fluentui/react/lib/Spinner';
+import Graph from 'react-graph-vis';
 
-const defaultText = "Концептуальная карта — это разновидность схемы, где наглядно представлены связи между концепциями и идеями. " +  
-                    "В большинстве случаев идеи (или «концепты») отображаются в виде блоков или кругов (которые также называют «узлами»). " + 
-                    "Они располагаются в порядке иерархии и соединяются между собой при помощи линий и стрелок (которые также называют «связями»). " + 
-                    "Эти линии сопровождаются пометками со связующими словами и фразами, которые поясняют, как именно концепции сопряжены между собой."
+const defaultText = "Концептуальная карта — это разновидность схемы, где наглядно представлены связи между концепциями и идеями. " +
+    "В большинстве случаев идеи (или «концепты») отображаются в виде блоков или кругов (которые также называют «узлами»). " +
+    "Они располагаются в порядке иерархии и соединяются между собой при помощи линий и стрелок (которые также называют «связями»). " +
+    "Эти линии сопровождаются пометками со связующими словами и фразами, которые поясняют, как именно концепции сопряжены между собой."
+
+var optionsMap = {
+    physics: true,
+    edges: {
+        color: '#0078d4',
+        smooth: {
+            type: 'continuous'
+        },
+        arrows: {
+            to: { enabled: false, scaleFactor: 1, type: 'arrow' },
+            middle: { enabled: false, scaleFactor: 1, type: 'arrow' },
+            from: { enabled: false, scaleFactor: 1, type: 'arrow' }
+        },
+    },
+    nodes: {
+        font: {
+            size: 20,
+            face: '"Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif'
+        },
+        shape: 'dot'
+    },
+    interaction: {
+        hideEdgesOnDrag: true,
+        tooltipDelay: 200,
+        keyboard: true,
+        navigationButtons: true
+    },
+};
 
 export default function Maps() {
     const culture = useParams().culture || 'ru';
@@ -18,6 +47,14 @@ export default function Maps() {
     const [ready, setReady] = React.useState(false);
     const [text, setText] = React.useState(defaultText);
     const [load, setLoad] = React.useState(false);
+    const [graph, setGraph] = React.useState({
+        nodes: [],
+        edges: []
+    })
+
+    React.useEffect(() => {
+        document.title = 'Sorge - Концепт карта'
+    }, [])
 
     const end = () => {
         history.push('/')
@@ -45,14 +82,16 @@ export default function Maps() {
                 },
                 body: JSON.stringify({ text: text })
             })
-            .then(res => res.json())
-            .then(data => {
-                console.log(data)
-                setLoad(false)
-            })
-            .catch(err => {
-                setLoad(false);
-            })
+                .then(res => res.json())
+                .then(answer => {
+                    if (answer.data) {
+                        setGraph(answer.data);
+                    }
+                    setLoad(false)
+                })
+                .catch(err => {
+                    setLoad(false);
+                })
         }
     }
 
@@ -74,13 +113,14 @@ export default function Maps() {
                                         </div>
                                         <div style={{ padding: '12px', boxSizing: 'border-box', padding: '0 24px' }}>
                                             <Stack horizontal tokens={{ childrenGap: 10 }} style={{ justifyContent: 'center' }}>
-                                                <TextField label="Текст для обработки" multiline rows={11} 
+                                                <TextField label="Текст для обработки" multiline rows={11}
                                                     styles={{
                                                         root: { width: '100%' }
                                                     }}
                                                     required
                                                     value={text}
                                                     readOnly={load}
+                                                    description={`${text.length} символов`}
                                                     onChange={(e) => handleChangeText(e.target.value)}
                                                 />
                                             </Stack>
@@ -104,6 +144,19 @@ export default function Maps() {
                                                             label={'Построение...'}
                                                             styles={{ root: { paddingTop: '25px' } }} />
                                                     </>
+                                                )
+                                            }
+                                            {
+                                                graph.nodes.length > 0 && (
+                                                    <Graph
+                                                        graph={graph}
+                                                        options={optionsMap}
+                                                        style={{ 
+                                                            height: "500px", 
+                                                            border: "dotted 1px rgb(0, 120, 212)", 
+                                                            backgroundColor: "#f9f9f9",
+                                                            margin: '24px 0px' 
+                                                        }} />
                                                 )
                                             }
                                         </div>

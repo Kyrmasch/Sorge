@@ -43,6 +43,7 @@
     "compression-webpack-plugin": "8.0.0",
     "css-loader": "5.2.6",
     "number-is-nan": "^2.0.0",
+    "react-graph-vis": "^1.0.7",
     "react-html5-camera-photo": "^1.5.4",
     "react-images": "^1.1.7",
     "react-photo-gallery": "^8.0.0",

@@ -24,6 +24,7 @@ class PdfParserService(implements(IPdfParserService)):
                 tables = tabula.read_pdf(
                     data.url,
                     multiple_tables=data.settings._merge == False,
+                    stream=True,
                     pages=pages,
                     lattice=False,
                     java_options=[

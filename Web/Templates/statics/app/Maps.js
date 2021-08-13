@@ -74,6 +74,11 @@ export default function Maps() {
     const handleBuildMap = () => {
         if (text.length > 0) {
             setLoad(true);
+            setGraph({
+                nodes: [],
+                edges: []
+            });
+
             fetch('/maps/build', {
                 method: 'post',
                 headers: {

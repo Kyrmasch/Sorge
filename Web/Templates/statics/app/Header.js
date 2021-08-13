@@ -90,7 +90,11 @@ export default function Header(props) {
                         </div>
                         <div class="ms-Grid-col ms-sm5 ms-md4 ms-lg3" style={{ justifyContent: 'flex-end', display: 'flex' }}>
                             <Stack horizontal tokens={{ childrenGap: 12 }} style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', height: 54 }}>
-                                <Persona size={PersonaSize.size40} text="Администратор" initialsColor={PersonaInitialsColor.lightBlue} />
+                                {
+                                    false == false && (
+                                        <Persona size={PersonaSize.size40} text="Администратор" initialsColor={PersonaInitialsColor.lightBlue} />
+                                    )
+                                }                              
                                 <DefaultButton text="Выйти" onClick={onSignOut} allowDisabledFocus disabled={false} checked={false} />
                             </Stack>
                         </div>

@@ -76,7 +76,7 @@ export default function Login() {
             <div className="main" style={{ backgroundColor: '#faf9f8' }}>
                 <div className="middle">
                     <div className="outer">
-                        <div style={styles.root} className="box ms-motion-scaleDownIn">
+                        <div style={styles.root} className="box ms-motion-scaleDownIn login-form">
                             <Stack tokens={{ childrenGap: 24 }}>
                                 <Stack tokens={{ childrenGap: 12 }} horizontal style={{ color: 'grey' }}>
                                     <Icon iconName="TFVCLogo" style={{ fontSize: '32px' }} />

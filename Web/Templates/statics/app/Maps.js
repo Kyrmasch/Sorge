@@ -118,7 +118,7 @@ export default function Maps() {
                                         </div>
                                         <div style={{ padding: '12px', boxSizing: 'border-box', padding: '0 24px' }}>
                                             <Stack horizontal tokens={{ childrenGap: 10 }} style={{ justifyContent: 'center' }}>
-                                                <TextField label="Текст для обработки" multiline rows={9}
+                                                <TextField label="Текст для обработки" multiline rows={5}
                                                     styles={{
                                                         root: { width: '100%' }
                                                     }}

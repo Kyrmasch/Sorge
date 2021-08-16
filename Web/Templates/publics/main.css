@@ -101,10 +101,20 @@ html, body, #root {
     cursor: pointer;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 600px) {
     .outer {
         padding: 0px;
         padding: 48px 0px;
+    }
+
+    .middle {
+        display: flex;
+        vertical-align: middle;
+    }
+
+    .login-form {
+        box-shadow: none !important;
+        background-color: transparent !important;
     }
 
     .ms-fontSize-68 {

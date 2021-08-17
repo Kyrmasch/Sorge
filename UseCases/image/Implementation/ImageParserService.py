@@ -64,6 +64,7 @@ class ImageParserService(implements(IImageParserService)):
             website_is_up = False
             Rlist = []
             cores = []
+            guids = []
 
             try:
                 status_code = urllib.request.urlopen(data.url).getcode()
@@ -194,15 +195,18 @@ class ImageParserService(implements(IImageParserService)):
 
                 arr = np.array(outer)
                 dataframe = pd.DataFrame(arr.reshape(len(row), countcol))
-                dataframe, isSave = Atable.aks(dataframe)
+                dataframe = Atable.aks(dataframe)
                 core, dataframe = Atable.getCoreColumn(dataframe)
                 if (core is not None):
                     cores.append(core)
+
+                save, sha = Atable.save_json(dataframe, core)
+                if sha is not None and save == True:
+                    guids.append(sha)
                 json = dataframe.to_dict("records")
                 Rlist.append(json)
 
-                Tresult = ResultTablesDto(Rlist)
-                Tresult.core_columns = cores
+                Tresult = ResultTablesDto(Rlist, cores, guids)
 
                 return Tresult
 
@@ -237,13 +241,16 @@ class ImageParserService(implements(IImageParserService)):
 
                     csv = table_ocr.ocr_to_csv.text_files_to_csv(ocr)
                     df = pd.read_csv(StringIO(csv), sep=",")
-                    df, save, sha = Atable.aks(df)
+
+                    df = Atable.aks(df)  
+                    core, df = Atable.getCoreColumn(df)
+                    if core is not None:
+                        cores.append(core)
+
+                    save, sha = Atable.save_json(df, core)
                     if sha is not None and save == True:
                         guids.append(sha)
 
-                    core = Atable.getCoreColumn(df)
-                    if (core is not None):
-                        cores.append(core)
                     json = df.to_dict("records")
                     list.append(json)
 

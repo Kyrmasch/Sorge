@@ -41,13 +41,14 @@ class PdfParserService(implements(IPdfParserService)):
 
                 for t in tables:
                     
-                    df, save, sha = Atable.aks(t)  
-                    if sha is not None and save == True:
-                        guids.append(sha)
-
+                    df = Atable.aks(t)  
                     core, df = Atable.getCoreColumn(df)
                     if core is not None:
                         cores.append(core)
+
+                    save, sha = Atable.save_json(df, core)
+                    if sha is not None and save == True:
+                        guids.append(sha)
 
                     json = df.to_dict("records")
                     list.append(json)

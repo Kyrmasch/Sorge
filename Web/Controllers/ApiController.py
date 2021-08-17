@@ -58,8 +58,9 @@ def get_tables():
     return result
 
 
-def get_tables_by_guid():
+def get_tables_by_guids():
     data = request.json
+    guids = data["guids"]
     print(data["guids"])
 
 

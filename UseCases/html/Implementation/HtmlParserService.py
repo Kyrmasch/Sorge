@@ -33,13 +33,14 @@ class HtmlParserService(implements(IHtmlParserService)):
             tables = pd.read_html(soup.prettify(), encoding="utf-8")
             if len(tables) > 0:
                 for df in tables:
-                    df, save, sha = Atable.aks(df)
-                    if sha is not None and save == True:
-                        guids.append(sha)
-
+                    df = Atable.aks(df)
                     core, df = Atable.getCoreColumn(df)
                     if (core is not None):
                         cores.append(core)
+
+                    save, sha = Atable.save_json(df, core)
+                    if sha is not None and save == True:
+                        guids.append(sha)
                     json = df.to_dict("records")
                     Rlist.append(json)
 

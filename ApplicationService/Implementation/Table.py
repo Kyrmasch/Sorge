@@ -8,6 +8,7 @@ from pandas.util import hash_pandas_object
 import os
 import codecs
 import string
+import simplejson
 
 
 class Table(implements(ITable)):
@@ -115,19 +116,32 @@ class Table(implements(ITable)):
 
         # self.punctuation(df)
 
+        return df
+
+    def save_json(self, df, core):
         sha = abs(hash_pandas_object(df).sum())
         path = "/home/user/Sorge/Sorge/ApplicationService/Files/tables/%s.json" % (sha)
         save = False
         if os.path.exists(path) == False:
             save = True
-            data = df.to_json(orient='index')
+            table = df.to_json(orient='index')
             jsonFile = codecs.open(path, "w", 'utf-8')
-            jsonFile.write(data)
+
+            r = simplejson.dumps(
+                {
+                    "table": table,
+                    "core": core
+                },
+                ignore_nan=True,
+                encoding="utf-8",
+            )
+
+            jsonFile.write(r)
             jsonFile.close()
         else:
             save = True
 
-        return df, save, str(sha)
+        return save, str(sha)
 
     def getCoreColumn(self, dataFrame):
         dtypes = dataFrame.dtypes

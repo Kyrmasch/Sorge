@@ -62,8 +62,8 @@ def create_app():
     )
 
     app.add_url_rule(
-        "/api/get_tables_by_guid",
-        view_func=login_required(container.get_tables_by_guid_api.as_view()),
+        "/api/get_tables_by_guids",
+        view_func=login_required(container.get_tables_by_guids_api.as_view()),
         methods=[
             "POST",
         ],

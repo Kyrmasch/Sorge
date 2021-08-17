@@ -226,25 +226,28 @@ class ImageParserService(implements(IImageParserService)):
 
             image_tables = table_ocr.extract_tables.main([image_filepath])
             for image, tables in image_tables:
+                
                 list = []
                 cores = []
+                guids = []
+
                 for table in tables:
                     cells = table_ocr.extract_cells.main(table)
                     ocr = [table_ocr.ocr_image.main(cell, None) for cell in cells]
 
                     csv = table_ocr.ocr_to_csv.text_files_to_csv(ocr)
                     df = pd.read_csv(StringIO(csv), sep=",")
-                    df, isSave = Atable.aks(df)
+                    df, save, sha = Atable.aks(df)
+                    if sha is not None and save == True:
+                        guids.append(sha)
+
                     core = Atable.getCoreColumn(df)
                     if (core is not None):
                         cores.append(core)
                     json = df.to_dict("records")
                     list.append(json)
 
-                result = ResultTablesDto(list)
-                result.core_columns = cores
-
-                return result
+                return ResultTablesDto(list, cores, guids)
 
             try:
                 shutil.rmtree("/home/user/Sorge/Sorge/ApplicationService/Files/test")

@@ -124,8 +124,10 @@ class Table(implements(ITable)):
             jsonFile = codecs.open(path, "w", 'utf-8')
             jsonFile.write(data)
             jsonFile.close()
+        else:
+            save = True
 
-        return df, save
+        return df, save, str(sha)
 
     def getCoreColumn(self, dataFrame):
         dtypes = dataFrame.dtypes

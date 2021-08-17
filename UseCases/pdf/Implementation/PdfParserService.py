@@ -37,10 +37,14 @@ class PdfParserService(implements(IPdfParserService)):
 
                 list = []
                 cores = []
+                guids = []
 
                 for t in tables:
                     
-                    df, isSave = Atable.aks(t)       
+                    df, save, sha = Atable.aks(t)  
+                    if sha is not None and save == True:
+                        guids.append(sha)
+
                     core, df = Atable.getCoreColumn(df)
                     if core is not None:
                         cores.append(core)
@@ -48,10 +52,7 @@ class PdfParserService(implements(IPdfParserService)):
                     json = df.to_dict("records")
                     list.append(json)
 
-                Tresult = ResultTablesDto(list)
-                Tresult.core_columns = cores
-
-                return Tresult
+                return ResultTablesDto(list, cores, guids)
             except Exception as err:
                 print(str(err))
 

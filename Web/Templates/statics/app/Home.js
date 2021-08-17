@@ -54,6 +54,7 @@ export default function Home() {
     const [spinnerText, setSpinerText] = React.useState(null);
     const [ready, setReady] = React.useState(false);
     const [tables, setTables] = React.useState(defaultTables);
+    const [guids, setGuids] = React.useState([]);
     const [load, setLoad] = React.useState(false);
 
     React.useEffect(() => {
@@ -63,20 +64,32 @@ export default function Home() {
     React.useState(() => {
         if (window.localStorage.getItem('tables')) {
 
-            let url = window.localStorage.getItem('url') || '';
-            let storage = JSON.parse(window.localStorage.getItem('tables'));
+            let storage_url = window.localStorage.getItem('url') || '';
+            let storage_tables = JSON.parse(window.localStorage.getItem('tables'));
 
-            setUrl(url);
-            setTables(storage || defaultTables);
+            try {
+                let storage_guids = JSON.parse(window.localStorage.getItem('guids'));
+                setGuids(storage_guids || []);
+            }
+            catch { }
+
+            setUrl(storage_url);
+            setTables(storage_tables || defaultTables);
         }
     }, [ready])
 
     React.useEffect(() => {
         if (url) {
             window.localStorage.setItem('tables', JSON.stringify(tables));
-            window.localStorage.setItem('url', url);
+            window.localStorage.setItem('url', url);           
         }
     }, [tables])
+
+    React.useEffect(() => {
+        if (guids) {
+            window.localStorage.setItem('guids', JSON.stringify(guids));
+        }
+    }, [guids])
 
     React.useState(() => {
 
@@ -183,6 +196,7 @@ export default function Home() {
                             data: Titems,
                             cores: data.cores
                         });
+                        setGuids(data.guids);
                         setLoad(false);
                     }
                 })

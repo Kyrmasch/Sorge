@@ -1,9 +1,6 @@
 from ApplicationService.Dtos.SettingsUrlDto import SettingsUrlDto
 from Web.Dtos.GetTablesDto import GetTablesDto
-from flask import (
-    request,
-    request,
-)
+from flask import request
 import asyncio
 from flask_login import current_user
 import simplejson
@@ -12,23 +9,19 @@ from ApplicationService.Dtos.ParseDto import ParseDto
 from ApplicationService.Dtos.ResultTablesDto import ResultTablesDto
 import os
 
+
 def get_tabs():
     tabs = []
 
-    if current_user.system == 'sorge':
-        tabs.append({
-                    'text': 'Парсер', 'code': '', 'itemKey': 1
-                })
-    elif current_user.system == 'maps':
-        tabs.append({
-                    'text': 'Концепт карта', 'code': 'maps', 'itemKey': 1
-                })
-    
-    tabs.append({
-                    'text': 'Настройки', 'code': 'settings', 'itemKey': 2
-                })
+    if current_user.system == "sorge":
+        tabs.append({"text": "Парсер", "code": "", "itemKey": 1})
+    elif current_user.system == "maps":
+        tabs.append({"text": "Концепт карта", "code": "maps", "itemKey": 1})
+
+    tabs.append({"text": "Настройки", "code": "settings", "itemKey": 2})
 
     return simplejson.dumps(tabs, ignore_nan=True, encoding="utf-8")
+
 
 def get_tables():
     data = request.json
@@ -38,9 +31,10 @@ def get_tables():
         parseDto.settings = (
             data["settings"] is not None
             and SettingsUrlDto(
-                _from = data["settings"]["from"], 
-                _to = data["settings"]["to"], 
-                _merge = data["settings"]["merge"])
+                _from=data["settings"]["from"],
+                _to=data["settings"]["to"],
+                _merge=data["settings"]["merge"],
+            )
             or SettingsUrlDto(0, 0)
         )
 
@@ -54,12 +48,19 @@ def get_tables():
             resultTablesDto: ResultTablesDto = html.get_data(parseDto)
 
     result = simplejson.dumps(
-        GetTablesDto(resultTablesDto.tables, resultTablesDto.core_columns).__dict__,
+        GetTablesDto(
+            resultTablesDto.tables, resultTablesDto.core_columns, resultTablesDto.guids
+        ).__dict__,
         ignore_nan=True,
         encoding="utf-8",
     )
 
     return result
+
+
+def get_tables_by_guid():
+    data = request.json
+    print(data["guids"])
 
 
 def get_wiki():
@@ -83,7 +84,7 @@ def get_wiki():
                     info = ", ".join(ls)
                 except:
                     pass
-    
+
     return simplejson.dumps(
         {"pages": pages, "info": info}, ignore_nan=True, encoding="utf-8"
     )

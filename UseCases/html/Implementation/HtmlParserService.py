@@ -1,4 +1,5 @@
 from typing import List
+from numpy import true_divide
 import pandas as pd
 from interface import implements
 from UseCases.html.Interfaces.IHtmlParserService import IHtmlParserService
@@ -16,6 +17,7 @@ class HtmlParserService(implements(IHtmlParserService)):
         if data.url is not None:
             Rlist = []
             cores = []
+            guids = []
 
             headers = {
                 'Access-Control-Allow-Origin': '*',
@@ -30,22 +32,17 @@ class HtmlParserService(implements(IHtmlParserService)):
 
             tables = pd.read_html(soup.prettify(), encoding="utf-8")
             if len(tables) > 0:
-                list = []
-                for dataframe in tables:
-                    dataframe, isSave = Atable.aks(dataframe)
-                    core, dataframe = Atable.getCoreColumn(dataframe)
+                for df in tables:
+                    df, save, sha = Atable.aks(df)
+                    if sha is not None and save == True:
+                        guids.append(sha)
+
+                    core, df = Atable.getCoreColumn(df)
                     if (core is not None):
                         cores.append(core)
-                    json = dataframe.to_dict("records")
+                    json = df.to_dict("records")
                     Rlist.append(json)
 
-                    Tresult = ResultTablesDto(Rlist)
-                    Tresult.core_columns = cores
-                    list.append(json)
-                
-                Tresult = ResultTablesDto(Rlist)
-                Tresult.core_columns = cores
-
-                return Tresult
+                return ResultTablesDto(Rlist, cores, guids)
 
         return ResultTablesDto([])

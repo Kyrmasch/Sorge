@@ -113,7 +113,7 @@ def get_tables_by_guids():
               - guids
             properties:
               guids:
-                type: array
+                type: string
                 description: Массив            
     responses:
       200:
@@ -134,7 +134,17 @@ def get_tables_by_guids():
 
     data = request.json
     guids = data["guids"]
-    print(data["guids"])
+    
+    result = simplejson.dumps(
+        GetTablesDto(
+            [], [], []
+        ).__dict__,
+        ignore_nan=True,
+        encoding="utf-8",
+        ensure_ascii=False
+    )
+
+    return result
 
 
 def get_wiki():

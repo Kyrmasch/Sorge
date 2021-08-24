@@ -13,6 +13,7 @@
 # https://rus.azattyq-ruhy.kz/userfiles/%D1%8D%D0%BA%D0%BE%D0%BB%D0%BE%D0%B3%D0%B8%D1%8F/c0bb2f80-f8ad-46d8-bdbd-08f8ef672f7e.jpg
 
 # https://aviapoisk.kz/raspisanie/aeroporta/ustkamenogorsk
+# https://www.gks.ru/bgd/regl/b09_47/IssWWW.exe/Stg/2-13.htm
 
 dependency-injector
 flask

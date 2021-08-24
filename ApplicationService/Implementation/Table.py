@@ -108,7 +108,12 @@ class Table(implements(ITable)):
         df = dataframe.replace(r"\r+|\n+|\t+|\/+", " ", regex=True)
         df = df.replace(r"\s+", " ", regex=True)
         df = df.dropna(axis=1, how="all")
-        df = self.transform(df)
+
+        try:
+            df = self.transform(df)
+        except:
+            pass
+        
         df = self.merge(df)
         
         df = df.replace(np.nan, "-", regex=True)

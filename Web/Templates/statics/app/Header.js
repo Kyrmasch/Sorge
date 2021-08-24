@@ -46,8 +46,13 @@ export default function Header(props) {
     }, [tabs]);
 
     const onChange = (tab, e) => {
-        setCurrent(tab.props.itemKey);
-        history.push(`/${tab.props.code}`)
+        if (tab.props.code != 'apidocs') {
+            setCurrent(tab.props.itemKey);
+            history.push(`/${tab.props.code}`)
+        }
+        else {
+            window.open('https://sorge.ektu.kz/apidocs', '_blank').focus();
+        }
     }
 
     const onSignOut = () => {
@@ -84,6 +89,12 @@ export default function Header(props) {
                                                 )
                                             })
                                         }
+                                        <PivotItem
+                                            headerText={"Api"}
+                                            code={"apidocs"}
+                                            itemKey={"swagger"}
+                                            styles={{}}>
+                                        </PivotItem>
                                     </Pivot>
                                 </div>
                             </Stack>

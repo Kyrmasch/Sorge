@@ -1,4 +1,5 @@
 from flask.json import jsonify
+from flasgger import Swagger
 from containers import ApplicationContainer
 from ApplicationService.DepentencyInjection import socket
 from Infrastructure.DepentencyInjection import auth
@@ -9,7 +10,6 @@ app = container.app()
 app.container = container
 
 socket.init_app(app, cors_allowed_origins="*", async_mode="threading")
-
 
 def create_app():
 
@@ -110,5 +110,27 @@ def create_app():
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
     )
+    app.config['JSON_AS_ASCII'] = False
+    app.config['SWAGGER'] = {
+        "swagger_version": "2.0",
+        "title": "Sorge Api",
+        "description": "Описание",
+        "headers": [
+            ('Access-Control-Allow-Origin', '*'),
+            ('Access-Control-Allow-Methods', "GET, POST, PUT, DELETE, OPTIONS"),
+            ('Access-Control-Allow-Credentials', "true"),
+        ],
+        "specs": [
+            {
+                "version": "1.0.0",
+                "title": "Sorge",
+                "endpoint": 'v1_api',
+                "description": 'Аналиц таблиц',
+                "route": '/v1/api.json',
+                "termsOfService": None
+            }
+        ]
+    }
+    swagger = Swagger(app)
 
     return socket, app

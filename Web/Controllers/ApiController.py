@@ -23,17 +23,54 @@ def get_tabs():
     return simplejson.dumps(tabs, ignore_nan=True, encoding="utf-8")
 
 
-def get_tables():
+def get_tables():  
+    """
+    Парсер таблиц
+    Получение таблиц из указанной ссылки
+    Автоматическое определения типа входящего документа (html, pdf, jpg)
+    ---
+    tags:
+      - Api
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+            id : Url
+            required:
+              - url
+            properties:
+              url:
+                type: string
+                description: url
+                default: https://aviapoisk.kz/raspisanie/aeroporta/ustkamenogorsk             
+    responses:
+      200:
+        description: Массив таблиц с ключевым столбцом
+        schema:
+          id: ResultTablesDto
+          properties:
+            result:
+                type: object  
+                description: tables
+            cores:
+                type: object  
+                description: core column
+            guids:
+                type: object  
+                description: guid for save table
+    """
+
     data = request.json
     resultTablesDto = ResultTablesDto([])
     if data["url"] is not None:
         parseDto = ParseDto(data["url"])
         parseDto.settings = (
-            data["settings"] is not None
+            "settings" in data
             and SettingsUrlDto(
-                _from=data["settings"]["from"],
-                _to=data["settings"]["to"],
-                _merge=data["settings"]["merge"],
+                _from   =   data["settings"]["from"],
+                _to     =   data["settings"]["to"],
+                _merge  =   data["settings"]["merge"],
             )
             or SettingsUrlDto(0, 0)
         )
@@ -53,18 +90,87 @@ def get_tables():
         ).__dict__,
         ignore_nan=True,
         encoding="utf-8",
+        ensure_ascii=False
     )
 
     return result
 
 
 def get_tables_by_guids():
+    """
+    Получить сохраненные таблицы
+    Получить таблицы сохраненные после выполнения парсинга по GUID
+    ---
+    tags:
+      - Api
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+            id : Guids
+            required:
+              - guids
+            properties:
+              guids:
+                type: array
+                description: Массив            
+    responses:
+      200:
+        description: Массив таблиц с ключевым столбцом
+        schema:
+          id: ResultTablesDto
+          properties:
+            result:
+                type: object  
+                description: tables
+            cores:
+                type: object  
+                description: core column
+            guids:
+                type: object  
+                description: guid for save table
+    """
+
     data = request.json
     guids = data["guids"]
     print(data["guids"])
 
 
 def get_wiki():
+    """
+    Информация из википедии
+    Получить дополнительную информацию для объекта главного столбца
+    ---
+    tags:
+      - Api
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+            id : Wiki
+            required:
+              - word
+            properties:
+              word:
+                type: string
+                description: Термин
+                default: КазмунайГаз            
+    responses:
+      200:
+        description: Дополнительная информация
+        schema:
+          id: WikiInfo
+          properties:
+            pages:
+                type: object  
+                description: Страницы
+            info:
+                type: object  
+                description: Информация по свойствам
+    """
+
     data = request.json
     pages = []
     info = None
@@ -87,5 +193,6 @@ def get_wiki():
                     pass
 
     return simplejson.dumps(
-        {"pages": pages, "info": info}, ignore_nan=True, encoding="utf-8"
+        {"pages": pages, "info": info}, ignore_nan=True, encoding="utf-8",
+        ensure_ascii=False
     )

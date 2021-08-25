@@ -2,7 +2,7 @@ from typing import List
 from numpy import true_divide
 import pandas as pd
 from interface import implements
-from UseCases.html.Interfaces.IHtmlParserService import IHtmlParserService
+from UseCases.WebPage.Interfaces.IHtmlParserService import IHtmlParserService
 from ApplicationService.Dtos.ParseDto import ParseDto
 from ApplicationService.Dtos.ResultTablesDto import ResultTablesDto
 from ApplicationService.DepentencyInjection import table as Atable
@@ -30,20 +30,23 @@ class HtmlParserService(implements(IHtmlParserService)):
             req = requests.get(data.url, headers)
             soup = BeautifulSoup(req.content, 'html.parser')
 
-            tables = pd.read_html(soup.prettify(), encoding="utf-8")
-            if len(tables) > 0:
-                for df in tables:
-                    df = Atable.aks(df)
-                    core, df = Atable.getCoreColumn(df)
-                    if (core is not None):
-                        cores.append(core)
+            try:
+                tables = pd.read_html(soup.prettify(), encoding="utf-8")
+                if len(tables) > 0:
+                    for df in tables:
+                        df = Atable.aks(df)
+                        core, df = Atable.getCoreColumn(df)
+                        if (core is not None):
+                            cores.append(core)
 
-                    save, sha = Atable.save_json(df, core)
-                    if sha is not None and save == True:
-                        guids.append(sha)
-                    json = df.to_dict("records")
-                    Rlist.append(json)
+                        save, sha = Atable.save_json(df, core)
+                        if sha is not None and save == True:
+                            guids.append(sha)
+                        json = df.to_dict("records")
+                        Rlist.append(json)
 
-                return ResultTablesDto(Rlist, cores, guids)
+                    return ResultTablesDto(Rlist, cores, guids)
+            except:
+                pass
 
         return ResultTablesDto([])

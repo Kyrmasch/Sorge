@@ -1,6 +1,6 @@
 from typing import List
 from interface import implements
-from UseCases.pdf.Interfaces.IPdfParserService import IPdfParserService
+from UseCases.PortableDocumentFormat.Interfaces.IPdfParserService import IPdfParserService
 from ApplicationService.Dtos.ParseDto import ParseDto
 from ApplicationService.Dtos.ResultTablesDto import ResultTablesDto
 import tabula

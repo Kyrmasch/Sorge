@@ -1,8 +1,8 @@
 from dependency_injector import providers, containers
-from UseCases.html.Implementation.HtmlParserService import HtmlParserService
-from UseCases.pdf.Implementation.PdfParserService import PdfParserService
-from UseCases.image.Implementation.ImageParserService import ImageParserService
-from UseCases.wiki.Implementation.WikiService import WikiService
+from UseCases.WebPage.Implementation.HtmlParserService import HtmlParserService
+from UseCases.PortableDocumentFormat.Implementation.PdfParserService import PdfParserService
+from UseCases.Pictures.Implementation.ImageParserService import ImageParserService
+from UseCases.Wikipedia.Implementation.WikiService import WikiService
 
 class HtmlParserServiceProvider(containers.DeclarativeContainer):
     config = providers.Configuration()

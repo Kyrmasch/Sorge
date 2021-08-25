@@ -9,6 +9,8 @@ import os
 import codecs
 import string
 import simplejson
+import io
+import json
 
 
 class Table(implements(ITable)):
@@ -129,20 +131,20 @@ class Table(implements(ITable)):
         save = False
         if os.path.exists(path) == False:
             save = True
-            table = df.to_json(orient='index')
-            jsonFile = codecs.open(path, "w", 'utf-8')
-
-            r = simplejson.dumps(
-                {
-                    "table": table,
-                    "core": core
-                },
-                ignore_nan=True,
-                encoding="utf-8",
-            )
-
-            jsonFile.write(r)
-            jsonFile.close()
+            table = df.to_json(orient='index', force_ascii=False)
+            try:
+                with io.open(path, 'w') as f:
+                    json.dump({
+                                    "table": table,
+                                    "core": [core],
+                                    "guid": ["%s" % (sha)]
+                                },
+                                f,
+                                sort_keys = True, 
+                                indent = 4,
+                                ensure_ascii=False)
+            except Exception as e:
+                print(str(e))
         else:
             save = True
 

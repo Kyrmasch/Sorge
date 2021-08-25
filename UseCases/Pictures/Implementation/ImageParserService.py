@@ -1,6 +1,6 @@
 from typing import List
 from interface import implements
-from UseCases.image.Interfaces.IImageParserService import IImageParserService
+from UseCases.Pictures.Interfaces.IImageParserService import IImageParserService
 from ApplicationService.Dtos.ParseDto import ParseDto
 from ApplicationService.Dtos.ResultTablesDto import ResultTablesDto
 import pandas as pd

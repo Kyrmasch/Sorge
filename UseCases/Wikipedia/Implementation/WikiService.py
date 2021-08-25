@@ -1,6 +1,6 @@
 from typing import List
 from interface import implements
-from UseCases.wiki.Interfaces.IWikiService import IWikiService
+from UseCases.Wikipedia.Interfaces.IWikiService import IWikiService
 import wikipedia
 import numpy as np
 import pandas as pd

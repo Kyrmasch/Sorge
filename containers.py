@@ -3,7 +3,7 @@ from dependency_injector import providers, containers
 from dependency_injector.ext import flask
 from flask import Flask
 
-from Web.Controllers import PageController, ApiController, AuthController, MapsController
+from Web.Controllers import PageController, ApiController, AuthController, MapsController, DevControler
 
 class ApplicationContainer(containers.DeclarativeContainer):
 
@@ -21,11 +21,13 @@ class ApplicationContainer(containers.DeclarativeContainer):
 
     get_tabs_api = flask.View(ApiController.get_tabs)
     get_tables_api = flask.View(ApiController.get_tables)
-    get_tables_by_guids_api = flask.View(ApiController.get_tables_by_guids)
+    get_table_by_guid_api = flask.View(ApiController.get_table_by_guid)
 
     login_api = flask.View(AuthController.signin)
     logout_api = flask.View(AuthController.signout)
 
     wiki_pages = flask.View(ApiController.get_wiki)
+
+    dev_get_guids = flask.View(DevControler.get_guids)
 
     map_build = flask.View(MapsController.build)

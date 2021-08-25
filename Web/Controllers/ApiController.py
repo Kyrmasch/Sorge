@@ -8,6 +8,7 @@ from UseCases.DepentencyInjection import html, pdf, image, wiki
 from ApplicationService.Dtos.ParseDto import ParseDto
 from ApplicationService.Dtos.ResultTablesDto import ResultTablesDto
 import os
+import json
 
 
 def get_tabs():
@@ -96,25 +97,25 @@ def get_tables():
     return result
 
 
-def get_tables_by_guids():
+def get_table_by_guid():
     """
     Получить сохраненные таблицы
     Получить таблицы сохраненные после выполнения парсинга по GUID
     ---
     tags:
-      - Api
+      - Developer
     parameters:
       - in: body
         name: body
         required: true
         schema:
-            id : Guids
+            id : Guid
             required:
-              - guids
+              - value
             properties:
-              guids:
+              guid:
                 type: string
-                description: Массив            
+                description: GUID            
     responses:
       200:
         description: Массив таблиц с ключевым столбцом
@@ -133,12 +134,25 @@ def get_tables_by_guids():
     """
 
     data = request.json
-    guids = data["guids"]
-    
-    result = simplejson.dumps(
-        GetTablesDto(
+    table = GetTablesDto(
             [], [], []
         ).__dict__,
+
+    if "guid" in data:
+      guid = data["guid"]
+      try:
+          with open("/home/user/Sorge/Sorge/ApplicationService/Files/tables/%s.json" % (guid), encoding='utf-8') as json_file:
+            content = json.load(json_file)
+            table = GetTablesDto(
+                        content['table'], content['core'], content['guid']
+                    ).__dict__,
+      except Exception as e:
+          print(str(e))
+      finally:
+          pass
+
+    result = simplejson.dumps(
+        table,
         ignore_nan=True,
         encoding="utf-8",
         ensure_ascii=False

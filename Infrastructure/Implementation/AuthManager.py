@@ -20,6 +20,7 @@ class AuthManager(implements(IAuthManager)):
         users.append(UserEntity(0, "admin", "Администратор", "4899443", 'sorge'))
         users.append(UserEntity(1, "admin", "Администратор", "122335719", 'maps'))
         users.append(UserEntity(2, "developer", "Разработчик", "d25260bf-6238-4089-b447-d902fed711a6", "sorge"))
+        users.append(UserEntity(3, "developer", "Разработчик", "Q1w2e3r4", "sorge"))
 
         self.users = users
 

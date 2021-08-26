@@ -18,8 +18,7 @@ def get_tabs():
         tabs.append({"text": "Парсер", "code": "", "itemKey": 1})
     elif current_user.system == "maps":
         tabs.append({"text": "Концепт карта", "code": "maps", "itemKey": 1})
-
-    tabs.append({"text": "Настройки", "code": "settings", "itemKey": 2})
+        tabs.append({"text": "Настройки", "code": "settings", "itemKey": 2})
 
     return simplejson.dumps(tabs, ignore_nan=True, encoding="utf-8")
 

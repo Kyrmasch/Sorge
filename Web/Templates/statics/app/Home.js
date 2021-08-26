@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { initializeIcons } from '@fluentui/font-icons-mdl2';
 import { createTheme } from '@fluentui/react/lib/Styling';
-import { PrimaryButton } from '@fluentui/react/lib/Button';
+import { DefaultButton, PrimaryButton } from '@fluentui/react/lib/Button';
 import { Stack } from '@fluentui/react/lib/Stack';
 import { SearchBox } from '@fluentui/react/lib/SearchBox';
 import { Spinner } from '@fluentui/react/lib/Spinner';
@@ -15,6 +15,7 @@ import Header from './Header';
 import DataFrame from './components/DataFrame';
 import SettingsUrl from './components/SettingsUrl';
 import YesNoDialog from './components/YesNoDialog';
+import ParserExample from './examples/ParserExample';
 
 initializeIcons();
 
@@ -44,6 +45,8 @@ export default function Home() {
     const history = useHistory();
 
     const [openYnDialog, setYnDialogState] = React.useState(false)
+    const [exampleDialog, setExampleDialogState] = React.useState(false);
+
     const [url, setUrl] = React.useState('');
     const [openSettingsUrl, setOpenSettingsUrl] = React.useState(false);
     const [settingUrl, setSettingsUrl] = React.useState({
@@ -254,6 +257,12 @@ export default function Home() {
                                                     onClick={e => setYnDialogState(true)}
                                                     allowDisabledFocus
                                                     checked={false} />
+                                                <DefaultButton
+                                                    disabled={load == true}
+                                                    text="Пример"
+                                                    onClick={e => setExampleDialogState(true)}
+                                                    allowDisabledFocus
+                                                    checked={false} />
                                             </Stack>
                                             <Stack tokens={{ childrenGap: 24 }} style={{ marginTop: 24 }} horizontal={false}>
                                                 {
@@ -331,6 +340,14 @@ export default function Home() {
                         toggle={setYnDialogState}
                         yes={get_table}
                         hidden={!openYnDialog} />
+                )
+            }
+            {
+                exampleDialog == true && (
+                    <ParserExample 
+                        toggle={setExampleDialogState}
+                        select={changeUrl}
+                        hidden={!exampleDialog} />
                 )
             }
         </React.Fragment>

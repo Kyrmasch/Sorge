@@ -90,7 +90,7 @@ export default function Header(props) {
                                             })
                                         }
                                         <PivotItem
-                                            headerText={"Api"}
+                                            headerText={"Sorge Api"}
                                             code={"apidocs"}
                                             itemKey={"swagger"}
                                             styles={{}}>

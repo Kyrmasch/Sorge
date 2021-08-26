@@ -7,7 +7,11 @@ def get_guids():
     GUID сохраненных таблиц
     ---
     tags:
-      - Developer         
+      - Developer    
+    parameters:
+      - in: header
+        name: X-API-KEY
+        required: false     
     responses:
       200:
         description: Список

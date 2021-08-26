@@ -43,7 +43,10 @@ def get_tables():
               url:
                 type: string
                 description: url
-                default: https://aviapoisk.kz/raspisanie/aeroporta/ustkamenogorsk             
+                default: https://aviapoisk.kz/raspisanie/aeroporta/ustkamenogorsk      
+      - in: header
+        name: X-API-KEY
+        required: false         
     responses:
       200:
         description: Массив таблиц с ключевым столбцом
@@ -114,7 +117,10 @@ def get_table_by_guid():
             properties:
               guid:
                 type: string
-                description: GUID            
+                description: GUID  
+      - in: header
+        name: X-API-KEY
+        required: false            
     responses:
       200:
         description: Массив таблиц с ключевым столбцом
@@ -179,7 +185,10 @@ def get_wiki():
               word:
                 type: string
                 description: Термин
-                default: КазмунайГаз            
+                default: КазмунайГаз 
+      - in: header
+        name: X-API-KEY
+        required: false           
     responses:
       200:
         description: Дополнительная информация

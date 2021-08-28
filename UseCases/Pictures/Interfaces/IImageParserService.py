@@ -5,3 +5,6 @@ from ApplicationService.Dtos.ResultTablesDto import ResultTablesDto
 class IImageParserService(Interface):
     def get_data(self, data: ParseDto) -> ResultTablesDto:
         pass
+    
+    def get_data_cv(self, data: ParseDto) -> ResultTablesDto:
+        pass

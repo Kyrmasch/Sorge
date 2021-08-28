@@ -21,6 +21,7 @@ import os.path
 from ApplicationService.DepentencyInjection import table as Atable
 from Infrastructure.DepentencyInjection import mediatr
 from UseCases.Commands.SetProgressCommanddHandler import ProgressCommand
+from urllib.request import Request, urlopen
 
 
 class ImageParserService(implements(IImageParserService)):
@@ -67,10 +68,12 @@ class ImageParserService(implements(IImageParserService)):
             guids = []
 
             try:
-                status_code = urllib.request.urlopen(data.url).getcode()
-                website_is_up = status_code == 200
-            except:
-                pass
+                # status_code = urllib.request.urlopen(data.url).getcode()
+                req = Request(data.url, headers={'User-Agent': 'Mozilla/5.0'})
+                webpage = urlopen(req).read()
+                website_is_up = webpage is not None
+            except Exception as e:
+                print(str(e))
 
             mediatr.send(ProgressCommand(10, "Загрузка изображения по ссылке"))
 
@@ -79,6 +82,8 @@ class ImageParserService(implements(IImageParserService)):
                 and self.download_image_to_tempdir(data.url)
                 or data.url
             )
+
+            print(image_filepath)
 
             if os.path.isfile(image_filepath):
 

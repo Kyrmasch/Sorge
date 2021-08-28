@@ -32,8 +32,8 @@ const urls = [
     },
     {
         type: 'FileImage',
-        url: 'http://exploringafrica.matrix.msu.edu/wp-content/uploads/2015/06/Economic-data-table-pt.-1.png',
-        title: 'Пример изображения'
+        url: 'https://uchet.kz/news/%D0%91%D0%B5%D0%B7%D1%8B%D0%BC%D1%8F%D0%BD%D0%BD%D1%8B%D0%B9hhh.png',
+        title: 'Валовый-внутренний продукт'
     },
     {
         type: 'FileImage',

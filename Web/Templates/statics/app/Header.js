@@ -17,6 +17,7 @@ export default function Header(props) {
     const location = useLocation();
 
     const [tabs, setTabs] = React.useState([]);
+    const [system, setSystem] = React.useState('sorge');
     const [current, setCurrent] = React.useState(0);
 
     React.useEffect(() => {
@@ -25,10 +26,11 @@ export default function Header(props) {
         })
         .then(res => res.json())
         .then(data => {
-            setTabs(data);     
+            setTabs(data.tabs);     
+            setSystem(data.system);
             if ('' == location.pathname.replace('/', ''))
             {
-                history.push(`/${data[0].code}`)     
+                history.push(`/${data.tabs[0].code}`)     
             }
 
             props.setReady(true);
@@ -46,12 +48,12 @@ export default function Header(props) {
     }, [tabs]);
 
     const onChange = (tab, e) => {
-        if (tab.props.code != 'apidocs') {
+        if (tab.props.code != 'api') {
             setCurrent(tab.props.itemKey);
             history.push(`/${tab.props.code}`)
         }
         else {
-            window.open('https://sorge.ektu.kz/apidocs', '_blank').focus();
+            window.open(`https://sorge.ektu.kz/api?url=/api/${system}.json`, '_blank').focus();
         }
     }
 
@@ -91,7 +93,7 @@ export default function Header(props) {
                                         }
                                         <PivotItem
                                             headerText={"Sorge Api"}
-                                            code={"apidocs"}
+                                            code={"api"}
                                             itemKey={"swagger"}
                                             styles={{}}>
                                         </PivotItem>

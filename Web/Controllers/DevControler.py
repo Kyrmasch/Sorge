@@ -1,7 +1,7 @@
 import simplejson
 import os
 
-def get_guids():  
+def parse_get_guids():  
     """
     Получить GUID 
     GUID сохраненных таблиц

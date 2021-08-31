@@ -10,7 +10,23 @@ from flask import (
 import time
 
 
-def build():
+def map_build():
+    """
+    Построить 
+    Построить концепт карту из текста
+    ---
+    tags:
+      - Api    
+    parameters:
+      - in: header
+        name: X-API-KEY
+        required: false     
+    responses:
+      200:
+        description: Список
+        schema:
+          id: string
+    """
     data = request.json
     text = data["text"]
     time.sleep(5)

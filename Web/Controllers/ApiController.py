@@ -20,10 +20,13 @@ def get_tabs():
         tabs.append({"text": "Концепт карта", "code": "maps", "itemKey": 1})
         tabs.append({"text": "Настройки", "code": "settings", "itemKey": 2})
 
-    return simplejson.dumps(tabs, ignore_nan=True, encoding="utf-8")
+    return simplejson.dumps({
+      "system": current_user.system,
+      "tabs": tabs
+    }, ignore_nan=True, encoding="utf-8")
 
 
-def get_tables():  
+def parse_get_tables():  
     """
     Парсер таблиц
     Получение таблиц из указанной ссылки
@@ -99,7 +102,7 @@ def get_tables():
     return result
 
 
-def get_table_by_guid():
+def parse_get_table_by_guid():
     """
     Получить сохраненные таблицы
     Получить таблицы сохраненные после выполнения парсинга по GUID
@@ -166,7 +169,7 @@ def get_table_by_guid():
     return result
 
 
-def get_wiki():
+def parse_get_wiki():
     """
     Информация из википедии
     Получить дополнительную информацию для объекта главного столбца

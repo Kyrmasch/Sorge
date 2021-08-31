@@ -119,7 +119,22 @@ def create_app():
         SESSION_COOKIE_SAMESITE="Lax",
     )
     app.config['JSON_AS_ASCII'] = False
-    app.config['SWAGGER'] = {
+
+    swagger_template = {
+        'components': {
+            'securitySchemes': {
+                'ApiKeyAuth': {
+                    'type': 'apiKey',
+                    'in': 'header',
+                    'name': 'X-API-KEY'
+                }
+            },
+            'security': {
+                'APIKeyHeader': []
+            }
+        }
+    }
+    swagger_config = {
         "swagger_version": "2.0",
         "title": "Sorge Api",
         "description": "Описание",
@@ -128,17 +143,31 @@ def create_app():
             ('Access-Control-Allow-Methods', "GET, POST, PUT, DELETE, OPTIONS"),
             ('Access-Control-Allow-Credentials', "true"),
         ],
+        "swagger_ui": True,
+        "specs_route": "/api/",
         "specs": [
             {
                 "version": "1.0.0",
                 "title": "Sorge",
-                "endpoint": 'v1_api',
-                "description": 'Аналиц таблиц',
-                "route": '/v1/api.json',
-                "termsOfService": None
+                "endpoint": 'parse_api',
+                "description": 'Анализ таблиц',
+                "route": '/api/sorge.json',
+                "termsOfService": None,
+                "rule_filter": lambda rule: rule.endpoint.startswith('parse_'),
+                "model_filter": lambda tag: True,
+            },
+            {
+                "version": "1.0.0",
+                "title": "Concept Maps",
+                "endpoint": 'map_api',
+                "description": 'Концепт карты',
+                "route": '/api/maps.json',
+                "termsOfService": None,
+                "rule_filter": lambda rule: rule.endpoint.startswith('map_'),
+                "model_filter": lambda tag: True,
             }
         ]
     }
-    swagger = Swagger(app)
+    swagger = Swagger(app, config=swagger_config, template=swagger_template)
 
     return socket, app

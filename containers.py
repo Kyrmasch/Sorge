@@ -20,14 +20,14 @@ class ApplicationContainer(containers.DeclarativeContainer):
     favicon = flask.View(PageController.favicon)
 
     get_tabs_api = flask.View(ApiController.get_tabs)
-    get_tables_api = flask.View(ApiController.get_tables)
-    get_table_by_guid_api = flask.View(ApiController.get_table_by_guid)
+    get_tables_api = flask.View(ApiController.parse_get_tables)
+    get_table_by_guid_api = flask.View(ApiController.parse_get_table_by_guid)
 
     login_api = flask.View(AuthController.signin)
     logout_api = flask.View(AuthController.signout)
 
-    wiki_pages = flask.View(ApiController.get_wiki)
+    wiki_pages = flask.View(ApiController.parse_get_wiki)
 
-    dev_get_guids = flask.View(DevControler.get_guids)
+    dev_get_guids = flask.View(DevControler.parse_get_guids)
 
-    map_build = flask.View(MapsController.build)
+    map_build = flask.View(MapsController.map_build)

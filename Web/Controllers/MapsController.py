@@ -12,20 +12,33 @@ import time
 
 def map_build():
     """
-    Построить 
+    Построить
     Построить концепт карту из текста
     ---
     tags:
-      - Api    
-    parameters:
-      - in: header
-        name: X-API-KEY
-        required: false     
+      - Api
+    requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                type : object
+                properties:
+                  text:
+                    type: string
+            examples:
+                Default:
+                  value:
+                    text: ""
+    security:
+        - ApiKeyAuth: []
     responses:
       200:
-        description: Список
-        schema:
-          id: string
+        description: Концепт карта
+        content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Graph'
     """
     data = request.json
     text = data["text"]
@@ -33,13 +46,10 @@ def map_build():
 
     graph = getGraph()
 
-    return simplejson.dumps(
-        { "data": graph.__dict__ }, 
-        ignore_nan      =   True, 
-        encoding        =   "utf-8"
-    )
+    return simplejson.dumps({"data": graph.__dict__}, ignore_nan=True, encoding="utf-8")
 
-def getGraph()-> GetGraphDto: 
+
+def getGraph() -> GetGraphDto:
     nodes = [
         {"id": 1, "value": 2, "label": "Algie"},
         {"id": 2, "value": 31, "label": "Alston"},

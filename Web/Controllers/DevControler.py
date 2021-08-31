@@ -7,16 +7,16 @@ def parse_get_guids():
     GUID сохраненных таблиц
     ---
     tags:
-      - Developer    
-    parameters:
-      - in: header
-        name: X-API-KEY
-        required: false     
+      - Developer 
+    security:
+        - ApiKeyAuth: []  
     responses:
       200:
         description: Список
-        schema:
-          id: array
+        content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Guids'
     """
 
     path = "/home/user/Sorge/Sorge/ApplicationService/Files/tables"

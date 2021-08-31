@@ -34,37 +34,28 @@ def parse_get_tables():
     ---
     tags:
       - Api
-    parameters:
-      - in: body
-        name: body
+    requestBody:
         required: true
-        schema:
-            id : Url
-            required:
-              - url
-            properties:
-              url:
-                type: string
-                description: url
-                default: https://aviapoisk.kz/raspisanie/aeroporta/ustkamenogorsk      
-      - in: header
-        name: X-API-KEY
-        required: false         
+        content:
+          application/json:
+            schema:
+                type : object
+                properties:
+                  url:
+                    type: string    
+            examples:
+                Url: 
+                  value: 
+                    url: "https://aviapoisk.kz/raspisanie/aeroporta/ustkamenogorsk"  
+    security:
+        - ApiKeyAuth: []      
     responses:
       200:
         description: Массив таблиц с ключевым столбцом
-        schema:
-          id: ResultTablesDto
-          properties:
-            result:
-                type: object  
-                description: tables
-            cores:
-                type: object  
-                description: core column
-            guids:
-                type: object  
-                description: guid for save table
+        content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultTables' 
     """
 
     data = request.json
@@ -109,36 +100,28 @@ def parse_get_table_by_guid():
     ---
     tags:
       - Developer
-    parameters:
-      - in: body
-        name: body
+    requestBody:
         required: true
-        schema:
-            id : Guid
-            required:
-              - value
-            properties:
-              guid:
-                type: string
-                description: GUID  
-      - in: header
-        name: X-API-KEY
-        required: false            
+        content:
+          application/json:
+            schema:
+                type : object
+                properties:
+                  guid:
+                    type: string    
+            examples:
+                Saved: 
+                  value: 
+                    guid: "7075105353550151027"  
+    security:
+        - ApiKeyAuth: []           
     responses:
       200:
         description: Массив таблиц с ключевым столбцом
-        schema:
-          id: ResultTablesDto
-          properties:
-            result:
-                type: object  
-                description: tables
-            cores:
-                type: object  
-                description: core column
-            guids:
-                type: object  
-                description: guid for save table
+        content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultTables' 
     """
 
     data = request.json
@@ -176,34 +159,28 @@ def parse_get_wiki():
     ---
     tags:
       - Api
-    parameters:
-      - in: body
-        name: body
+    requestBody:
         required: true
-        schema:
-            id : Wiki
-            required:
-              - word
-            properties:
-              word:
-                type: string
-                description: Термин
-                default: КазмунайГаз 
-      - in: header
-        name: X-API-KEY
-        required: false           
+        content:
+          application/json:
+            schema:
+                type : object
+                properties:
+                  word:
+                    type: string    
+            examples:
+                Wiki: 
+                  value: 
+                    word: "КазмунайГаз" 
+    security:
+        - ApiKeyAuth: []    
     responses:
       200:
         description: Дополнительная информация
-        schema:
-          id: WikiInfo
-          properties:
-            pages:
-                type: object  
-                description: Страницы
-            info:
-                type: object  
-                description: Информация по свойствам
+        content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wiki'
     """
 
     data = request.json

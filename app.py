@@ -131,6 +131,68 @@ def create_app():
             },
             'security': {
                 'APIKeyHeader': []
+            },
+            'schemas': {
+                'Graph': {
+                    'type': 'object',
+                    'properties': {
+                        'nodes': {
+                            'type': 'array',
+                            'items':{
+                                'type': 'object'
+                            }
+                        },
+                        'edges': {
+                            'type': 'array',
+                            'items':{
+                                'type': 'object'
+                            }
+                        }
+                    }
+                },
+                'Guids': {
+                    'type': 'array',
+                    'items':{
+                        'type': 'string'
+                    }
+                },
+                'ResultTables': {
+                    'type': 'object',
+                    'properties': {
+                        'result': {
+                            'type': 'array',
+                            'items':{
+                                'type': 'object'
+                            }
+                        },
+                        'cores': {
+                            'type': 'array',
+                            'items':{
+                                'type': 'string'
+                            }
+                        },
+                        'guids': {
+                            'type': 'array',
+                            'items':{
+                                'type': 'string'
+                            }
+                        }
+                    }
+                },
+                'Wiki': {
+                    'type': 'object',
+                    'properties': {
+                        'pages': {
+                            'type': 'array',
+                            'items':{
+                                'type': 'string'
+                            }
+                        },
+                        'info': {
+                            'type': 'string'
+                        }
+                    }
+                }
             }
         }
     }
@@ -138,6 +200,7 @@ def create_app():
         "swagger_version": "2.0",
         "title": "Sorge Api",
         "description": "Описание",
+        'openapi': '3.0.3',
         "headers": [
             ('Access-Control-Allow-Origin', '*'),
             ('Access-Control-Allow-Methods', "GET, POST, PUT, DELETE, OPTIONS"),
@@ -164,7 +227,7 @@ def create_app():
                 "route": '/api/maps.json',
                 "termsOfService": None,
                 "rule_filter": lambda rule: rule.endpoint.startswith('map_'),
-                "model_filter": lambda tag: True,
+                "model_filter": lambda tag: False,
             }
         ]
     }

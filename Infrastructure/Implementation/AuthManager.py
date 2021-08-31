@@ -33,6 +33,7 @@ class AuthManager(implements(IAuthManager)):
 
     def request_loader(self, request):
         result = None
+        print(request.headers)
         if 'X-API-KEY' in request.headers:
             api_key = request.headers['X-API-KEY']
             if api_key:

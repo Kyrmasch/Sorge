@@ -27,10 +27,13 @@ def map_build():
                 properties:
                   text:
                     type: string
+                  methid:
+                    type: string
             examples:
                 Default:
                   value:
                     text: ""
+                    method: "rake"
     security:
         - ApiKeyAuth: []
     responses:
@@ -41,9 +44,9 @@ def map_build():
               schema:
                 $ref: '#/components/schemas/Graph'
     """
-    data = request.json
-    text = data["text"]
-    time.sleep(5)
+    data    = request.json
+    text    = data["text"]
+    method  = data['method']
 
     keys = keywords.rake_extract(text)
 

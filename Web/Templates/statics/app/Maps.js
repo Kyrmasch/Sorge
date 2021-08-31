@@ -6,11 +6,17 @@ import Header from './Header'
 import { TextField } from '@fluentui/react/lib/TextField';
 import { Spinner } from '@fluentui/react/lib/Spinner';
 import Graph from 'react-graph-vis';
+import { ChoiceGroup, IChoiceGroupOption } from '@fluentui/react/lib/ChoiceGroup';
 
 const defaultText = "Концептуальная карта — это разновидность схемы, где наглядно представлены связи между концепциями и идеями. " +
-    "В большинстве случаев идеи (или «концепты») отображаются в виде блоков или кругов (которые также называют «узлами»). " +
-    "Они располагаются в порядке иерархии и соединяются между собой при помощи линий и стрелок (которые также называют «связями»). " +
-    "Эти линии сопровождаются пометками со связующими словами и фразами, которые поясняют, как именно концепции сопряжены между собой."
+                    "В большинстве случаев идеи (или «концепты») отображаются в виде блоков или кругов (которые также называют «узлами»). " +
+                    "Они располагаются в порядке иерархии и соединяются между собой при помощи линий и стрелок (которые также называют «связями»). " +
+                    "Эти линии сопровождаются пометками со связующими словами и фразами, которые поясняют, как именно концепции сопряжены между собой."
+
+const options = [
+    { key: 'rake', text: 'Rake', iconProps: { iconName: 'Quantity' }, checked: true },
+    { key: 'tf', text: 'TF iDF', iconProps: { iconName: 'Quantity' }, disabled: false },
+]
 
 var optionsMap = {
     physics: true,
@@ -44,6 +50,7 @@ export default function Maps() {
     const culture = useParams().culture || 'ru';
     const history = useHistory();
 
+    const [method, setMethod] = React.useState('rake');
     const [ready, setReady] = React.useState(false);
     const [text, setText] = React.useState(defaultText);
     const [load, setLoad] = React.useState(false);
@@ -85,7 +92,7 @@ export default function Maps() {
                     'Accept': 'application/json, text/plain, */*',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ text: text })
+                body: JSON.stringify({ text: text, method: method })
             })
                 .then(res => res.json())
                 .then(answer => {
@@ -98,6 +105,10 @@ export default function Maps() {
                     setLoad(false);
                 })
         }
+    }
+
+    const select_method = (e, o) => {
+        setMethod(o.key);
     }
 
     return (
@@ -130,6 +141,9 @@ export default function Maps() {
                                                 />
                                             </Stack>
                                             <Stack tokens={{ childrenGap: 24 }} style={{ marginTop: 24 }} horizontal={false}>
+                                                <ChoiceGroup label="Метод извлечения ключевых слов" defaultSelectedKey="rake" options={options} onChange={select_method}/>
+                                            </Stack>
+                                            <Stack tokens={{ childrenGap: 24 }} style={{ marginTop: 24 }} horizontal={false}>
                                                 <PrimaryButton
                                                     styles={{
                                                         root: {
@@ -141,7 +155,7 @@ export default function Maps() {
                                                     allowDisabledFocus
                                                     disabled={text.length == 0 || load}
                                                     checked={false} />
-                                            </Stack>
+                                            </Stack>                                      
                                             {
                                                 load == true && (
                                                     <>
@@ -157,7 +171,7 @@ export default function Maps() {
                                                         graph={graph}
                                                         options={optionsMap}
                                                         style={{ 
-                                                            height: "500px", 
+                                                            height: "600px", 
                                                             border: "dotted 1px rgb(0, 120, 212)", 
                                                             backgroundColor: "#f9f9f9",
                                                             margin: '24px 0px' 

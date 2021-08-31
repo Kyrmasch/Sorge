@@ -118,7 +118,7 @@ export default function ParserExample(props) {
                         dialogContentProps={dialogContentProps}
                         styles={{
                             main: {
-                                maxWidth: '600px !important'
+                                maxWidth: '750px !important'
                             }
                         }}
                         modalProps={modalProps}>

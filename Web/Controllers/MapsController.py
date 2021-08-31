@@ -44,18 +44,22 @@ def map_build():
               schema:
                 $ref: '#/components/schemas/Graph'
     """
-    data    = request.json
-    text    = data["text"]
-    method  = data['method']
+    data = request.json
+    text = data["text"]
+    method = data["method"]
 
-    keys = keywords.rake_extract(text)
+    graph = getGraph(method, text)
 
-    graph = getGraph()
+    return simplejson.dumps(
+        {"data": graph.__dict__}, 
+        ignore_nan=True, encoding="utf-8",
+        ensure_ascii=False)
 
-    return simplejson.dumps({"data": graph.__dict__}, ignore_nan=True, encoding="utf-8")
 
+def getGraph(method, text) -> GetGraphDto:
 
-def getGraph() -> GetGraphDto:
+    words = keywords.rake_extract(text)
+
     nodes = [
         {"id": 1, "value": 2, "label": "Algie"},
         {"id": 2, "value": 31, "label": "Alston"},

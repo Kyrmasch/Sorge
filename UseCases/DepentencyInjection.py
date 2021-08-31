@@ -3,6 +3,7 @@ from UseCases.WebPage.Implementation.HtmlParserService import HtmlParserService
 from UseCases.PortableDocumentFormat.Implementation.PdfParserService import PdfParserService
 from UseCases.Pictures.Implementation.ImageParserService import ImageParserService
 from UseCases.Wikipedia.Implementation.WikiService import WikiService
+from UseCases.KeyWords.Implementation.KeyWordService import KeyWordService
 
 class HtmlParserServiceProvider(containers.DeclarativeContainer):
     config = providers.Configuration()
@@ -20,7 +21,12 @@ class WikiServiceProvider(containers.DeclarativeContainer):
     config = providers.Configuration()
     wiki_provider = providers.Singleton(WikiService, config)
 
-html    = HtmlParserServiceProvider().html_parser_provider()
-pdf     = PdfParserServiceProvider().pdf_parser_provider()
-image   = ImageParserServiceProvider().image_parser_provider()
-wiki    = WikiServiceProvider().wiki_provider()
+class KeyWordServiceProvider(containers.DeclarativeContainer):
+    config = providers.Configuration()
+    keywords_provider = providers.Singleton(KeyWordService, config)
+
+html        = HtmlParserServiceProvider().html_parser_provider()
+pdf         = PdfParserServiceProvider().pdf_parser_provider()
+image       = ImageParserServiceProvider().image_parser_provider()
+wiki        = WikiServiceProvider().wiki_provider()
+keywords    = KeyWordServiceProvider().keywords_provider()

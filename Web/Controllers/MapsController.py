@@ -8,6 +8,7 @@ from flask import (
     url_for,
 )
 import time
+from UseCases.DepentencyInjection import keywords
 
 
 def map_build():
@@ -43,6 +44,8 @@ def map_build():
     data = request.json
     text = data["text"]
     time.sleep(5)
+
+    keys = keywords.rake_extract(text)
 
     graph = getGraph()
 

@@ -39,3 +39,10 @@ SPARQLWrapper
 mediatr
 asyncio
 redis
+rake-nltk
+git+https://github.com/Koziev/ruword2tags
+git+https://github.com/Koziev/rutokenizer
+git+https://github.com/Koziev/rupostagger
+git+https://github.com/Koziev/rulemma
+git+https://github.com/Koziev/rusyllab
+python-crfsuite

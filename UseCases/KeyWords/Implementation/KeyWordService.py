@@ -2,7 +2,7 @@ from typing import List
 from interface import implements
 import pandas as pd
 from UseCases.KeyWords.Interfaces.IKeyWordService import IKeyWordService
-from rake_nltk import Rake
+from rake_nltk import Metric, Rake
 from nltk.corpus import stopwords
 import rutokenizer
 import rupostagger
@@ -58,8 +58,11 @@ class KeyWordService(implements(IKeyWordService)):
     def split_sentence(self, data):
         return sent_tokenize(data)
 
-    def delete_punctuation(self, data):
+    def delete_punctuation(self, data, all = True):
         punctuations = list(string.punctuation)
+        if all == False:
+            punctuations = []
+            
         punctuations.append("«")
         punctuations.append("»")
         punctuations.append("—")
@@ -67,9 +70,10 @@ class KeyWordService(implements(IKeyWordService)):
         tokens = [i for i in word_tokenize(data) if i not in punctuations]
         return " ".join(tokens).lower()
 
-    def tokenize(self, text, lang = "russian"):
+    def tokenize(self, text, lang = "russian", punctuation = True):
+        
+        text = self.delete_punctuation(text, punctuation)
 
-        text = self.delete_punctuation(text)
         words = []
 
         if lang == "kazakh":
@@ -94,11 +98,12 @@ class KeyWordService(implements(IKeyWordService)):
         return " ".join(words)
 
     def rake_extract(self, data, lang = "russian"):
+        data = u'%s' % (data)
         stop_words = set(self.get_stop_words(lang))
-        data = self.tokenize(data, lang)
+        data = self.tokenize(data, lang, False)
         max_length = 2
 
-        r = Rake(stopwords=stop_words, min_length=1, max_length=max_length, language=lang)
+        r = Rake(stopwords=stop_words, min_length=1, max_length=max_length, language=lang, ranking_metric=Metric.WORD_FREQUENCY)
         r.extract_keywords_from_text(data)
         
         words = r.get_ranked_phrases_with_scores()

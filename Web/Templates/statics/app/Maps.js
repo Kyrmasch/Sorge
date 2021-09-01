@@ -17,6 +17,7 @@ const keywords = [
 const languages = [
     { key: 'russian', text: 'Русский', iconProps: { iconName: 'LocaleLanguage' }, checked: true },
     { key: 'english', text: 'English', iconProps: { iconName: 'LocaleLanguage' }, disabled: false },
+    { key: 'kazakh', text: 'Қазақша', iconProps: { iconName: 'LocaleLanguage' }, disabled: false },
 ]
 
 var optionsMap = {
@@ -134,6 +135,9 @@ export default function Maps() {
 
     const select_lang = (e, o) => {
         setLanguage(o.key);
+        if (o.key == 'kazakh') {
+            setMethod('tfidf')
+        }
     }
 
     return (
@@ -177,6 +181,7 @@ export default function Maps() {
                                                     <ChoiceGroup 
                                                         label="Метод извлечения ключевых слов" 
                                                         defaultSelectedKey="rake" 
+                                                        selectedKey={method}
                                                         options={keywords} 
                                                         onChange={select_method}/>
                                                 </Stack.Item>                                              
@@ -186,7 +191,7 @@ export default function Maps() {
                                                     <PrimaryButton
                                                         styles={{
                                                             root: {
-                                                                width: 195
+                                                                width: 292
                                                             }
                                                         }}
                                                         text="Построить карту"

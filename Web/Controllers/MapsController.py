@@ -42,7 +42,7 @@ def map_build():
                   enum: ["rake", "tfidf"]
                 language:
                   type: string
-                  enum: ["russian", "english"]
+                  enum: ["russian", "english", "kazakh"]
           examples:
               Default:
                 value:

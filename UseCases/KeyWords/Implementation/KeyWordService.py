@@ -40,19 +40,23 @@ class KeyWordService(implements(IKeyWordService)):
         self.kz_tagger = TaggerHMM(lyzer=self.kz_analyzer)
         self.kz_tagger.load_model(os.path.join('/home/user/Sorge/Sorge/Infrastructure/Implementation/kaznlp', 'morphology', 'mdl'))
 
+    def stopwords_from_file(self, stop_words, lang):
+        try:
+            with open('/home/user/Sorge/Sorge/ApplicationService/Files/stopwords/%s.txt' % (lang)) as f:
+                words = f.read().splitlines()
+                stop_words.extend(words)
+        except Exception as e:
+            print(str(e))
+
+        return stop_words
+
     def get_stop_words(self, lang = "russian"):
         if lang == "kazakh":
-            stop_words = []
-            stop_words.append("бұл")
-            stop_words.append("мен")
-            stop_words.append("сен")
-            stop_words.append("өз")
+            stop_words = self.stopwords_from_file([], lang)           
             return stop_words
         else:
             stop_words = stopwords.words(lang)
-            stop_words.append("который")
-            stop_words.append("также")
-            stop_words.append("именно")
+            stop_words = self.stopwords_from_file(stop_words, lang)     
             return stop_words
 
     def split_sentence(self, data):
@@ -66,6 +70,7 @@ class KeyWordService(implements(IKeyWordService)):
         punctuations.append("«")
         punctuations.append("»")
         punctuations.append("—")
+        punctuations.append("–")
 
         tokens = [i for i in word_tokenize(data) if i not in punctuations]
         return " ".join(tokens).lower()

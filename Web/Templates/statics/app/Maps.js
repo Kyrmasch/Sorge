@@ -6,14 +6,8 @@ import Header from './Header'
 import { TextField } from '@fluentui/react/lib/TextField';
 import { Spinner } from '@fluentui/react/lib/Spinner';
 import Graph from 'react-graph-vis';
-import { ChoiceGroup, IChoiceGroupOption } from '@fluentui/react/lib/ChoiceGroup';
-import { setLanguage } from '@fluentui/react/lib/Utilities';
+import { ChoiceGroup } from '@fluentui/react/lib/ChoiceGroup';
 import KeyWordsDialog from './components/KeyWordsDialog';
-
-const defaultText = "Концептуальная карта — это разновидность схемы, где наглядно представлены связи между концепциями и идеями. " +
-                    "В большинстве случаев идеи (или «концепты») отображаются в виде блоков или кругов (которые также называют «узлами»). " +
-                    "Они располагаются в порядке иерархии и соединяются между собой при помощи линий и стрелок (которые также называют «связями»). " +
-                    "Эти линии сопровождаются пометками со связующими словами и фразами, которые поясняют, как именно концепции сопряжены между собой."
 
 const keywords = [
     { key: 'rake', text: 'Rake', iconProps: { iconName: 'Quantity' }, checked: true },
@@ -60,7 +54,7 @@ export default function Maps() {
     const [method, setMethod] = React.useState('rake');
     const [language, setLanguage] = React.useState('russian');
     const [ready, setReady] = React.useState(false);
-    const [text, setText] = React.useState(defaultText);
+    const [text, setText] = React.useState('');
     const [load, setLoad] = React.useState(false);
     const [graph, setGraph] = React.useState({
         nodes: [],
@@ -70,7 +64,19 @@ export default function Maps() {
     const [wordsDialog, setWordsDialog] = React.useState(false);
 
     React.useEffect(() => {
-        document.title = 'Sorge - Концепт карта'
+        document.title = 'Sorge - Концепт карта';
+        fetch('/maps/example', {
+            method: 'post',
+            headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(text => {
+            setText(text.value);
+        });
+
     }, [])
 
     const handleChangeText = (value) => {

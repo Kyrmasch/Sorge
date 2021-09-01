@@ -38,6 +38,14 @@ def create_app():
     )
 
     app.add_url_rule(
+        "/maps/example",
+        view_func=login_required(container.example_text.as_view()),
+        methods=[
+            "POST",
+        ],
+    )
+
+    app.add_url_rule(
         "/settings",
         view_func=login_required(container.settings_view.as_view()),
         methods=[

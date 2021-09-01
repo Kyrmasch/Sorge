@@ -24,8 +24,12 @@ from Infrastructure.Implementation.kaznlp.lid.lidnb import LidNB
 from Infrastructure.Implementation.kaznlp.morphology.analyzers import AnalyzerDD
 from Infrastructure.Implementation.kaznlp.morphology.taggers import TaggerHMM
 
+import pymorphy2
+
 class KeyWordService(implements(IKeyWordService)):
     def __init__(self, config):
+        self.morph = pymorphy2.MorphAnalyzer()
+
         self.ru_lemmatizer = rulemma.Lemmatizer()
         self.ru_lemmatizer.load()
         self.ru_tokenizer = rutokenizer.Tokenizer()
@@ -102,6 +106,37 @@ class KeyWordService(implements(IKeyWordService)):
 
         return " ".join(words)
 
+    def correct(self, data):
+        tokens  = self.ru_tokenizer.tokenize(data)
+        tags    = self.ru_tagger.tag(tokens)
+        lemmas  = self.ru_lemmatizer.lemmatize(tags)
+
+        ww = []        
+        for word, tags, lemma, *_ in lemmas:
+            ww.append((word, tags.split('|')[0]))
+        if len(ww) > 1:
+            l_oe = ['ч', 'щ']
+            if (ww[0][1] == 'ADJ' and ww[1][1] == 'NOUN'):
+                gender = self.morph.parse(ww[1][0])[0].tag.gender
+                k = ww[0][0][:len(ww[0][0])-2]
+                l = k[-1]
+                oe = l in l_oe
+                if gender == 'femn':
+                    return "%s %s" % (k + "ая", ww[1][0]) 
+                if gender == 'neut':
+                    return "%s %s" % (oe == True and k + "ее" or k + "ое", ww[1][0]) 
+            elif (ww[1][1] == 'ADJ' and ww[0][1] == 'NOUN'):
+                gender = self.morph.parse(ww[0][0])[0].tag.gender
+                k = ww[1][0][:len(ww[1][0])-2]
+                l = k[-1]
+                oe = l in l_oe
+                if gender == 'femn':
+                    return "%s %s" % (ww[0][0], k + "ая") 
+                if gender == 'neut':
+                    return "%s %s" % (ww[0][0], oe == True and k + "ее" or k + "ое") 
+
+        return data
+
     def rake_extract(self, data, lang = "russian"):
         data = u'%s' % (data)
         stop_words = set(self.get_stop_words(lang))
@@ -113,7 +148,15 @@ class KeyWordService(implements(IKeyWordService)):
         
         words = r.get_ranked_phrases_with_scores()
 
-        return words
+        result = []
+        for w in words:
+            text = w[1]
+            score = w[0]
+            if lang == 'russian':
+                text = self.correct(text)
+            result.append((score, text))
+
+        return result
 
     def tf_extract(self, data, lang = "russian"):
         stop_words = self.get_stop_words(lang)

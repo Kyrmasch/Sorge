@@ -9,7 +9,6 @@ class ProgressCommand():
 @mediatr.handler
 class SetProgressCommanddHandler():
     def handle(self, request: ProgressCommand):
-        print(request.value, request.description)
         asyncio.run(self.run_commands(request))
 
     async def run_commands(self, request: ProgressCommand):

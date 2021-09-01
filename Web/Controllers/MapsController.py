@@ -27,13 +27,18 @@ def map_build():
                 properties:
                   text:
                     type: string
-                  methid:
+                  method:
                     type: string
+                    enum: ["rake", "tfidf"]
+                  language:
+                    type: string
+                    enum: ["russian", "english"]
             examples:
                 Default:
                   value:
                     text: ""
                     method: "rake"
+                    language: "russian"
     security:
         - ApiKeyAuth: []
     responses:
@@ -44,21 +49,28 @@ def map_build():
               schema:
                 $ref: '#/components/schemas/Graph'
     """
-    data = request.json
-    text = data["text"]
-    method = data["method"]
+    data      = request.json
+    text      = data["text"]
+    method    = data["method"]
+    language  = data["language"]
 
-    graph = getGraph(method, text)
+    graph = getGraph(method, language, text)
 
     return simplejson.dumps(
-        {"data": graph.__dict__}, 
+        {
+          "data": graph.__dict__
+        }, 
         ignore_nan=True, encoding="utf-8",
         ensure_ascii=False)
 
 
-def getGraph(method, text) -> GetGraphDto:
+def getGraph(method, language, text) -> GetGraphDto:
 
-    words = keywords.rake_extract(text)
+    words = []
+    if method == "rake":
+      words = keywords.rake_extract(text, language)
+    elif method == "tfidf":
+      words = keywords.tf_extract(text, language)
 
     nodes = [
         {"id": 1, "value": 2, "label": "Algie"},
@@ -87,4 +99,4 @@ def getGraph(method, text) -> GetGraphDto:
         {"from": 2, "to": 7, "value": 4, "title": "4 emails per week"},
     ]
 
-    return GetGraphDto(nodes, edges)
+    return GetGraphDto(nodes, edges, words)

@@ -147,6 +147,12 @@ def create_app():
                             'items':{
                                 'type': 'object'
                             }
+                        },
+                        'words': {
+                            'type': 'array',
+                            'items':{
+                                'type': 'object'
+                            }
                         }
                     }
                 },

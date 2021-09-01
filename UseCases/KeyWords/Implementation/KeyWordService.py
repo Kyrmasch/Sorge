@@ -11,40 +11,47 @@ import string
 import re, os, string
 from nltk.tokenize import word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
-
+import operator
+from nltk.tokenize import sent_tokenize
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.decomposition import LatentDirichletAllocation
 
 class KeyWordService(implements(IKeyWordService)):
     def __init__(self, config):
-        pass
+        self.lemmatizer = rulemma.Lemmatizer()
+        self.lemmatizer.load()
 
-    def get_stop_words(self, lang="russian"):
+        self.tokenizer = rutokenizer.Tokenizer()
+        self.tokenizer.load()
+
+        self.tagger = rupostagger.RuPosTagger()
+        self.tagger.load()
+
+    def get_stop_words(self, lang = "russian"):
         stop_words = stopwords.words(lang)
         stop_words.append("который")
         stop_words.append("также")
         return stop_words
 
-    def tokenize(self, text, lang="russian"):
+    def split_sentence(self, data):
+        return sent_tokenize(data)
 
+    def delete_punctuation(self, data):
         punctuations = list(string.punctuation)
         punctuations.append("«")
         punctuations.append("»")
         punctuations.append("—")
 
-        tokens = [i for i in word_tokenize(text) if i not in punctuations]
-        text = " ".join(tokens).lower()
+        tokens = [i for i in word_tokenize(data) if i not in punctuations]
+        return " ".join(tokens).lower()
 
-        lemmatizer = rulemma.Lemmatizer()
-        lemmatizer.load()
+    def tokenize(self, text, lang = "russian"):
 
-        tokenizer = rutokenizer.Tokenizer()
-        tokenizer.load()
+        text = self.delete_punctuation(text)
 
-        tagger = rupostagger.RuPosTagger()
-        tagger.load()
-
-        tokens = tokenizer.tokenize(text)
-        tags = tagger.tag(tokens)
-        lemmas = lemmatizer.lemmatize(tags)
+        tokens  = self.tokenizer.tokenize(text)
+        tags    = self.tagger.tag(tokens)
+        lemmas  = self.lemmatizer.lemmatize(tags)
 
         words = []
 
@@ -54,8 +61,7 @@ class KeyWordService(implements(IKeyWordService)):
 
         return " ".join(words)
 
-    def rake_extract(self, data, lang="russian"):
-
+    def rake_extract(self, data, lang = "russian"):
         stop_words = set(self.get_stop_words(lang))
         data = self.tokenize(data)
 
@@ -65,7 +71,21 @@ class KeyWordService(implements(IKeyWordService)):
 
         return words
 
-    def tf_extract(self, data, lang="russian"):
+    def tf_extract(self, data, lang = "russian"):
         stop_words = self.get_stop_words(lang)
+        ls = self.split_sentence(data)
 
-        return []
+        text_array = []
+        for item in ls:
+            text = self.delete_punctuation(item)
+            text = self.tokenize(text, lang)
+            text_array.append(text)
+
+        corpus = pd.DataFrame(text_array)
+        corpus = corpus.rename(columns={0: 'Description'})
+        
+        vectorizer = TfidfVectorizer(stop_words=stop_words)
+        X = vectorizer.fit_transform(corpus['Description'])
+        result = [tuple(a) for a in zip(X.toarray()[0], vectorizer.get_feature_names())]
+        
+        return result

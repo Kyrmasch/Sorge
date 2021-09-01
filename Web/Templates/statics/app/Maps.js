@@ -7,15 +7,22 @@ import { TextField } from '@fluentui/react/lib/TextField';
 import { Spinner } from '@fluentui/react/lib/Spinner';
 import Graph from 'react-graph-vis';
 import { ChoiceGroup, IChoiceGroupOption } from '@fluentui/react/lib/ChoiceGroup';
+import { setLanguage } from '@fluentui/react/lib/Utilities';
+import KeyWordsDialog from './components/KeyWordsDialog';
 
 const defaultText = "Концептуальная карта — это разновидность схемы, где наглядно представлены связи между концепциями и идеями. " +
                     "В большинстве случаев идеи (или «концепты») отображаются в виде блоков или кругов (которые также называют «узлами»). " +
                     "Они располагаются в порядке иерархии и соединяются между собой при помощи линий и стрелок (которые также называют «связями»). " +
                     "Эти линии сопровождаются пометками со связующими словами и фразами, которые поясняют, как именно концепции сопряжены между собой."
 
-const options = [
+const keywords = [
     { key: 'rake', text: 'Rake', iconProps: { iconName: 'Quantity' }, checked: true },
-    { key: 'tf', text: 'TF iDF', iconProps: { iconName: 'Quantity' }, disabled: false },
+    { key: 'tfidf', text: 'TF iDF', iconProps: { iconName: 'Quantity' }, disabled: false },
+]
+
+const languages = [
+    { key: 'russian', text: 'Русский', iconProps: { iconName: 'LocaleLanguage' }, checked: true },
+    { key: 'english', text: 'English', iconProps: { iconName: 'LocaleLanguage' }, disabled: false },
 ]
 
 var optionsMap = {
@@ -51,6 +58,7 @@ export default function Maps() {
     const history = useHistory();
 
     const [method, setMethod] = React.useState('rake');
+    const [language, setLanguage] = React.useState('russian');
     const [ready, setReady] = React.useState(false);
     const [text, setText] = React.useState(defaultText);
     const [load, setLoad] = React.useState(false);
@@ -58,24 +66,16 @@ export default function Maps() {
         nodes: [],
         edges: []
     })
+    const [words, setWords] = React.useState([]);
+    const [wordsDialog, setWordsDialog] = React.useState(false);
 
     React.useEffect(() => {
         document.title = 'Sorge - Концепт карта'
     }, [])
 
-    const end = () => {
-        history.push('/')
-    }
-
     const handleChangeText = (value) => {
         value = value.replace(/\s+/g, " ");
         setText(value);
-    }
-
-    const onLanguageDetect = (lang) => {
-        for (l in lang.languages) {
-            console.log(l.language, l.percentage)
-        }
     }
 
     const handleBuildMap = () => {
@@ -85,6 +85,7 @@ export default function Maps() {
                 nodes: [],
                 edges: []
             });
+            setWords([]);
 
             fetch('/maps/build', {
                 method: 'post',
@@ -92,12 +93,21 @@ export default function Maps() {
                     'Accept': 'application/json, text/plain, */*',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ text: text, method: method })
+                body: JSON.stringify({ 
+                    text: text, 
+                    method: method, 
+                    language: language
+                })
             })
                 .then(res => res.json())
                 .then(answer => {
                     if (answer.data) {
-                        setGraph(answer.data);
+                        setGraph({
+                            nodes: answer.data.nodes,
+                            edges: answer.data.edges
+                        });
+
+                        setWords(answer.data.words);
                     }
                     setLoad(false)
                 })
@@ -109,6 +119,15 @@ export default function Maps() {
 
     const select_method = (e, o) => {
         setMethod(o.key);
+        setGraph({
+            nodes: [],
+            edges: []
+        });
+        setWords([]);
+    }
+
+    const select_lang = (e, o) => {
+        setLanguage(o.key);
     }
 
     return (
@@ -140,28 +159,56 @@ export default function Maps() {
                                                     onChange={(e) => handleChangeText(e.target.value)}
                                                 />
                                             </Stack>
-                                            <Stack tokens={{ childrenGap: 24 }} style={{ marginTop: 24 }} horizontal={false}>
-                                                <ChoiceGroup label="Метод извлечения ключевых слов" defaultSelectedKey="rake" options={options} onChange={select_method}/>
+                                            <Stack tokens={{ childrenGap: 24 }} style={{ marginTop: 12 }} horizontal={true}>
+                                                <Stack.Item>
+                                                    <ChoiceGroup 
+                                                        label="Язык текста" 
+                                                        defaultSelectedKey="russian" 
+                                                        options={languages} 
+                                                        onChange={select_lang}/>
+                                                </Stack.Item>
+                                                <Stack.Item>
+                                                    <ChoiceGroup 
+                                                        label="Метод извлечения ключевых слов" 
+                                                        defaultSelectedKey="rake" 
+                                                        options={keywords} 
+                                                        onChange={select_method}/>
+                                                </Stack.Item>                                              
                                             </Stack>
-                                            <Stack tokens={{ childrenGap: 24 }} style={{ marginTop: 24 }} horizontal={false}>
-                                                <PrimaryButton
-                                                    styles={{
-                                                        root: {
-                                                            width: 200
-                                                        }
-                                                    }}
-                                                    text="Построить карту"
-                                                    onClick={() => handleBuildMap()}
-                                                    allowDisabledFocus
-                                                    disabled={text.length == 0 || load}
-                                                    checked={false} />
+                                            <Stack tokens={{ childrenGap: 24 }} style={{ marginTop: 24 }} horizontal={true}>
+                                                <Stack.Item>
+                                                    <PrimaryButton
+                                                        styles={{
+                                                            root: {
+                                                                width: 195
+                                                            }
+                                                        }}
+                                                        text="Построить карту"
+                                                        onClick={() => handleBuildMap()}
+                                                        allowDisabledFocus
+                                                        disabled={text.length == 0 || load}
+                                                        checked={false} />
+                                                </Stack.Item>
+                                                <Stack.Item>
+                                                    <DefaultButton
+                                                        styles={{
+                                                            root: {
+                                                                width: 195
+                                                            }
+                                                        }}
+                                                        text="Ключевые слова"
+                                                        onClick={() => setWordsDialog(true)}
+                                                        allowDisabledFocus
+                                                        disabled={words.length == 0 || load}
+                                                        checked={false} />
+                                                </Stack.Item>
                                             </Stack>                                      
                                             {
                                                 load == true && (
                                                     <>
                                                         <Spinner
                                                             label={'Построение...'}
-                                                            styles={{ root: { paddingTop: '25px' } }} />
+                                                            styles={{ root: { paddingTop: '125px' } }} />
                                                     </>
                                                 )
                                             }
@@ -176,6 +223,16 @@ export default function Maps() {
                                                             backgroundColor: "#f9f9f9",
                                                             margin: '24px 0px' 
                                                         }} />
+                                                )
+                                            }
+                                            {
+                                                wordsDialog == true && (
+                                                    <KeyWordsDialog 
+                                                        title={`Ключевые слова`} 
+                                                        subtext = {``} 
+                                                        words={words} 
+                                                        toggle={setWordsDialog} >
+                                                    </KeyWordsDialog>
                                                 )
                                             }
                                         </div>

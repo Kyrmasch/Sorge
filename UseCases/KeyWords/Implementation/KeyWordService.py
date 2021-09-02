@@ -175,7 +175,7 @@ class KeyWordService(implements(IKeyWordService)):
 
         return data
 
-    def knowledge(self, data, lang):
+    def get_relations(self, data, lang):
         if lang in ["russian", "english"]:
             sentences = self.knowledge.getSentences(data, lang)
             nlp_model = spacy.load(
@@ -193,7 +193,7 @@ class KeyWordService(implements(IKeyWordService)):
         stop_words = set(self.get_stop_words(lang))
         text = self.tokenize(data, lang, False)
 
-        self.knowledge(data, lang)
+        self.get_relations(data, lang)
 
         max_length = 2
 

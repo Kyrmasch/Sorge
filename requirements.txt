@@ -48,3 +48,4 @@ git+https://github.com/Koziev/rusyllab
 python-crfsuite
 pathlib
 python-rake
+langdetect

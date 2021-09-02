@@ -32,3 +32,4 @@ class ApplicationContainer(containers.DeclarativeContainer):
 
     map_build               = flask.View(MapsController.map_build)
     example_text            = flask.View(MapsController.get_example_text)
+    detect_lang             = flask.View(MapsController.check_lang)

@@ -10,7 +10,6 @@ from ApplicationService.Dtos.ResultTablesDto import ResultTablesDto
 import os
 import json
 
-
 def get_tabs():
     tabs = []
 
@@ -131,7 +130,7 @@ def parse_get_table_by_guid():
     if "guid" in data:
       guid = data["guid"]
       try:
-          with open("/home/user/Sorge/Sorge/ApplicationService/Files/tables/%s.json" % (guid), encoding='utf-8') as json_file:
+          with open("%s/ApplicationService/Files/tables/%s.json" % (os.getcwd(), guid), encoding='utf-8') as json_file:
             content = json.load(json_file)
             table = GetTablesDto(
                         content['table'], content['core'], content['guid']

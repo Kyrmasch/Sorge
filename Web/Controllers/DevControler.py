@@ -19,7 +19,7 @@ def parse_get_guids():
                 $ref: '#/components/schemas/Guids'
     """
 
-    path = "/home/user/Sorge/Sorge/ApplicationService/Files/tables"
+    path = "%s/ApplicationService/Files/tables" % (os.getcwd())
     files = os.listdir(path)
     if len(files) > 0:
         files = [os.path.splitext(f)[0] for f in files]

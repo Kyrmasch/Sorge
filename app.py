@@ -110,6 +110,14 @@ def create_app():
     )
 
     app.add_url_rule(
+        "/maps/detect",
+        view_func=login_required(container.detect_lang.as_view()),
+        methods=[
+            "POST",
+        ],
+    )
+
+    app.add_url_rule(
         "/dev/get_guids",
         view_func=login_required(container.dev_get_guids.as_view()),
         methods=[

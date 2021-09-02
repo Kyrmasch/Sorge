@@ -262,7 +262,7 @@ class ImageParserService(implements(IImageParserService)):
                 return ResultTablesDto(list, cores, guids)
 
             try:
-                shutil.rmtree("/home/user/Sorge/Sorge/ApplicationService/Files/test")
+                shutil.rmtree("%s/ApplicationService/Files/test" % (os.getcwd()))
             except:
                 pass
 

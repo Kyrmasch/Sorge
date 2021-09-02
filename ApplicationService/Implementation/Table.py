@@ -17,6 +17,7 @@ class Table(implements(ITable)):
 
     def __init__(self, config) -> None:
         self.config = config
+        self.wd = os.getcwd()
 
     def concatRows(self, df, indexs, spliter=" "):
         rows = df[df.index.isin(indexs)]
@@ -127,7 +128,7 @@ class Table(implements(ITable)):
 
     def save_json(self, df, core):
         sha = abs(hash_pandas_object(df).sum())
-        path = "/home/user/Sorge/Sorge/ApplicationService/Files/tables/%s.json" % (sha)
+        path = "%s/ApplicationService/Files/tables/%s.json" % (self.wd, sha)
         save = False
         if os.path.exists(path) == False:
             save = True

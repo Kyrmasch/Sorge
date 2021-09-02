@@ -1,3 +1,4 @@
+from numpy import result_type
 from Web.Dtos.GetGraphDto import GetGraphDto
 import simplejson
 from flask import (
@@ -7,11 +8,36 @@ from flask import (
     redirect,
     url_for,
 )
+import os
 import time
 from UseCases.DepentencyInjection import keywords
+from langdetect import detect
+
+def check_lang():
+  data      = request.json
+  text      = data["text"]
+  lang      = detect(text)
+
+  result    = "kazakh"
+  if lang == "en":
+    result = "english"
+  elif lang == "ru":
+    result = "russian"
+
+  if 'қ' in text:
+     result = "kazakh"
+
+  return simplejson.dumps(
+      {
+        "value": result
+      }, 
+      ignore_nan=True, 
+      encoding="utf-8",
+      ensure_ascii=False)
+
 
 def get_example_text():
-  example = open('/home/user/Sorge/Sorge/ApplicationService/Files/examples/russian.txt','r')
+  example = open('%s/ApplicationService/Files/examples/russian.txt' % (os.getcwd()),'r')
   text = example.read()
   return simplejson.dumps(
       {
@@ -83,18 +109,22 @@ def getGraph(method, language, text) -> GetGraphDto:
   elif method == "tfidf":
     words = keywords.tf_extract(text, language)
 
-  nodes = [
-      {"id": 1, "value": 2, "label": "Algie"},
-      {"id": 2, "value": 31, "label": "Alston"},
-      {"id": 3, "value": 12, "label": "Barney"},
-      {"id": 4, "value": 16, "label": "Coley"},
-      {"id": 5, "value": 17, "label": "Grant"},
-      {"id": 6, "value": 15, "label": "Langdon"},
-      {"id": 7, "value": 6, "label": "Lee"},
-      {"id": 8, "value": 5, "label": "Merlin"},
-      {"id": 9, "value": 30, "label": "Mick"},
-      {"id": 10, "value": 18, "label": "Tod"},
-  ]
+  nodes = []
+  ls_keywords = []
+
+  index = 1
+  for word in words:
+    score = word[0]
+    text = word[1]
+    if text is not None:
+      if len(text.strip()) > 0:
+        nodes.append({
+          "id": index, 
+          "value": score, 
+          "label": text
+        })
+        index = index + 1
+        ls_keywords.append((score, text))
 
   edges = [
       {"from": 2, "to": 8, "value": 3, "title": "3 emails per week"},
@@ -110,4 +140,4 @@ def getGraph(method, language, text) -> GetGraphDto:
       {"from": 2, "to": 7, "value": 4, "title": "4 emails per week"},
   ]
 
-  return GetGraphDto(nodes, edges, words)
+  return GetGraphDto(nodes, edges, ls_keywords)

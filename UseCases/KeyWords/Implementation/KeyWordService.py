@@ -28,6 +28,8 @@ import pymorphy2
 
 class KeyWordService(implements(IKeyWordService)):
     def __init__(self, config):
+        self.wd = os.getcwd()
+
         self.morph = pymorphy2.MorphAnalyzer()
 
         self.ru_lemmatizer = rulemma.Lemmatizer()
@@ -37,16 +39,36 @@ class KeyWordService(implements(IKeyWordService)):
         self.ru_tagger = rupostagger.RuPosTagger()
         self.ru_tagger.load()
 
-        self.mdl = os.path.join('/home/user/Sorge/Sorge/Infrastructure/Implementation/kaznlp', 'tokenization', 'tokhmm.mdl')
+        self.mdl = os.path.join(
+                    self.wd, 
+                    'Infrastructure', 
+                    'Implementation', 
+                    'kaznlp', 
+                    'tokenization', 
+                    'tokhmm.mdl')
         self.kz_tokenizer = TokenizerHMM(model = self.mdl)
         self.kz_analyzer = AnalyzerDD()
-        self.kz_analyzer.load_model(os.path.join('/home/user/Sorge/Sorge/Infrastructure/Implementation/kaznlp', 'morphology', 'mdl'))
+        self.kz_analyzer.load_model(os.path.join(
+                                            self.wd, 
+                                            'Infrastructure', 
+                                            'Implementation', 
+                                            'kaznlp', 
+                                            'morphology', 
+                                            'mdl')
+                                    )
         self.kz_tagger = TaggerHMM(lyzer=self.kz_analyzer)
-        self.kz_tagger.load_model(os.path.join('/home/user/Sorge/Sorge/Infrastructure/Implementation/kaznlp', 'morphology', 'mdl'))
+        self.kz_tagger.load_model(os.path.join(
+                                            self.wd, 
+                                            'Infrastructure', 
+                                            'Implementation', 
+                                            'kaznlp', 
+                                            'morphology', 
+                                            'mdl')
+                                )
 
     def stopwords_from_file(self, stop_words, lang):
         try:
-            with open('/home/user/Sorge/Sorge/ApplicationService/Files/stopwords/%s.txt' % (lang)) as f:
+            with open('%s/ApplicationService/Files/stopwords/%s.txt' % (self.wd, lang)) as f:
                 words = f.read().splitlines()
                 stop_words.extend(words)
         except Exception as e:
@@ -106,6 +128,21 @@ class KeyWordService(implements(IKeyWordService)):
 
         return " ".join(words)
 
+    def correct_endings(self, pattern, adj, noun):
+        l_oe = ['ч', 'щ']
+        gender = self.morph.parse(noun)[0].tag.gender
+        k = adj[:len(adj)-2]
+        l = k[-1]
+        oe = l in l_oe
+        if gender == 'femn':
+            return pattern.format(
+                adj=("%sая" % (k)), 
+                noun=noun)
+        if gender == 'neut':
+            return pattern.format(
+                adj=oe == True and ("%sее" % (k)) or  ("%sое" % (k)), 
+                noun=noun)
+
     def correct(self, data):
         tokens  = self.ru_tokenizer.tokenize(data)
         tags    = self.ru_tagger.tag(tokens)
@@ -115,25 +152,10 @@ class KeyWordService(implements(IKeyWordService)):
         for word, tags, lemma, *_ in lemmas:
             ww.append((word, tags.split('|')[0]))
         if len(ww) > 1:
-            l_oe = ['ч', 'щ']
             if (ww[0][1] == 'ADJ' and ww[1][1] == 'NOUN'):
-                gender = self.morph.parse(ww[1][0])[0].tag.gender
-                k = ww[0][0][:len(ww[0][0])-2]
-                l = k[-1]
-                oe = l in l_oe
-                if gender == 'femn':
-                    return "%s %s" % (k + "ая", ww[1][0]) 
-                if gender == 'neut':
-                    return "%s %s" % (oe == True and k + "ее" or k + "ое", ww[1][0]) 
+                return self.correct_endings("{adj} {noun}", ww[0][0], ww[1][0])
             elif (ww[1][1] == 'ADJ' and ww[0][1] == 'NOUN'):
-                gender = self.morph.parse(ww[0][0])[0].tag.gender
-                k = ww[1][0][:len(ww[1][0])-2]
-                l = k[-1]
-                oe = l in l_oe
-                if gender == 'femn':
-                    return "%s %s" % (ww[0][0], k + "ая") 
-                if gender == 'neut':
-                    return "%s %s" % (ww[0][0], oe == True and k + "ее" or k + "ое") 
+                return self.correct_endings("{adj} {noun}", ww[1][0], ww[0][0])
 
         return data
 
@@ -153,7 +175,10 @@ class KeyWordService(implements(IKeyWordService)):
             text = w[1]
             score = w[0]
             if lang == 'russian':
-                text = self.correct(text)
+                try:
+                    text = self.correct(text)
+                except Exception as e:
+                    print(str(e))
             result.append((score, text))
 
         return result
@@ -174,5 +199,6 @@ class KeyWordService(implements(IKeyWordService)):
         vectorizer = TfidfVectorizer(stop_words=stop_words)
         X = vectorizer.fit_transform(corpus['Description'])
         result = [tuple(a) for a in zip(X.toarray()[0], vectorizer.get_feature_names())]
+        result = [a for a in result if a[0] > 0]
         
         return result

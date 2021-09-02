@@ -338,10 +338,10 @@ export default function Maps() {
                         options={optionsMap}
                         style={{
                           height: "600px",
-                          backgroundColor: "#f9f9f9",
+                          backgroundColor: "rgb(243, 242, 241)",
                           margin: "24px 0px",
                           backgroundImage:
-                            "linear-gradient(#ffffff .4rem, transparent .4rem), linear-gradient(90deg, #ffffff .4rem, transparent .4rem)",
+                            "linear-gradient(white .4rem, transparent .4rem), linear-gradient(90deg, white .4rem, transparent .4rem)",
                           backgroundSize: "5rem 5rem",
                         }}
                       />

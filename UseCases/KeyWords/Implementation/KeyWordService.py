@@ -185,7 +185,7 @@ class KeyWordService(implements(IKeyWordService)):
             triples = []
             for sentence in sentences:
                 triples.append(self.knowledge.processSentence(sentence, nlp_model))
-
+            self.knowledge.printGraph(triples)
             print(triples)
 
     def rake_extract(self, data, lang="russian"):

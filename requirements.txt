@@ -49,3 +49,4 @@ python-crfsuite
 pathlib
 python-rake
 langdetect
+flasgger

@@ -60,8 +60,8 @@ var optionsMap = {
   },
   nodes: {
     font: {
-      size: 20,
-      face: '"Segoe UI", "Segoe UI Web (West European)", "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif',
+      size: 14,
+      face: "Verdana",
     },
     shape: "dot",
   },
@@ -214,7 +214,11 @@ export default function Maps() {
               <div class="ms-Grid-col ms-sm2 ms-md2ms-lg2"></div>
               <div
                 class="ms-Grid-col ms-sm8 ms-md8 ms-lg8"
-                style={{ height: "100%", backgroundColor: "#fff" }}
+                style={{
+                  minHeight: "100%",
+                  backgroundColor: "#fff",
+                  height: "max-content",
+                }}
               >
                 <Stack tokens={{ childrenGap: 10 }}>
                   <div
@@ -334,9 +338,11 @@ export default function Maps() {
                         options={optionsMap}
                         style={{
                           height: "600px",
-                          border: "dotted 1px rgb(0, 120, 212)",
                           backgroundColor: "#f9f9f9",
                           margin: "24px 0px",
+                          backgroundImage:
+                            "linear-gradient(#ffffff .4rem, transparent .4rem), linear-gradient(90deg, #ffffff .4rem, transparent .4rem)",
+                          backgroundSize: "5rem 5rem",
                         }}
                       />
                     )}

@@ -24,8 +24,11 @@ def check_lang():
   elif lang == "ru":
     result = "russian"
 
-  if 'қ' in text:
-     result = "kazakh"
+  kz_letters = ['ә','і','ң','ғ','ү','ұ','қ','ө']
+  for l in kz_letters:
+    if l in text:
+      result = "kazakh"
+      break
 
   return simplejson.dumps(
       {

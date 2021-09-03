@@ -19,7 +19,6 @@ import rulemma
 import rupostagger
 import rutokenizer
 import spacy
-from Infrastructure.Implementation.kaznlp.lid.lidnb import LidNB
 from Infrastructure.Implementation.kaznlp.morphology.analyzers import \
     AnalyzerDD
 from Infrastructure.Implementation.kaznlp.morphology.taggers import TaggerHMM
@@ -30,9 +29,9 @@ from Infrastructure.Implementation.kaznlp.tokenization.tokhmm import \
 from Infrastructure.Implementation.kaznlp.tokenization.tokrex import \
     TokenizeRex
 from nltk.tokenize import sent_tokenize, word_tokenize
-from sklearn.decomposition import LatentDirichletAllocation
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from UseCases.KeyWords.Implementation.KnowledgeGraph import KnowledgeGraph
+from UseCases.KeyWords.Interfaces.Dtos.KeyWordDto import KeyWordDto
 
 
 class KeyWordService(implements(IKeyWordService)):
@@ -185,10 +184,9 @@ class KeyWordService(implements(IKeyWordService)):
             triples = []
             for sentence in sentences:
                 triples.append(self.knowledge.processSentence(sentence, nlp_model))
-            self.knowledge.printGraph(triples)
             print(triples)
 
-    def rake_extract(self, data, lang="russian"):
+    def rake_extract(self, data, lang="russian") -> List[KeyWordDto]:
         data = u"%s" % (data)
         stop_words = set(self.get_stop_words(lang))
         text = self.tokenize(data, lang, False)
@@ -217,11 +215,11 @@ class KeyWordService(implements(IKeyWordService)):
                     text = self.correct(text)
                 except Exception as e:
                     print(str(e))
-            result.append((score, text))
+            result.append(KeyWordDto(text, score))
 
         return result
 
-    def tf_extract(self, data, lang="russian"):
+    def tf_extract(self, data, lang="russian") -> List[KeyWordDto]:
         stop_words = self.get_stop_words(lang)
         ls = self.split_sentence(data)
 
@@ -237,6 +235,6 @@ class KeyWordService(implements(IKeyWordService)):
         vectorizer = TfidfVectorizer(stop_words=stop_words)
         X = vectorizer.fit_transform(corpus["Description"])
         result = [tuple(a) for a in zip(X.toarray()[0], vectorizer.get_feature_names())]
-        result = [a for a in result if a[0] > 0]
+        result = [KeyWordDto(a[1], a[0]) for a in result if a[0] > 0]
 
         return result

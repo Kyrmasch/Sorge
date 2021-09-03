@@ -12,6 +12,8 @@ import os
 import time
 from UseCases.DepentencyInjection import keywords
 from langdetect import detect
+from UseCases.KeyWords.Interfaces.Dtos.KeyWordDto import KeyWordDto
+from Web.Dtos.NodeDto import NodeDto
 
 def check_lang():
   data      = request.json
@@ -106,28 +108,22 @@ def map_build():
 
 def getGraph(method, language, text) -> GetGraphDto:
 
-  words = []
+  keys = []
   if method == "rake":
-    words = keywords.rake_extract(text, language)
+    keys = keywords.rake_extract(text, language)
   elif method == "tfidf":
-    words = keywords.tf_extract(text, language)
+    keys = keywords.tf_extract(text, language)
 
   nodes = []
   ls_keywords = []
 
   index = 1
-  for word in words:
-    score = word[0]
-    text = word[1]
-    if text is not None:
-      if len(text.strip()) > 0:
-        nodes.append({
-          "id": index, 
-          "value": score, 
-          "label": text
-        })
+  for key in keys:
+    if key.word is not None:
+      if len(key.word.strip()) > 0:
+        nodes.append(NodeDto(index, key.score, key.word).__dict__)
+        ls_keywords.append((key.score, key.word))
         index = index + 1
-        ls_keywords.append((score, text))
 
   edges = [
       {"from": 2, "to": 8, "value": 3, "title": "3 emails per week"},

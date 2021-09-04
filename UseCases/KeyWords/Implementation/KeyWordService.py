@@ -1,4 +1,6 @@
 import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
 import re
 import string
 from typing import List
@@ -8,8 +10,6 @@ from interface import implements
 from nltk.corpus import stopwords
 from rake_nltk import Metric, Rake
 from UseCases.KeyWords.Interfaces.IKeyWordService import IKeyWordService
-
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 import operator
 import string
@@ -33,8 +33,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from UseCases.KeyWords.Implementation.KnowledgeGraph import KnowledgeGraph
 from UseCases.KeyWords.Interfaces.Dtos.KeyWordDto import KeyWordDto
 
-
 class KeyWordService(implements(IKeyWordService)):
+    
     def __init__(self, config):
         self.wd = os.getcwd()
 
@@ -81,7 +81,7 @@ class KeyWordService(implements(IKeyWordService)):
 
         self.knowledge = KnowledgeGraph()
 
-    def stopwords_from_file(self, stop_words, lang):
+    def stopwords_from_file(self, stop_words: List[str], lang):
         try:
             with open(
                 "%s/ApplicationService/Files/stopwords/%s.txt" % (self.wd, lang)
@@ -93,7 +93,7 @@ class KeyWordService(implements(IKeyWordService)):
 
         return stop_words
 
-    def get_stop_words(self, lang="russian"):
+    def get_stop_words(self, lang: str = "russian"):
         if lang == "kazakh":
             stop_words = self.stopwords_from_file([], lang)
             return stop_words
@@ -105,7 +105,7 @@ class KeyWordService(implements(IKeyWordService)):
     def split_sentence(self, data):
         return sent_tokenize(data)
 
-    def delete_punctuation(self, data, all=True):
+    def delete_punctuation(self, data: str, all: bool = True):
         punctuations = list(string.punctuation)
         if all == False:
             punctuations = []
@@ -118,7 +118,7 @@ class KeyWordService(implements(IKeyWordService)):
         tokens = [i for i in word_tokenize(data) if i not in punctuations]
         return " ".join(tokens).lower()
 
-    def tokenize(self, text, lang="russian", punctuation=True):
+    def tokenize(self, text: str, lang: str ="russian", punctuation: bool = True):
 
         text = self.delete_punctuation(text, punctuation)
 
@@ -145,7 +145,7 @@ class KeyWordService(implements(IKeyWordService)):
 
         return " ".join(words)
 
-    def correct_endings(self, pattern, adj, noun):
+    def correct_endings(self, pattern: str, adj: str, noun: str) -> str:
         l_oe = ["ч", "щ"]
         gender = self.morph.parse(noun)[0].tag.gender
         k = adj[: len(adj) - 2]
@@ -155,30 +155,40 @@ class KeyWordService(implements(IKeyWordService)):
             return pattern.format(adj=("%sая" % (k)), noun=noun)
         if gender == "neut":
             return pattern.format(
-                adj=oe == True and ("%sее" % (k)) or ("%sое" % (k)), noun=noun
+                adj = oe == True and ("%sее" % (k)) or ("%sое" % (k)), noun = noun
             )
 
-    def correct(self, data):
+        return pattern.format(adj = adj, noun = noun)
+
+    def correct(self, data: str) -> str:
         tokens = self.ru_tokenizer.tokenize(data)
         tags = self.ru_tagger.tag(tokens)
         lemmas = self.ru_lemmatizer.lemmatize(tags)
 
-        ww = []
+        semantics = []
         for word, tags, lemma, *_ in lemmas:
-            ww.append((word, tags.split("|")[0]))
-        if len(ww) > 1:
-            if ww[0][1] == "ADJ" and ww[1][1] == "NOUN":
-                return self.correct_endings("{adj} {noun}", ww[0][0], ww[1][0])
-            elif ww[1][1] == "ADJ" and ww[0][1] == "NOUN":
-                return self.correct_endings("{adj} {noun}", ww[1][0], ww[0][0])
+            semantics.append((word, tags.split("|")[0]))
+        if len(semantics) > 1:
+            if semantics[0][1] == "ADJ" and semantics[1][1] == "NOUN":
+                return self.correct_endings(
+                    "{adj} {noun}", 
+                    semantics[0][0], 
+                    semantics[1][0])
+            elif semantics[1][1] == "ADJ" and semantics[0][1] == "NOUN":
+                return self.correct_endings(
+                    "{adj} {noun}", 
+                    semantics[1][0], 
+                    semantics[0][0])
 
         return data
 
-    def get_relations(self, data, lang):
+    def get_relations(self, data, lang: string) -> List[tuple]:
         if lang in ["russian", "english"]:
             sentences = self.knowledge.getSentences(data, lang)
             nlp_model = spacy.load(
-                lang == "russain" and "ru_core_news_sm" or "en_core_web_sm"
+                lang == "russain" 
+                        and "ru_core_news_sm" 
+                        or  "en_core_web_sm"
             )
 
             triples = []
@@ -186,7 +196,7 @@ class KeyWordService(implements(IKeyWordService)):
                 triples.append(self.knowledge.processSentence(sentence, nlp_model))
             print(triples)
 
-    def rake_extract(self, data, lang="russian") -> List[KeyWordDto]:
+    def rake_extract(self, data: str, lang: str ="russian") -> List[KeyWordDto]:
         data = u"%s" % (data)
         stop_words = set(self.get_stop_words(lang))
         text = self.tokenize(data, lang, False)
@@ -219,7 +229,7 @@ class KeyWordService(implements(IKeyWordService)):
 
         return result
 
-    def tf_extract(self, data, lang="russian") -> List[KeyWordDto]:
+    def tf_extract(self, data: str, lang: str ="russian") -> List[KeyWordDto]:
         stop_words = self.get_stop_words(lang)
         ls = self.split_sentence(data)
 

@@ -1,7 +1,7 @@
 from interface import Interface
 
 class ITable(Interface):
-    def concatRows(self, df, indexs, spliter=" "):
+    def concatRows(self, df, indexs, spliter: str=" "):
         pass
 
     def merge(self, df):

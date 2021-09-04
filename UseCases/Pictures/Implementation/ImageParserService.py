@@ -41,7 +41,7 @@ class ImageParserService(implements(IImageParserService)):
         )
         return (cnts, boundingBoxes)
 
-    def download_image_to_tempdir(self, url, filename=None):
+    def download_image_to_tempdir(self, url: str, filename = None) -> str:
         if filename is None:
             filename = os.path.basename(url)
         headers = {
@@ -68,7 +68,6 @@ class ImageParserService(implements(IImageParserService)):
             guids = []
 
             try:
-                # status_code = urllib.request.urlopen(data.url).getcode()
                 req = Request(data.url, headers={'User-Agent': 'Mozilla/5.0'})
                 webpage = urlopen(req).read()
                 website_is_up = webpage is not None

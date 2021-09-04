@@ -2,6 +2,7 @@
 from ApplicationService.Dtos.ParseDto import ParseDto
 import logging
 from app import create_app
+import os
 
 logging.basicConfig(filename='log.log', level=logging.ERROR)
 

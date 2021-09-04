@@ -19,7 +19,7 @@ class Table(implements(ITable)):
         self.config = config
         self.wd = os.getcwd()
 
-    def concatRows(self, df, indexs, spliter=" "):
+    def concatRows(self, df, indexs, spliter:str =" "):
         rows = df[df.index.isin(indexs)]
 
         heads = []

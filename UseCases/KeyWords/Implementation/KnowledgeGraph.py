@@ -2,9 +2,11 @@ from spacy.lang.en import English
 from spacy.lang.ru import Russian
 import networkx as nx
 import matplotlib.pyplot as plt
+from interface import implements
+from UseCases.KeyWords.Interfaces.IKnowledgeGraph import IKnowledgeGraph
 
 
-class KnowledgeGraph(object):
+class KnowledgeGraph(implements(IKnowledgeGraph)):
     def __init__(self):
         pass
 

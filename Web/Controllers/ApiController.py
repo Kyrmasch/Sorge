@@ -1,5 +1,8 @@
 from ApplicationService.Dtos.SettingsUrlDto import SettingsUrlDto
 from Web.Dtos.GetTablesDto import GetTablesDto
+from Web.Dtos.GetWikiDto import GetWikiDto
+from Web.Dtos.GetTabsDto import GetTabsDto
+from Web.Dtos.TabItemDto import TabItemDto
 from flask import request
 import asyncio
 from flask_login import current_user
@@ -14,15 +17,14 @@ def get_tabs():
     tabs = []
 
     if current_user.system == "sorge":
-        tabs.append({"text": "Парсер", "code": "", "itemKey": 1})
+        tabs.append(TabItemDto("Парсер", "",1).__dict__)
     elif current_user.system == "maps":
-        tabs.append({"text": "Концепт карта", "code": "maps", "itemKey": 1})
+        tabs.append(TabItemDto("Концепт карта", "maps", 1).__dict__)
 
-    return simplejson.dumps({
-      "system": current_user.system,
-      "tabs": tabs
-    }, ignore_nan=True, encoding="utf-8")
-
+    return simplejson.dumps(
+      GetTabsDto(current_user.system, tabs).__dict__, 
+      ignore_nan=True, 
+      encoding="utf-8")
 
 def parse_get_tables():  
     """
@@ -203,6 +205,8 @@ def parse_get_wiki():
                     pass
 
     return simplejson.dumps(
-        {"pages": pages, "info": info}, ignore_nan=True, encoding="utf-8",
+        GetWikiDto(pages,info).__dict__, 
+        ignore_nan=True, 
+        encoding="utf-8",
         ensure_ascii=False
     )

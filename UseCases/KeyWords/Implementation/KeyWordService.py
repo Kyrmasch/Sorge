@@ -1,4 +1,5 @@
 import os
+
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 import re
@@ -19,22 +20,18 @@ import rulemma
 import rupostagger
 import rutokenizer
 import spacy
-from Infrastructure.Implementation.kaznlp.morphology.analyzers import \
-    AnalyzerDD
+from Infrastructure.Implementation.kaznlp.morphology.analyzers import AnalyzerDD
 from Infrastructure.Implementation.kaznlp.morphology.taggers import TaggerHMM
-from Infrastructure.Implementation.kaznlp.normalization.ininorm import \
-    Normalizer
-from Infrastructure.Implementation.kaznlp.tokenization.tokhmm import \
-    TokenizerHMM
-from Infrastructure.Implementation.kaznlp.tokenization.tokrex import \
-    TokenizeRex
+from Infrastructure.Implementation.kaznlp.normalization.ininorm import Normalizer
+from Infrastructure.Implementation.kaznlp.tokenization.tokhmm import TokenizerHMM
+from Infrastructure.Implementation.kaznlp.tokenization.tokrex import TokenizeRex
 from nltk.tokenize import sent_tokenize, word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
 from UseCases.KeyWords.Implementation.KnowledgeGraph import KnowledgeGraph
 from UseCases.KeyWords.Interfaces.Dtos.KeyWordDto import KeyWordDto
 
+
 class KeyWordService(implements(IKeyWordService)):
-    
     def __init__(self, config):
         self.wd = os.getcwd()
 
@@ -118,7 +115,7 @@ class KeyWordService(implements(IKeyWordService)):
         tokens = [i for i in word_tokenize(data) if i not in punctuations]
         return " ".join(tokens).lower()
 
-    def tokenize(self, text: str, lang: str ="russian", punctuation: bool = True):
+    def tokenize(self, text: str, lang: str = "russian", punctuation: bool = True):
 
         text = self.delete_punctuation(text, punctuation)
 
@@ -155,10 +152,10 @@ class KeyWordService(implements(IKeyWordService)):
             return pattern.format(adj=("%sая" % (k)), noun=noun)
         if gender == "neut":
             return pattern.format(
-                adj = oe == True and ("%sее" % (k)) or ("%sое" % (k)), noun = noun
+                adj=oe == True and ("%sее" % (k)) or ("%sое" % (k)), noun=noun
             )
 
-        return pattern.format(adj = adj, noun = noun)
+        return pattern.format(adj=adj, noun=noun)
 
     def correct(self, data: str) -> str:
         tokens = self.ru_tokenizer.tokenize(data)
@@ -171,37 +168,36 @@ class KeyWordService(implements(IKeyWordService)):
         if len(semantics) > 1:
             if semantics[0][1] == "ADJ" and semantics[1][1] == "NOUN":
                 return self.correct_endings(
-                    "{adj} {noun}", 
-                    semantics[0][0], 
-                    semantics[1][0])
+                    "{adj} {noun}", semantics[0][0], semantics[1][0]
+                )
             elif semantics[1][1] == "ADJ" and semantics[0][1] == "NOUN":
                 return self.correct_endings(
-                    "{adj} {noun}", 
-                    semantics[1][0], 
-                    semantics[0][0])
+                    "{adj} {noun}", semantics[1][0], semantics[0][0]
+                )
 
         return data
 
-    def get_relations(self, data, lang: string) -> List[tuple]:
+    def get_triples(self, data, lang: string) -> List[tuple]:
+
+        data = u"%s" % (data)
+        data = self.tokenize(data, lang, False)
+
         if lang in ["russian", "english"]:
             sentences = self.knowledge.getSentences(data, lang)
             nlp_model = spacy.load(
-                lang == "russain" 
-                        and "ru_core_news_sm" 
-                        or  "en_core_web_sm"
+                lang == "russain" and "ru_core_news_sm" or "en_core_web_sm"
             )
 
             triples = []
             for sentence in sentences:
                 triples.append(self.knowledge.processSentence(sentence, nlp_model))
-            print(triples)
 
-    def rake_extract(self, data: str, lang: str ="russian") -> List[KeyWordDto]:
+            return triples
+
+    def rake_extract(self, data: str, lang: str = "russian") -> List[KeyWordDto]:
         data = u"%s" % (data)
         stop_words = set(self.get_stop_words(lang))
         text = self.tokenize(data, lang, False)
-
-        self.get_relations(data, lang)
 
         max_length = 2
 
@@ -229,7 +225,7 @@ class KeyWordService(implements(IKeyWordService)):
 
         return result
 
-    def tf_extract(self, data: str, lang: str ="russian") -> List[KeyWordDto]:
+    def tf_extract(self, data: str, lang: str = "russian") -> List[KeyWordDto]:
         stop_words = self.get_stop_words(lang)
         ls = self.split_sentence(data)
 

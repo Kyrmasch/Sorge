@@ -102,6 +102,14 @@ def create_app():
     )
 
     app.add_url_rule(
+        "/maps/knowlegegraph",
+        view_func=login_required(container.knowlegegraph_build.as_view()),
+        methods=[
+            "POST",
+        ],
+    )
+
+    app.add_url_rule(
         "/maps/build",
         view_func=login_required(container.map_build.as_view()),
         methods=[

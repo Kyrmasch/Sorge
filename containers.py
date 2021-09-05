@@ -3,7 +3,7 @@ from dependency_injector import providers, containers
 from dependency_injector.ext import flask
 from flask import Flask
 
-from Web.Controllers import PageController, ApiController, AuthController, MapsController, DevControler
+from Web.Controllers import PageController, ApiController, AuthController, MapsController, DevControler, KnowlegeGraphController
 
 class ApplicationContainer(containers.DeclarativeContainer):
 
@@ -31,5 +31,6 @@ class ApplicationContainer(containers.DeclarativeContainer):
     dev_get_guids           = flask.View(DevControler.parse_get_guids)
 
     map_build               = flask.View(MapsController.map_build)
+    knowlegegraph_build     = flask.View(KnowlegeGraphController.map_knowlegegraph_build)
     example_text            = flask.View(MapsController.get_example_text)
     detect_lang             = flask.View(MapsController.check_lang)

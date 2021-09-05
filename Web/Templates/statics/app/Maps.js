@@ -47,15 +47,15 @@ const languages = [
 
 var optionsMap = {
   physics: true,
+  autoResize: true,
   edges: {
     color: "#0078d4",
-    smooth: {
-      type: "continuous",
+    font: {
+      size: 10,
     },
     arrows: {
-      to: { enabled: false, scaleFactor: 1, type: "arrow" },
-      middle: { enabled: false, scaleFactor: 1, type: "arrow" },
-      from: { enabled: false, scaleFactor: 1, type: "arrow" },
+      to: { enabled: true, scaleFactor: 1, type: "arrow"},
+      from: { enabled: false, scaleFactor: 1, type: "arrow"},
     },
   },
   nodes: {
@@ -88,6 +88,17 @@ export default function Maps() {
   });
   const [words, setWords] = React.useState([]);
   const [wordsDialog, setWordsDialog] = React.useState(false);
+  const [actions, setActions] = React.useState({
+    items: [
+      {
+        key: "knowlegegraph",
+        text: "Построить Knowledge Graph",
+        iconProps: { iconName: "GitGraph" },
+        onClick: () => setActionType("knowlegegraph"),
+      },
+    ],
+  });
+  const [actionType, setActionType] = React.useState("");
 
   React.useEffect(() => {
     document.title = "Sorge - Концепт карта";
@@ -132,13 +143,19 @@ export default function Maps() {
     }
   }, [text]);
 
-  const handleChangeText = (value) => {
-    value = value.replace(/\s+/g, " ");
-    setText(value);
-  };
+  React.useEffect(() => {
+    var actionCopy = Object.assign({}, actions);
+    if (language != languages[1].key) {
+      actionCopy.items[0].disabled = true;
+    }
+    else {
+      delete actionCopy.items[0]['disabled'];
+    }
+    setActions(actionCopy);
+  }, [language]);
 
-  const handleBuildMap = () => {
-    if (text.length > 0) {
+  React.useEffect(() => {
+    if (text.length > 0 && actionType != "") {
       setLoad(true);
       setGraph({
         nodes: [],
@@ -146,7 +163,7 @@ export default function Maps() {
       });
       setWords([]);
 
-      fetch("/maps/build", {
+      fetch(`/maps/${actionType}`, {
         method: "post",
         headers: {
           Accept: "application/json, text/plain, */*",
@@ -169,14 +186,21 @@ export default function Maps() {
             setWords(answer.data.words);
           }
           setLoad(false);
+          setActionType("");
         })
         .catch((err) => {
           setLoad(false);
+          setActionType("");
         });
     }
+  }, [actionType])
+
+  const handleChangeText = (value) => {
+    value = value.replace(/\s+/g, " ");
+    setText(value);
   };
 
-  const select_method = (e, o) => {
+  const handleSelectMethod = (e, o) => {
     setMethod(o.key);
     setGraph({
       nodes: [],
@@ -185,11 +209,8 @@ export default function Maps() {
     setWords([]);
   };
 
-  const select_lang = (e, o) => {
+  const handleSelectLang = (e, o) => {
     setLanguage(o.key);
-    if (o.key == "kazakh") {
-      setMethod("tfidf");
-    }
   };
 
   return (
@@ -276,7 +297,7 @@ export default function Maps() {
                           defaultSelectedKey="russian"
                           selectedKey={language}
                           options={languages}
-                          onChange={select_lang}
+                          onChange={handleSelectLang}
                         />
                       </Stack.Item>
                       <Stack.Item>
@@ -285,7 +306,7 @@ export default function Maps() {
                           defaultSelectedKey="rake"
                           selectedKey={method}
                           options={keywords}
-                          onChange={select_method}
+                          onChange={handleSelectMethod}
                         />
                       </Stack.Item>
                     </Stack>
@@ -298,14 +319,19 @@ export default function Maps() {
                         <PrimaryButton
                           styles={{
                             root: {
-                              width: 292,
+                              width: 262,
                             },
                           }}
+                          iconProps={{
+                            iconName: "GitGraph",
+                          }}
                           text="Построить карту"
-                          onClick={() => handleBuildMap()}
+                          onClick={() => setActionType("build")}
                           allowDisabledFocus
                           disabled={text.length == 0 || load}
                           checked={false}
+                          split
+                          menuProps={actions}
                         />
                       </Stack.Item>
                       <Stack.Item>

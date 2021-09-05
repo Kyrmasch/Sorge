@@ -51,7 +51,9 @@
     "recompose": "^0.30.0",
     "socket.io-client": "^2.3.1",
     "style-loader": "^0.23.1",
+    "three": "^0.124.0",
     "universal-cookie": "^4.0.2",
+    "vanta": "^0.5.21",
     "webpack-bundle-analyzer": "^3.3.2",
     "webpack-bundle-tracker": "^0.4.2-beta"
   }

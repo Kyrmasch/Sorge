@@ -7,7 +7,8 @@ import { Icon } from '@fluentui/react/lib/Icon';
 import { TextField } from '@fluentui/react/lib/TextField';
 import { Checkbox } from '@fluentui/react/lib/Checkbox';
 import { initializeIcons } from '@fluentui/font-icons-mdl2';
-import { MessageBar, MessageBarType } from '@fluentui/react/lib/MessageBar'
+// import * as THREE from "three";
+// import NET from 'vanta/dist/vanta.net.min';
 
 initializeIcons();
 
@@ -32,6 +33,32 @@ export default function Login() {
     const [password, setPassword] = React.useState('');
     const [remember, setRemember] = React.useState(false);
     const [error, setError] = React.useState('');
+
+    const [vantaEffect, setVantaEffect] = React.useState(0)
+    const __globe = React.useRef(null)
+
+    React.useEffect(() => {    
+        
+        // if (!vantaEffect) {
+        //     setVantaEffect(NET({
+        //         el: __globe.current,
+        //         THREE: THREE,
+        //         mouseControls: true,
+        //         touchControls: true,
+        //         gyroControls: false,
+        //         minHeight: 200.00,
+        //         minWidth: 200.00,
+        //         scale: 1.00,
+        //         scaleMobile: 1.00,
+        //         color: 0x3b99f0,
+        //         backgroundColor: 0xfaf9f8
+        //     }));
+        // }
+        // return () => {
+        //   if (vantaEffect) vantaEffect.destroy()
+        // }
+        
+    }, [vantaEffect]);
 
     const login = () => {
         fetch('/api/login', {
@@ -73,7 +100,7 @@ export default function Login() {
 
     return (
         <React.Fragment>
-            <div className="main" style={{ backgroundColor: '#faf9f8' }}>
+            <div className="main" ref={__globe} style={{ backgroundColor: '#faf9f8' }}>
                 <div className="middle">
                     <div className="outer">
                         <div style={styles.root} className="box ms-motion-scaleDownIn login-form">

@@ -86,7 +86,7 @@ class KeyWordService(implements(IKeyWordService)):
                 words = f.read().splitlines()
                 stop_words.extend(words)
         except Exception as e:
-            print(str(e))
+            pass
 
         return stop_words
 

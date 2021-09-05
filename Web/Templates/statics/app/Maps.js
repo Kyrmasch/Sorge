@@ -8,6 +8,7 @@ import { Spinner } from "@fluentui/react/lib/Spinner";
 import Graph from "react-graph-vis";
 import { ChoiceGroup } from "@fluentui/react/lib/ChoiceGroup";
 import KeyWordsDialog from "./components/KeyWordsDialog";
+import 'vis-network/dist/vis-network'
 
 const keywords = [
   {
@@ -68,7 +69,7 @@ var optionsMap = {
   interaction: {
     hideEdgesOnDrag: true,
     tooltipDelay: 200,
-    keyboard: true,
+    keyboard: false,
     navigationButtons: true,
   },
 };

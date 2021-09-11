@@ -3,10 +3,10 @@ from spacy.lang.ru import Russian
 import networkx as nx
 import matplotlib.pyplot as plt
 from interface import implements
-from UseCases.KeyWords.Interfaces.IKnowledgeGraph import IKnowledgeGraph
+from UseCases.KeyWords.Interfaces.IKnowledgeGraphService import IKnowledgeGraphService
 
 
-class KnowledgeGraph(implements(IKnowledgeGraph)):
+class KnowledgeGraphService(implements(IKnowledgeGraphService)):
     def __init__(self):
         pass
 

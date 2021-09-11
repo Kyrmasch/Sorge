@@ -1,6 +1,6 @@
 from interface import Interface
 
-class IKnowledgeGraph(Interface):
+class IKnowledgeGraphService(Interface):
     def getSentences(self, text, lang):
         pass
 

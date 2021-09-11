@@ -1,5 +1,7 @@
 import os
 
+from numpy import tri
+
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 import re
@@ -27,8 +29,9 @@ from Infrastructure.Implementation.kaznlp.tokenization.tokhmm import TokenizerHM
 from Infrastructure.Implementation.kaznlp.tokenization.tokrex import TokenizeRex
 from nltk.tokenize import sent_tokenize, word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
-from UseCases.KeyWords.Implementation.KnowledgeGraph import KnowledgeGraph
+from UseCases.KeyWords.Implementation.KnowledgeGraphService import KnowledgeGraphService
 from UseCases.KeyWords.Interfaces.Dtos.KeyWordDto import KeyWordDto
+from UseCases.KeyWords.Implementation.RelationService import RelationService
 
 
 class KeyWordService(implements(IKeyWordService)):
@@ -76,7 +79,8 @@ class KeyWordService(implements(IKeyWordService)):
             )
         )
 
-        self.knowledge = KnowledgeGraph()
+        self.knowledge_service = KnowledgeGraphService()
+        self.relaction_service = RelationService()
 
     def stopwords_from_file(self, stop_words: List[str], lang):
         try:
@@ -177,21 +181,27 @@ class KeyWordService(implements(IKeyWordService)):
 
         return data
 
-    def get_triples(self, data, lang: string) -> List[tuple]:
+    def get_triples(self, data, lang: string, method = "knowlegegraph") -> List[tuple]:
 
         data = u"%s" % (data)
         data = self.tokenize(data, lang, False)
 
         if lang in ["russian", "english"]:
-            sentences = self.knowledge.getSentences(data, lang)
             nlp_model = spacy.load(
-                lang == "russain" and "ru_core_news_sm" or "en_core_web_sm"
+                    lang == "russain" and "ru_core_news_sm" or "en_core_web_sm"
             )
 
             triples = []
-            for sentence in sentences:
-                triples.append(self.knowledge.processSentence(sentence, nlp_model))
 
+            if method == "knowlegegraph":
+                sentences = self.knowledge_service.getSentences(data, lang)               
+                for sentence in sentences:
+                    triples.append(self.knowledge_service.processSentence(sentence, nlp_model))
+
+            elif method == "spacy":
+                array_sent = self.split_sentence(data)
+                triples = self.relaction_service.get_triplets(nlp_model, array_sent)
+                
             return triples
 
     def rake_extract(self, data: str, lang: str = "russian") -> List[KeyWordDto]:

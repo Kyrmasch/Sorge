@@ -89,13 +89,20 @@ export default function Maps() {
   });
   const [words, setWords] = React.useState([]);
   const [wordsDialog, setWordsDialog] = React.useState(false);
+  const [relationMethod, setRelationMethod] = React.useState('knowlegegraph');
   const [actions, setActions] = React.useState({
     items: [
       {
         key: "knowlegegraph",
         text: "Построить Knowledge Graph",
         iconProps: { iconName: "GitGraph" },
-        onClick: () => setActionType("knowlegegraph"),
+        onClick: () =>  { setActionType("knowlegegraph"), setRelationMethod('knowlegegraph')  },
+      },
+      {
+        key: "spacy",
+        text: "Извлечение отношений Spacy",
+        iconProps: { iconName: "GitGraph" },
+        onClick: () => { setActionType("knowlegegraph"), setRelationMethod('spacy')  },
       },
     ],
   });
@@ -146,7 +153,7 @@ export default function Maps() {
 
   React.useEffect(() => {
     var actionCopy = Object.assign({}, actions);
-    if (language != languages[1].key) {
+    if (language == languages[2].key) {
       actionCopy.items[0].disabled = true;
     }
     else {
@@ -173,6 +180,7 @@ export default function Maps() {
         body: JSON.stringify({
           text: text,
           method: method,
+          relation: relationMethod,
           language: language,
         }),
       })

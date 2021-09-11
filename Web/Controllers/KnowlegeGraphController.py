@@ -32,6 +32,8 @@ def map_knowlegegraph_build():
                 properties:
                   text:
                     type: string
+                  relation:
+                    type: string
                   language:
                     type: string
                     enum: ["russian", "english", "kazakh"]
@@ -39,6 +41,7 @@ def map_knowlegegraph_build():
                 Default:
                   value:
                     text: ""
+                    relation: "knowlegegraph"
                     language: "english"
     security:
         - ApiKeyAuth: []
@@ -53,17 +56,18 @@ def map_knowlegegraph_build():
     data = request.json
     text = data["text"]
     language = data["language"]
+    method = data["relation"]
 
-    graph = getGraph(language, text)
+    graph = getGraph(language, text, method)
 
     return simplejson.dumps(
         {"data": graph.__dict__}, ignore_nan=True, encoding="utf-8", ensure_ascii=False
     )
 
 
-def getGraph(language, text) -> GetGraphDto:
+def getGraph(language, text, method = "knowlegegraph") -> GetGraphDto:
 
-    triples = keywords.get_triples(text, language)
+    triples = keywords.get_triples(text, language, method)
 
     nodes = []
     edges = []

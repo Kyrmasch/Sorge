@@ -278,7 +278,10 @@ export default function Maps() {
                         multiline
                         rows={5}
                         styles={{
-                          root: { width: "100%" },
+                          root: { width: "100%", borderColor: 'rgb(107, 148, 184)' },
+                          fieldGroup: {
+                            borderColor: 'rgb(107, 148, 184)'
+                          }
                         }}
                         required
                         value={text}

@@ -118,6 +118,8 @@ def getGraph(method, language, text) -> GetGraphDto:
                 ls_keywords.append((key.score, key.word))
                 index = index + 1
 
+    triplets = keywords.get_triples(text, language, "not", entities = ls_keywords)
+
     edges = [
         {"from": 2, "to": 8, "value": 3, "title": "3 emails per week"},
         {"from": 2, "to": 9, "value": 5, "title": "5 emails per week"},

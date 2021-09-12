@@ -2,6 +2,7 @@ import os
 import re
 import string
 from typing import List
+from numpy import number
 
 import pandas as pd
 from interface import implements
@@ -9,7 +10,7 @@ from nltk.corpus import stopwords
 from rake_nltk import Metric, Rake
 from UseCases.KeyWords.Interfaces.IKeyWordService import IKeyWordService
 
-import operator
+import networkx as nx
 import string
 
 import pymorphy2
@@ -176,13 +177,12 @@ class KeyWordService(implements(IKeyWordService)):
 
         return data
 
-    def get_triples(self, data, lang: string, method = "knowlegegraph") -> List[tuple]:
+    def get_triples(self, data, lang: string, method = "knowlegegraph", 
+                                            entities: List[tuple] = []) -> List[tuple]:
 
         stop = self.get_stop_words(lang)
         data = u"%s" % (data).lower()
         data = data.replace("«", "").replace("»", "")
-
-        # data = self.tokenize(data, lang, False, True)
 
         if lang in ["russian", "english"]:
             nlp_model = spacy.load(
@@ -191,13 +191,40 @@ class KeyWordService(implements(IKeyWordService)):
             for w in stop:
                 nlp_model.vocab[w].is_stop = True
 
-            sentences = self.split_sentence(data)
+            
             triplets = []
+            if method == "basic":
+                data = self.tokenize(data, lang, False, False)
+                sentences = self.split_sentence(data)
+                edges = []
 
-            if method == "knowlegegraph":
+                for s in sentences:
+                    doc = nlp_model(u'%s' % (s))
+                    
+                    
+                    for token in doc:
+                        for child in token.children:
+                            edges.append(('{0}'.format(token.lower_),
+                                        '{0}'.format(child.lower_)))
+
+                graph = nx.Graph(edges)
+                for entity1 in entities:
+                    for entity2 in entities:
+                        if entity1[1] == entity2[1]:
+                            continue
+                        
+                        print(entity1[1], entity2[1])
+                        try:
+                            print(nx.shortest_path_length(graph, source=entity1[1], target=entity2[1]))
+                            print(nx.shortest_path(graph, source=entity1[1], target=entity2[1]))
+                        except:
+                            pass
+
+            elif method == "knowlegegraph":
                 sentences   = knowlege_graph.getSentences(data, lang) 
                 triplets    = knowlege_graph.get_triplets(nlp_model, sentences)
             elif method == "spacy":
+                sentences = self.split_sentence(data)
                 triplets    = relation.get_triplets(nlp_model, sentences)
                 
             return triplets

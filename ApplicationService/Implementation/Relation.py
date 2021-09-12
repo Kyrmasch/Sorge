@@ -1,23 +1,40 @@
+import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
+from typing import List
 from interface import implements
-from UseCases.KeyWords.Interfaces.IRelationService import IRelationService
+from ApplicationService.Interfaces.IRelation import IRelation
 import spacy
 from spacy.matcher import Matcher
-from UseCases.KeyWords.Interfaces.Dtos.RelationDto import RelationDto
-from UseCases.KeyWords.Interfaces.Dtos.DocumentDto import DocumentDto
+from ApplicationService.Dtos.RelationDto import RelationDto
+from ApplicationService.Dtos.DocumentDto import DocumentDto
 
-class RelationService(implements(IRelationService)):
-    def __init__(self):
+class RelationService(implements(IRelation)):
+    def __init__(self, config):
         pass
 
-    def get_triplets(self, nlp, array):
+    def get_triplets(self, nlp, sentences) -> List[str]:
         
         triplets = []
-        for line in array:
+
+        for line in sentences:
+            
+            # line = " ".join(token.lemma_ for token in nlp(line) if not token.is_stop)
+            
             nlp_line = nlp(line)
+            
             doc = DocumentDto(nlp, nlp_line)
             relations = self.extract_relations(doc)
             for relation in relations:
-                triplets.append((relation.left_phrase.sentence, relation.relation_phrase.sentence, relation.right_phrase.sentence))
+                value = (relation.left_phrase.sentence, 
+                        relation.relation_phrase.sentence,     
+                        relation.right_phrase.sentence)
+
+                exists = [t for t in triplets if t[0] == value[0] and t[2] == value[2]]
+                if len(exists) == 0:
+                    triplets.append(
+                        value
+                        )
 
         return triplets
 

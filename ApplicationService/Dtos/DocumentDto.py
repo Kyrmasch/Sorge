@@ -1,7 +1,7 @@
 import spacy
 from spacy.matcher import Matcher
-from UseCases.KeyWords.Interfaces.Dtos.SwapSpanDto import SwapSpanDto
-from UseCases.KeyWords.Interfaces.Dtos.TextSpanDto import TextSpanDto
+from ApplicationService.Dtos.SwapSpanDto import SwapSpanDto
+from ApplicationService.Dtos.TextSpanDto import TextSpanDto
 
 
 class DocumentDto:

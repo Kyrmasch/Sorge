@@ -1,9 +1,4 @@
 import os
-
-from numpy import tri
-
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
-
 import re
 import string
 from typing import List
@@ -29,9 +24,9 @@ from Infrastructure.Implementation.kaznlp.tokenization.tokhmm import TokenizerHM
 from Infrastructure.Implementation.kaznlp.tokenization.tokrex import TokenizeRex
 from nltk.tokenize import sent_tokenize, word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
-from UseCases.KeyWords.Implementation.KnowledgeGraphService import KnowledgeGraphService
+from ApplicationService.DepentencyInjection import relation, knowlege_graph
 from UseCases.KeyWords.Interfaces.Dtos.KeyWordDto import KeyWordDto
-from UseCases.KeyWords.Implementation.RelationService import RelationService
+
 
 
 class KeyWordService(implements(IKeyWordService)):
@@ -79,9 +74,6 @@ class KeyWordService(implements(IKeyWordService)):
             )
         )
 
-        self.knowledge_service = KnowledgeGraphService()
-        self.relaction_service = RelationService()
-
     def stopwords_from_file(self, stop_words: List[str], lang):
         try:
             with open(
@@ -119,7 +111,7 @@ class KeyWordService(implements(IKeyWordService)):
         tokens = [i for i in word_tokenize(data) if i not in punctuations]
         return " ".join(tokens).lower()
 
-    def tokenize(self, text: str, lang: str = "russian", punctuation: bool = True):
+    def tokenize(self, text: str, lang: str = "russian", punctuation: bool = True, verb: bool = False):
 
         text = self.delete_punctuation(text, punctuation)
 
@@ -141,7 +133,10 @@ class KeyWordService(implements(IKeyWordService)):
             lemmas = self.ru_lemmatizer.lemmatize(tags)
 
             for word, tags, lemma, *_ in lemmas:
-                if "VERB" not in tags:
+                if (verb == False):
+                    if "VERB" not in tags:
+                        words.append(lemma)
+                else:
                     words.append(lemma)
 
         return " ".join(words)
@@ -183,26 +178,29 @@ class KeyWordService(implements(IKeyWordService)):
 
     def get_triples(self, data, lang: string, method = "knowlegegraph") -> List[tuple]:
 
-        data = u"%s" % (data)
-        data = self.tokenize(data, lang, False)
+        stop = self.get_stop_words(lang)
+        data = u"%s" % (data).lower()
+        data = data.replace("«", "").replace("»", "")
+
+        # data = self.tokenize(data, lang, False, True)
 
         if lang in ["russian", "english"]:
             nlp_model = spacy.load(
                     lang == "russain" and "ru_core_news_sm" or "en_core_web_sm"
             )
+            for w in stop:
+                nlp_model.vocab[w].is_stop = True
 
-            triples = []
+            sentences = self.split_sentence(data)
+            triplets = []
 
             if method == "knowlegegraph":
-                sentences = self.knowledge_service.getSentences(data, lang)               
-                for sentence in sentences:
-                    triples.append(self.knowledge_service.processSentence(sentence, nlp_model))
-
+                sentences   = knowlege_graph.getSentences(data, lang) 
+                triplets    = knowlege_graph.get_triplets(nlp_model, sentences)
             elif method == "spacy":
-                array_sent = self.split_sentence(data)
-                triples = self.relaction_service.get_triplets(nlp_model, array_sent)
+                triplets    = relation.get_triplets(nlp_model, sentences)
                 
-            return triples
+            return triplets
 
     def rake_extract(self, data: str, lang: str = "russian") -> List[KeyWordDto]:
         data = u"%s" % (data)

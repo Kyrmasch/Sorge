@@ -100,7 +100,7 @@ export default function Maps() {
       },
       {
         key: "spacy",
-        text: "Извлечение отношений Spacy",
+        text: "Посторить карту с использованием Spacy",
         iconProps: { iconName: "GitGraph" },
         onClick: () => { setActionType("knowlegegraph"), setRelationMethod('spacy')  },
       },
@@ -337,7 +337,7 @@ export default function Maps() {
                           iconProps={{
                             iconName: "GitGraph",
                           }}
-                          text="Построить карту"
+                          text="Построить базовую карту"
                           onClick={() => setActionType("build")}
                           allowDisabledFocus
                           disabled={text.length == 0 || load}
@@ -353,7 +353,7 @@ export default function Maps() {
                               width: 195,
                             },
                           }}
-                          text="Ключевые слова"
+                          text="Сущности"
                           onClick={() => setWordsDialog(true)}
                           allowDisabledFocus
                           disabled={words.length == 0 || load}

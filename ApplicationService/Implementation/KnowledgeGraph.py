@@ -1,14 +1,29 @@
+import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
+from typing import List
 from spacy.lang.en import English
 from spacy.lang.ru import Russian
 import networkx as nx
 import matplotlib.pyplot as plt
 from interface import implements
-from UseCases.KeyWords.Interfaces.IKnowledgeGraphService import IKnowledgeGraphService
+from ApplicationService.Interfaces.IRelation import IRelation
 
 
-class KnowledgeGraphService(implements(IKnowledgeGraphService)):
-    def __init__(self):
+class KnowledgeGraphService(implements(IRelation)):
+    def __init__(self, config):
         pass
+
+    def get_triplets(self, nlp, sentences) -> List[str]:
+        
+        triplets = []
+        for sentence in sentences:
+            value = self.processSentence(sentence, nlp)
+            exists = [t for t in triplets if t[0] == value[0] and t[2] == value[2]]
+            if len(exists) == 0:
+                triplets.append(value)
+
+        return triplets
 
     def getSentences(self, text, lang):
         nlp = lang == "russian" and Russian() or English()

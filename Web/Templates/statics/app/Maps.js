@@ -153,11 +153,13 @@ export default function Maps() {
 
   React.useEffect(() => {
     var actionCopy = Object.assign({}, actions);
-    if (language == languages[2].key) {
+    if (language != languages[1].key) {
       actionCopy.items[0].disabled = true;
+      actionCopy.items[1].disabled = true;
     }
     else {
       delete actionCopy.items[0]['disabled'];
+      delete actionCopy.items[1]['disabled'];
     }
     setActions(actionCopy);
   }, [language]);

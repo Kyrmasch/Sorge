@@ -185,9 +185,17 @@ class KeyWordService(implements(IKeyWordService)):
         data = data.replace("«", "").replace("»", "")
 
         if lang in ["russian", "english"]:
-            nlp_model = spacy.load(
-                    lang == "russain" and "ru_core_news_sm" or "en_core_web_sm"
-            )
+            
+            # ru2_combined_400ks_96
+            # ru_core_news_sm
+            
+            model_name = "en_core_web_sm"
+            if (lang == "russian"):
+                model_name = "ru2_combined_400ks_96"
+            elif (lang == "kazakh"):
+                pass
+
+            nlp_model = spacy.load(model_name)
             for w in stop:
                 nlp_model.vocab[w].is_stop = True
 
@@ -221,7 +229,7 @@ class KeyWordService(implements(IKeyWordService)):
                             pass
 
             elif method == "knowlegegraph":
-                sentences   = knowlege_graph.getSentences(data, lang) 
+                sentences   = knowlege_graph.getSentences(data, nlp_model, lang) 
                 triplets    = knowlege_graph.get_triplets(nlp_model, sentences)
             elif method == "spacy":
                 sentences = self.split_sentence(data)

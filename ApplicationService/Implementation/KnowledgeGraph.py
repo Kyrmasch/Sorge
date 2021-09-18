@@ -2,8 +2,6 @@ import os
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 from typing import List
-from spacy.lang.en import English
-from spacy.lang.ru import Russian
 import networkx as nx
 import matplotlib.pyplot as plt
 from interface import implements
@@ -12,23 +10,25 @@ from ApplicationService.Interfaces.IRelation import IRelation
 
 class KnowledgeGraphService(implements(IRelation)):
     def __init__(self, config):
-        pass
+        self.nlp = None
 
     def get_triplets(self, nlp, sentences) -> List[str]:
         
+        self.nlp = nlp
+
         triplets = []
         for sentence in sentences:
-            value = self.processSentence(sentence, nlp)
+            value = self.processSentence(sentence, self.nlp)
             exists = [t for t in triplets if t[0] == value[0] and t[2] == value[2]]
             if len(exists) == 0:
                 triplets.append(value)
 
         return triplets
 
-    def getSentences(self, text, lang):
-        nlp = lang == "russian" and Russian() or English()
-        nlp.add_pipe("sentencizer")
-        document = nlp(text)
+    def getSentences(self, text, nlp, lang):
+        self.nlp = nlp
+        self.nlp.add_pipe("sentencizer")
+        document = self.nlp(text)
         l = [sent.text.strip() for sent in document.sents]
         return l
 
@@ -53,6 +53,7 @@ class KnowledgeGraphService(implements(IRelation)):
         subjectConstruction = ""
         objectConstruction = ""
         for token in tokens:
+
             if "punct" in token.dep_:
                 continue
             if self.isRelationCandidate(token):

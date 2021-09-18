@@ -51,6 +51,23 @@ class WikiService(implements(IWikiService)):
         except:
             return None
 
+    def get_wd_short(self, word: str):
+        query = (
+            "SELECT ?s (COUNT(?p) AS ?count) WHERE {\
+                                          ?s ?label '%s'@ru.\
+                                          ?s ?p ?o\
+                                        }\
+                                        group by ?s\
+                                        order by DESC(?count)\
+                                        limit 1"
+            % (word)
+        )
+
+        try:
+            return self.execute_query(query)
+        except:
+            return None
+
     def get_props(
         self,
         wd: str,
@@ -75,4 +92,24 @@ class WikiService(implements(IWikiService)):
                     SERVICE wikibase:label { bd:serviceParam wikibase:language "ru". }'
             % (wd)
         )
+        return self.execute_query(query)
+    
+    def get_relation(self, wd: str):
+        query = (
+            "PREFIX wd: <http://www.wikidata.org/entity/>\
+            PREFIX wdt: <http://www.wikidata.org/prop/direct/>\
+            PREFIX wikibase: <http://wikiba.se/ontology#>\
+            PREFIX p: <http://www.wikidata.org/prop/>\
+            PREFIX v: <http://www.wikidata.org/prop/statement/>\
+            PREFIX q: <http://www.wikidata.org/prop/qualifier/>\
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\
+            SELECT ?pLabel ?oLabel WHERE { ?s ?predicate ?o . " +            
+            'BIND(IRI(REPLACE(STR(?predicate), "prop/direct/", "entity/")) AS ?p)\
+            SERVICE wikibase:label {\
+                bd:serviceParam wikibase:language "ru" .\
+            } ' +  
+            "FILTER(?predicate IN (wdt:P279, wdt:P460, wdt:P361, wdt:P527, wdt:P1382))\
+            FILTER(?s = %s) } LIMIT 100" % (wd)
+        )
+
         return self.execute_query(query)

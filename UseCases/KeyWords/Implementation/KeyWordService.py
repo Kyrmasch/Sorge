@@ -28,7 +28,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from ApplicationService.DepentencyInjection import relation, knowlege_graph
 from UseCases.KeyWords.Interfaces.Dtos.KeyWordDto import KeyWordDto
 
-
+from UseCases.Wikipedia.Implementation.WikiService import WikiService
 
 class KeyWordService(implements(IKeyWordService)):
     def __init__(self, config):
@@ -74,6 +74,8 @@ class KeyWordService(implements(IKeyWordService)):
                 "mdl",
             )
         )
+
+        self.wiki = WikiService(None)
 
     def stopwords_from_file(self, stop_words: List[str], lang):
         try:
@@ -191,7 +193,7 @@ class KeyWordService(implements(IKeyWordService)):
             
             model_name = "en_core_web_sm"
             if (lang == "russian"):
-                model_name = "ru2_combined_400ks_96"
+                model_name = "ru_core_news_sm"
             elif (lang == "kazakh"):
                 pass
 
@@ -264,6 +266,7 @@ class KeyWordService(implements(IKeyWordService)):
                     text = self.correct(text)
                 except Exception as e:
                     print(str(e))
+
             result.append(KeyWordDto(text, score))
 
         return result
@@ -287,3 +290,15 @@ class KeyWordService(implements(IKeyWordService)):
         result = [KeyWordDto(a[1], a[0]) for a in result if a[0] > 0]
 
         return result
+
+    def wiki_relation(self, entity: str):
+        wds = self.wiki.get_wd_short(entity)
+        if wds is not None:
+            if wds.shape[1] > 0:
+                try:
+                    wd = wds["s.value"].iloc[0]
+                    wd = "wd:%s" % (wd.rsplit("/", 1)[-1])
+                    subjects = self.wiki.get_relation(wd)
+                    print(subjects)
+                except Exception as e:
+                    print(str(e))

@@ -201,7 +201,11 @@ class KeyWordService(implements(IKeyWordService)):
             for w in stop:
                 nlp_model.vocab[w].is_stop = True
 
-            
+            for s in stop:
+                data = data.replace(" %s " % (s), " ")
+                data = data.replace("(%s " % (s), " ")
+                data = re.sub(' +', ' ', data)
+
             triplets = []
             if method == "basic":
                 data = self.tokenize(data, lang, False, False)

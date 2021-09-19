@@ -11,6 +11,7 @@ from ApplicationService.Interfaces.IRelation import IRelation
 class KnowledgeGraphService(implements(IRelation)):
     def __init__(self, config):
         self.nlp = None
+        self.lang = "english"
 
     def get_triplets(self, nlp, sentences) -> List[str]:
         
@@ -27,6 +28,7 @@ class KnowledgeGraphService(implements(IRelation)):
 
     def getSentences(self, text, nlp, lang):
         self.nlp = nlp
+        self.lang = lang
         self.nlp.add_pipe("sentencizer")
         document = self.nlp(text)
         l = [sent.text.strip() for sent in document.sents]
@@ -52,6 +54,10 @@ class KnowledgeGraphService(implements(IRelation)):
         relation = ""
         subjectConstruction = ""
         objectConstruction = ""
+
+        __obj = "obj"
+        if (self.lang == "russian"):
+            __obj = "conj"
         for token in tokens:
 
             if "punct" in token.dep_:
@@ -71,7 +77,7 @@ class KnowledgeGraphService(implements(IRelation)):
                 subject = self.appendChunk(subject, token.text)
                 subject = self.appendChunk(subjectConstruction, subject)
                 subjectConstruction = ""
-            if "obj" in token.dep_:
+            if  __obj in token.dep_:
                 object = self.appendChunk(object, token.text)
                 object = self.appendChunk(objectConstruction, object)
                 objectConstruction = ""

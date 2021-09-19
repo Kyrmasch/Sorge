@@ -10,6 +10,8 @@ import { ChoiceGroup } from "@fluentui/react/lib/ChoiceGroup";
 import KeyWordsDialog from "./components/KeyWordsDialog";
 import "vis-network/dist/vis-network";
 import { CommandBar } from '@fluentui/react/lib/CommandBar';
+import {isMobile} from 'react-device-detect';
+import { MessageBar } from '@fluentui/react/lib/MessageBar';
 
 var languages = [
   {
@@ -281,7 +283,7 @@ export default function Maps() {
   return (
     <React.Fragment>
       <Header setReady={setReady} />
-      {ready && (
+      {ready && !isMobile && (
         <div
           className="main"
           style={{
@@ -462,6 +464,15 @@ export default function Maps() {
           </div>
         </div>
       )}
+      {
+        ready && isMobile && (
+          <>
+            <MessageBar>
+              Недоступен для мобильной версии.
+            </MessageBar>
+          </>
+        )
+      }
     </React.Fragment>
   );
 }

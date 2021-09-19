@@ -201,11 +201,6 @@ class KeyWordService(implements(IKeyWordService)):
             for w in stop:
                 nlp_model.vocab[w].is_stop = True
 
-            for s in stop:
-                data = data.replace(" %s " % (s), " ")
-                data = data.replace("(%s " % (s), " ")
-                data = re.sub(' +', ' ', data)
-
             triplets = []
             if method == "basic":
                 data = self.tokenize(data, lang, False, False)
@@ -238,6 +233,12 @@ class KeyWordService(implements(IKeyWordService)):
                 sentences   = knowlege_graph.getSentences(data, nlp_model, lang) 
                 triplets    = knowlege_graph.get_triplets(nlp_model, sentences)
             elif method == "spacy":
+                if lang == "russian":
+                    data = self.tokenize(data, lang, False, True)
+                    for s in stop:
+                        data = data.replace(" %s " % (s), " ")
+                        data = data.replace("(%s " % (s), " ")
+                        data = re.sub(' +', ' ', data)
                 sentences = self.split_sentence(data)
                 triplets    = relation.get_triplets(nlp_model, sentences)
                 

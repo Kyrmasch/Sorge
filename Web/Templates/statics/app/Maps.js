@@ -8,24 +8,10 @@ import { Spinner } from "@fluentui/react/lib/Spinner";
 import Graph from "react-graph-vis";
 import { ChoiceGroup } from "@fluentui/react/lib/ChoiceGroup";
 import KeyWordsDialog from "./components/KeyWordsDialog";
-import 'vis-network/dist/vis-network'
+import "vis-network/dist/vis-network";
+import { CommandBar } from '@fluentui/react/lib/CommandBar';
 
-const keywords = [
-  {
-    key: "rake",
-    text: "Rake",
-    iconProps: { iconName: "Quantity" },
-    checked: true,
-  },
-  {
-    key: "tfidf",
-    text: "TF iDF",
-    iconProps: { iconName: "Quantity" },
-    disabled: false,
-  },
-];
-
-const languages = [
+var languages = [
   {
     key: "russian",
     text: "Русский",
@@ -55,8 +41,8 @@ var optionsMap = {
       size: 10,
     },
     arrows: {
-      to: { enabled: true, scaleFactor: 1, type: "arrow"},
-      from: { enabled: false, scaleFactor: 1, type: "arrow"},
+      to: { enabled: true, scaleFactor: 1, type: "arrow" },
+      from: { enabled: false, scaleFactor: 1, type: "arrow" },
     },
   },
   nodes: {
@@ -77,6 +63,57 @@ var optionsMap = {
 export default function Maps() {
   const culture = useParams().culture || "ru";
   const history = useHistory();
+  const [maps, setMaps] = React.useState([
+    {
+      key: "basic",
+      text: "Базовый",
+      iconProps: { iconName: "GitGraph" },
+      checked: true,
+    },
+    {
+      key: "knowlegegraph",
+      text: "Граф знаний",
+      iconProps: { iconName: "GitGraph" },
+      disabled: false,
+    },
+    {
+      key: "spacy",
+      text: "Spacy",
+      iconProps: { iconName: "GitGraph" },
+      disabled: false,
+    },
+  ]);
+
+  const [keywords, setKeyWords] = React.useState([
+    {
+      key: "rake",
+      text: "Rake",
+      iconProps: { iconName: "Quantity" },
+      checked: true,
+    },
+    {
+      key: "tfidf",
+      text: "TF iDF",
+      iconProps: { iconName: "Quantity" },
+      disabled: false,
+    },
+  ]);
+
+  const [graphcommands, setGraphCommands] = React.useState([
+    {
+      key: 'entities',
+      text: 'Сущности',
+      iconProps: { iconName: 'LookupEntities' },
+      split: true,
+      onClick: () => setWordsDialog(true),  
+    },
+    {
+      key: 'save',
+      text: 'Сохранить',
+      iconProps: { iconName: 'Save' },
+      onClick: () => saveGraph(),  
+    }
+  ])
 
   const [method, setMethod] = React.useState("rake");
   const [language, setLanguage] = React.useState("russian");
@@ -89,24 +126,8 @@ export default function Maps() {
   });
   const [words, setWords] = React.useState([]);
   const [wordsDialog, setWordsDialog] = React.useState(false);
-  const [relationMethod, setRelationMethod] = React.useState('knowlegegraph');
-  const [actions, setActions] = React.useState({
-    items: [
-      {
-        key: "knowlegegraph",
-        text: "Построить Knowledge Graph",
-        iconProps: { iconName: "GitGraph" },
-        onClick: () =>  { setActionType("knowlegegraph"), setRelationMethod('knowlegegraph')  },
-      },
-      {
-        key: "spacy",
-        text: "Посторить карту с использованием Spacy",
-        iconProps: { iconName: "GitGraph" },
-        onClick: () => { setActionType("knowlegegraph"), setRelationMethod('spacy')  },
-      },
-    ],
-  });
-  const [actionType, setActionType] = React.useState("");
+  const [relationMethod, setRelationMethod] = React.useState("basic");
+  const [actionType, setActionType] = React.useState("build");
 
   React.useEffect(() => {
     document.title = "Sorge - Концепт карта";
@@ -152,26 +173,38 @@ export default function Maps() {
   }, [text]);
 
   React.useEffect(() => {
-    var actionCopy = Object.assign({}, actions);
-    if (language == languages[2].key) {
-      actionCopy.items[0].disabled = true;
-      actionCopy.items[1].disabled = true;
+    if (language != "" && maps) {
+      var _maps = [...maps];
+      if (language == languages[2].key) {
+        _maps[1].disabled = true;
+        _maps[2].disabled = true;
+        setRelationMethod("basic");
+      } else {
+        delete _maps[1]["disabled"];
+        delete _maps[2]["disabled"];
+      }
+      setMaps(_maps);
     }
-    else {
-      delete actionCopy.items[0]['disabled'];
-      delete actionCopy.items[1]['disabled'];
-    }
-    setActions(actionCopy);
   }, [language]);
 
   React.useEffect(() => {
+    if (relationMethod != "") {
+      var kw = keywords.map((i) => {
+        if (relationMethod != "basic") {
+          i.disabled = true;
+        } else {
+          delete i["disabled"];
+        }
+        return i;
+      });
+      setKeyWords(kw);
+    }
+  }, [relationMethod]);
+
+  const build = () => {
     if (text.length > 0 && actionType != "") {
       setLoad(true);
-      setGraph({
-        nodes: [],
-        edges: [],
-      });
-      setWords([]);
+      setEmpty();
 
       fetch(`/maps/${actionType}`, {
         method: "post",
@@ -197,14 +230,12 @@ export default function Maps() {
             setWords(answer.data.words);
           }
           setLoad(false);
-          setActionType("");
         })
         .catch((err) => {
           setLoad(false);
-          setActionType("");
         });
     }
-  }, [actionType])
+  };
 
   const handleChangeText = (value) => {
     value = value.replace(/\s+/g, " ");
@@ -213,6 +244,26 @@ export default function Maps() {
 
   const handleSelectMethod = (e, o) => {
     setMethod(o.key);
+    setEmpty();
+  };
+
+  const handleSelectMap = (e, o) => {
+    setRelationMethod(o.key);
+
+    if (o.key == "basic") {
+      setActionType("build");
+    } else {
+      setActionType("knowlegegraph");
+    }
+
+    setEmpty();
+  };
+
+  const handleSelectLang = (e, o) => {
+    setLanguage(o.key);
+  };
+
+  const setEmpty = () => {
     setGraph({
       nodes: [],
       edges: [],
@@ -220,9 +271,12 @@ export default function Maps() {
     setWords([]);
   };
 
-  const handleSelectLang = (e, o) => {
-    setLanguage(o.key);
-  };
+  const saveGraph = () => {
+    var canvas = document.getElementsByTagName("canvas")[0];
+    var dataURL = canvas.toDataURL("image/png");
+    var newTab = window.open('about:blank','image from canvas');
+    newTab.document.write("<img src='" + dataURL + "' alt='from canvas'/>");
+  }
 
   return (
     <React.Fragment>
@@ -288,10 +342,13 @@ export default function Maps() {
                         multiline
                         rows={5}
                         styles={{
-                          root: { width: "100%", borderColor: 'rgb(107, 148, 184)' },
+                          root: {
+                            width: "100%",
+                            borderColor: "rgb(107, 148, 184)",
+                          },
                           fieldGroup: {
-                            borderColor: 'rgb(107, 148, 184)'
-                          }
+                            borderColor: "rgb(107, 148, 184)",
+                          },
                         }}
                         required
                         value={text}
@@ -316,6 +373,15 @@ export default function Maps() {
                       </Stack.Item>
                       <Stack.Item>
                         <ChoiceGroup
+                          label="Способ построения карты"
+                          defaultSelectedKey="rake"
+                          selectedKey={relationMethod}
+                          options={maps}
+                          onChange={handleSelectMap}
+                        />
+                      </Stack.Item>
+                      <Stack.Item>
+                        <ChoiceGroup
                           label="Метод извлечения ключевых слов"
                           defaultSelectedKey="rake"
                           selectedKey={method}
@@ -333,32 +399,13 @@ export default function Maps() {
                         <PrimaryButton
                           styles={{
                             root: {
-                              width: 262,
+                              width: 292,
                             },
                           }}
-                          iconProps={{
-                            iconName: "GitGraph",
-                          }}
-                          text="Построить базовую карту"
-                          onClick={() => setActionType("build")}
+                          text="Построить"
+                          onClick={() => build()}
                           allowDisabledFocus
                           disabled={text.length == 0 || load}
-                          checked={false}
-                          split
-                          menuProps={actions}
-                        />
-                      </Stack.Item>
-                      <Stack.Item>
-                        <DefaultButton
-                          styles={{
-                            root: {
-                              width: 195,
-                            },
-                          }}
-                          text="Сущности"
-                          onClick={() => setWordsDialog(true)}
-                          allowDisabledFocus
-                          disabled={words.length == 0 || load}
                           checked={false}
                         />
                       </Stack.Item>
@@ -372,6 +419,18 @@ export default function Maps() {
                       </>
                     )}
                     {graph.nodes.length > 0 && (
+                      <>
+                      <CommandBar
+                        items={graphcommands}
+                        styles = {{
+                          root: {
+                            marginTop: '24px',
+                            paddingLeft: '6px',
+                            borderTop: '1px solid rgb(107, 148, 184)',
+                            paddingTop: '8px'
+                          }
+                        }}
+                      />
                       <Graph
                         id="graph"
                         graph={graph}
@@ -380,11 +439,13 @@ export default function Maps() {
                           height: "600px",
                           backgroundColor: "rgb(243, 242, 241)",
                           margin: "24px 0px",
+                          marginTop: '0px',
                           backgroundImage:
                             "linear-gradient(white .4rem, transparent .4rem), linear-gradient(90deg, white .4rem, transparent .4rem)",
                           backgroundSize: "5rem 5rem",
                         }}
                       />
+                      </>
                     )}
                     {wordsDialog == true && (
                       <KeyWordsDialog

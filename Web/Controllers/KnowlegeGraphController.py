@@ -33,15 +33,16 @@ def map_knowlegegraph_build():
                   text:
                     type: string
                   relation:
-                    type: string
+                    shema:
+                    $ref: '#/components/schemas/RelationMethod'
                   language:
-                    type: string
-                    enum: ["russian", "english", "kazakh"]
+                    shema:
+                    ref: '#/components/schemas/Languages'
             examples:
                 Default:
                   value:
                     text: ""
-                    relation: "knowlegegraph"
+                    relation: "spacy"
                     language: "english"
     security:
         - ApiKeyAuth: []

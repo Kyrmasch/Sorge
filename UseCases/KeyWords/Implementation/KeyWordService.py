@@ -18,6 +18,7 @@ import rulemma
 import rupostagger
 import rutokenizer
 import spacy
+import spacy_udpipe
 from Infrastructure.Implementation.kaznlp.morphology.analyzers import AnalyzerDD
 from Infrastructure.Implementation.kaznlp.morphology.taggers import TaggerHMM
 from Infrastructure.Implementation.kaznlp.normalization.ininorm import Normalizer
@@ -29,6 +30,8 @@ from ApplicationService.DepentencyInjection import relation, knowlege_graph
 from UseCases.KeyWords.Interfaces.Dtos.KeyWordDto import KeyWordDto
 
 from UseCases.Wikipedia.Implementation.WikiService import WikiService
+
+import gc
 
 class KeyWordService(implements(IKeyWordService)):
     def __init__(self, config):
@@ -145,11 +148,13 @@ class KeyWordService(implements(IKeyWordService)):
         return " ".join(words)
 
     def correct_endings(self, pattern: str, adj: str, noun: str) -> str:
+        
         l_oe = ["ч", "щ"]
         gender = self.morph.parse(noun)[0].tag.gender
         k = adj[: len(adj) - 2]
         l = k[-1]
         oe = l in l_oe
+
         if gender == "femn":
             return pattern.format(adj=("%sая" % (k)), noun=noun)
         if gender == "neut":
@@ -168,9 +173,12 @@ class KeyWordService(implements(IKeyWordService)):
         for word, tags, lemma, *_ in lemmas:
             semantics.append((word, tags.split("|")[0]))
         if len(semantics) > 1:
-            if semantics[0][1] == "ADJ" and semantics[1][1] == "NOUN":
+            if semantics[-2][1] == "ADJ" and semantics[-1][1] == "NOUN":
+                adj = ""
+                for s in semantics[:-1]:
+                    adj = adj + "%s " % (s[0])
                 return self.correct_endings(
-                    "{adj} {noun}", semantics[0][0], semantics[1][0]
+                    "{adj} {noun}", adj.strip(), semantics[-1][0]
                 )
             elif semantics[1][1] == "ADJ" and semantics[0][1] == "NOUN":
                 return self.correct_endings(
@@ -178,6 +186,17 @@ class KeyWordService(implements(IKeyWordService)):
                 )
 
         return data
+
+    def correct_triplets(self, triplets) -> List[tuple]:
+        corrects = []
+        if triplets is not None:
+            for t in triplets:
+                left = self.correct(t[0].replace(' - ', '-'))
+                predicate = t[1]
+                right = self.correct(t[2].replace(' - ', '-'))
+                corrects.append((left, predicate, right))
+            triplets = corrects
+        return corrects
 
     def get_triples(self, data, lang: string, method = "knowlegegraph", 
                                             entities: List[tuple] = []) -> List[tuple]:
@@ -209,8 +228,7 @@ class KeyWordService(implements(IKeyWordService)):
 
                 for s in sentences:
                     doc = nlp_model(u'%s' % (s))
-                    
-                    
+                                        
                     for token in doc:
                         for child in token.children:
                             edges.append(('{0}'.format(token.lower_),
@@ -233,15 +251,21 @@ class KeyWordService(implements(IKeyWordService)):
                 sentences   = knowlege_graph.getSentences(data, nlp_model, lang) 
                 triplets    = knowlege_graph.get_triplets(nlp_model, sentences)
             elif method == "spacy":
-                if lang == "russian":
+                if lang == "russian" or lang == "kazakh":
                     data = self.tokenize(data, lang, False, True)
                     for s in stop:
                         data = data.replace(" %s " % (s), " ")
                         data = data.replace("(%s " % (s), " ")
                         data = re.sub(' +', ' ', data)
                 sentences = self.split_sentence(data)
-                triplets    = relation.get_triplets(nlp_model, sentences)
+                triplets  = relation.get_triplets(nlp_model, sentences, lang)
+
+                if lang == "russian" or lang == "kazakh":
+                    triplets = self.correct_triplets(triplets)
                 
+            del nlp_model
+            gc.collect()
+
             return triplets
 
     def rake_extract(self, data: str, lang: str = "russian") -> List[KeyWordDto]:

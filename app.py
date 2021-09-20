@@ -157,6 +157,22 @@ def create_app():
                 'APIKeyHeader': []
             },
             'schemas': {
+                'RelationMethod': {
+                    'type': 'string',
+                    'enum': [
+                        'basic',
+                        'knowlegegraph',
+                        'spacy'
+                    ]
+                },
+                'Languages': {
+                    'type': 'string',
+                    'enum': [
+                        'russain',
+                        'english',
+                        'kazakh'
+                    ]
+                },
                 'Graph': {
                     'type': 'object',
                     'properties': {

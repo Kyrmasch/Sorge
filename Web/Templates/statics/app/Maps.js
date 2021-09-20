@@ -10,7 +10,7 @@ import { ChoiceGroup } from "@fluentui/react/lib/ChoiceGroup";
 import KeyWordsDialog from "./components/KeyWordsDialog";
 import "vis-network/dist/vis-network";
 import { CommandBar } from '@fluentui/react/lib/CommandBar';
-import {isMobile} from 'react-device-detect';
+import { isMobile } from 'react-device-detect';
 import { MessageBar } from '@fluentui/react/lib/MessageBar';
 
 var languages = [
@@ -107,13 +107,13 @@ export default function Maps() {
       text: 'Сущности',
       iconProps: { iconName: 'LookupEntities' },
       split: true,
-      onClick: () => setWordsDialog(true),  
+      onClick: () => setWordsDialog(true),
     },
     {
       key: 'save',
       text: 'Сохранить',
       iconProps: { iconName: 'Save' },
-      onClick: () => saveGraph(),  
+      onClick: () => saveGraph(),
     }
   ])
 
@@ -179,7 +179,7 @@ export default function Maps() {
       var _maps = [...maps];
       if (language == languages[2].key) {
         _maps[1].disabled = true;
-        _maps[2].disabled = true;
+        //_maps[2].disabled = true;
         setRelationMethod("basic");
       } else {
         delete _maps[1]["disabled"];
@@ -208,6 +208,8 @@ export default function Maps() {
       setLoad(true);
       setEmpty();
 
+      let _text = text.replace(/\s+/g, " ");
+
       fetch(`/maps/${actionType}`, {
         method: "post",
         headers: {
@@ -215,7 +217,7 @@ export default function Maps() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          text: text,
+          text: _text,
           method: method,
           relation: relationMethod,
           language: language,
@@ -240,7 +242,6 @@ export default function Maps() {
   };
 
   const handleChangeText = (value) => {
-    value = value.replace(/\s+/g, " ");
     setText(value);
   };
 
@@ -276,7 +277,7 @@ export default function Maps() {
   const saveGraph = () => {
     var canvas = document.getElementsByTagName("canvas")[0];
     var dataURL = canvas.toDataURL("image/png");
-    var newTab = window.open('about:blank','image from canvas');
+    var newTab = window.open('about:blank', 'image from canvas');
     newTab.document.write("<img src='" + dataURL + "' alt='from canvas'/>");
   }
 
@@ -422,31 +423,31 @@ export default function Maps() {
                     )}
                     {graph.nodes.length > 0 && (
                       <>
-                      <CommandBar
-                        items={graphcommands}
-                        styles = {{
-                          root: {
-                            marginTop: '24px',
-                            paddingLeft: '6px',
-                            borderTop: '1px solid rgb(107, 148, 184)',
-                            paddingTop: '8px'
-                          }
-                        }}
-                      />
-                      <Graph
-                        id="graph"
-                        graph={graph}
-                        options={optionsMap}
-                        style={{
-                          height: "600px",
-                          backgroundColor: "rgb(243, 242, 241)",
-                          margin: "24px 0px",
-                          marginTop: '0px',
-                          backgroundImage:
-                            "linear-gradient(white .4rem, transparent .4rem), linear-gradient(90deg, white .4rem, transparent .4rem)",
-                          backgroundSize: "5rem 5rem",
-                        }}
-                      />
+                        <CommandBar
+                          items={graphcommands}
+                          styles={{
+                            root: {
+                              marginTop: '24px',
+                              paddingLeft: '6px',
+                              borderTop: '1px solid rgb(107, 148, 184)',
+                              paddingTop: '8px'
+                            }
+                          }}
+                        />
+                        <Graph
+                          id="graph"
+                          graph={graph}
+                          options={optionsMap}
+                          style={{
+                            height: "600px",
+                            backgroundColor: "rgb(243, 242, 241)",
+                            margin: "24px 0px",
+                            marginTop: '0px',
+                            backgroundImage:
+                              "linear-gradient(white .4rem, transparent .4rem), linear-gradient(90deg, white .4rem, transparent .4rem)",
+                            backgroundSize: "5rem 5rem",
+                          }}
+                        />
                       </>
                     )}
                     {wordsDialog == true && (

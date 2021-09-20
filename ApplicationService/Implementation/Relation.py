@@ -11,20 +11,20 @@ from ApplicationService.Dtos.DocumentDto import DocumentDto
 
 class RelationService(implements(IRelation)):
     def __init__(self, config):
-        pass
+        self.lang = "english"
 
-    def get_triplets(self, nlp, sentences) -> List[str]:
+    def get_triplets(self, nlp, sentences, lang = "english") -> List[str]:
         
+        self.lang = lang
         triplets = []
 
         for line in sentences:
-            
-            # line = " ".join(token.lemma_ for token in nlp(line) if not token.is_stop)
-            
+           
             nlp_line = nlp(line)
             
             doc = DocumentDto(nlp, nlp_line)
             relations = self.extract_relations(doc)
+
             for relation in relations:
                 value = (relation.left_phrase.sentence, 
                         relation.relation_phrase.sentence,     
@@ -46,8 +46,17 @@ class RelationService(implements(IRelation)):
 
     def extract_relations(self, doc):
         relation_spans = self.get_relation_spans(doc)
-        noun_phrase_pattern = [[{"POS":"NOUN"}], [{"POS": "PROPN"}], [{"POS": "PRON"}]]
+        noun_phrase_pattern = []
         
+        if self.lang == "russian":
+            noun_phrase_pattern.append([{"POS":"ADJ"}, {"POS":"ADJ"}, {"POS":"ADJ"}, {"POS":"NOUN"}])
+            noun_phrase_pattern.append([{"POS":"ADJ"}, {"POS":"ADJ"}, {"POS":"NOUN"}])
+            noun_phrase_pattern.append([{"POS":"ADJ"}, {"POS":"NOUN"}])
+        
+        noun_phrase_pattern.append([{"POS":"NOUN"}])
+        noun_phrase_pattern.append([{"POS": "PROPN"}])
+        noun_phrase_pattern.append([{"POS": "PRON"}])
+          
         relations = []
 
         for span in relation_spans:
@@ -62,10 +71,17 @@ class RelationService(implements(IRelation)):
 
     def get_relation_spans(self, doc):
         verbs = self.get_verbs(doc)
+        
         fluff_pattern = [[{"POS":"VERB"}, {"POS": "PART", "OP": "*"}, {"POS": "ADV", "OP":"*"}], 
                             [{"POS": "VERB"},  {"POS": "ADP", "OP": "*"}, {"POS": "DET", "OP":"*"},
                             {"POS": "AUX", "OP": "*"},  
                             {"POS": "ADJ", "OP":"*"}, {"POS": "ADV", "OP": "*"}]]
+        if self.lang == "russian":
+            fluff_pattern = [[{"POS":"VERB"}, {"POS": "PART", "OP": "*"}, {"POS": "ADV", "OP":"*"}], 
+                            [{"POS": "VERB"},  {"POS": "ADP", "OP": "*"}, {"POS": "DET", "OP":"*"},
+                            {"POS": "AUX", "OP": "*"},  
+                            {"POS": "ADV", "OP": "*"}]]
+
         matcher = doc.matcher
         matcher.add("Fluff", fluff_pattern)
         syntactical_constraint_matches = self.construct_text_spans(doc, matcher(doc.doc))

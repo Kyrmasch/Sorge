@@ -52,7 +52,7 @@ var optionsMap = {
       size: 14,
       face: "Verdana",
     },
-    shape: "dot",
+    shape: "dot"
   },
   interaction: {
     hideEdgesOnDrag: true,

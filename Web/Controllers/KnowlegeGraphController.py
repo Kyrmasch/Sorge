@@ -75,35 +75,36 @@ def getGraph(language, text, method = "knowlegegraph") -> GetGraphDto:
 
     ls_keywords = []
 
-    for t in triples:
-        o = t[0]
-        r = t[1]
-        s = t[2]
+    if triples is not None:
+      for t in triples:
+          o = t[0]
+          r = t[1]
+          s = t[2]
 
-        Io = []
-        Is = []
+          Io = []
+          Is = []
 
-        if (o != ""):
-            Io = [x for x, y in enumerate(ls_keywords) if y[1] == o]
-            if len(Io) == 0:
-                ls_keywords.append((1, o))
-                Io = [x for x, y in enumerate(ls_keywords) if y[1] == o]
-                nodes.append(NodeDto(Io[0] + 1, 0, o).__dict__)
-        
-        if (s != ""):
-            Is = [x for x, y in enumerate(ls_keywords) if y[1] == s]
-            if len(Is) == 0:
-                ls_keywords.append((1, s))
-                Is = [x for x, y in enumerate(ls_keywords) if y[1] == s]
-                nodes.append(NodeDto(Is[0] + 1, 0, s).__dict__)       
+          if (o != ""):
+              Io = [x for x, y in enumerate(ls_keywords) if y[1] == o]
+              if len(Io) == 0:
+                  ls_keywords.append((1, o))
+                  Io = [x for x, y in enumerate(ls_keywords) if y[1] == o]
+                  nodes.append(NodeDto(Io[0] + 1, 0, o).__dict__)
+          
+          if (s != ""):
+              Is = [x for x, y in enumerate(ls_keywords) if y[1] == s]
+              if len(Is) == 0:
+                  ls_keywords.append((1, s))
+                  Is = [x for x, y in enumerate(ls_keywords) if y[1] == s]
+                  nodes.append(NodeDto(Is[0] + 1, 0, s).__dict__)       
 
-        if (len(Io) > 0) and (len(Is) > 0):
-            edges.append(EdgeDto(
-                Io[0] + 1, 
-                Is[0] + 1, 
-                0, 
-                r,
-                0).to_json())
+          if (len(Io) > 0) and (len(Is) > 0):
+              edges.append(EdgeDto(
+                  Io[0] + 1, 
+                  Is[0] + 1, 
+                  0, 
+                  r,
+                  0).to_json())
 
 
     return GetGraphDto(nodes, edges, ls_keywords)

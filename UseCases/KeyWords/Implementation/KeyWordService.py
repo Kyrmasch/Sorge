@@ -207,14 +207,9 @@ class KeyWordService(implements(IKeyWordService)):
 
         if lang in ["russian", "english"]:
             
-            # ru2_combined_400ks_96
-            # ru_core_news_sm
-            
             model_name = "en_core_web_sm"
             if (lang == "russian"):
                 model_name = "ru_core_news_sm"
-            elif (lang == "kazakh"):
-                pass
 
             nlp_model = spacy.load(model_name)
             for w in stop:
@@ -266,6 +261,11 @@ class KeyWordService(implements(IKeyWordService)):
             del nlp_model
             gc.collect()
 
+            return triplets
+
+        elif lang == "kazakh":
+            sentences = self.split_sentence(data)
+            triplets = relation.get_triplets_kz(sentences, self.kz_tokenizer, self.kz_tagger)
             return triplets
 
     def rake_extract(self, data: str, lang: str = "russian") -> List[KeyWordDto]:

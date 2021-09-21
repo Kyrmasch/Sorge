@@ -1,3 +1,4 @@
+from operator import le
 import os
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
@@ -35,6 +36,37 @@ class RelationService(implements(IRelation)):
                     triplets.append(
                         value
                         )
+
+        return triplets
+
+    def get_triplets_kz(self, sentences, tokenizer, tagger):
+        triplets = []
+
+        index = 1
+        for sentence in sentences:
+            for tokens in tokenizer.tokenize(sentence):
+                lower_sentence = map(lambda x: x.lower(), tokens)
+                tags = tagger.tag_sentence(lower_sentence)
+                print(tags)
+                left = None
+                predicate = None,
+                right = None
+
+                verbs = [v for v in tags if "_R_ET" in v]
+                if (len(verbs) > 0):
+                    _deps = str(verbs[-1]).split(" ")
+                    predicate = "".join([_d.split("_")[0] for _d in _deps])
+
+                lefts = [v for v in tags if "_R_ZEQ" in v]
+                lefts = len(lefts) == 0 and [v for v in tags if "_R_ZE" in v] or lefts
+                if (len(lefts) > 0):
+                    left = str(lefts[0]).split(" ")[0].split("_R")[0]
+
+                if (predicate is not None 
+                        and lefts is not None):
+                    right = "%s?" % (index)
+                    triplets.append((left, predicate, right))
+                    index = index + 1
 
         return triplets
 

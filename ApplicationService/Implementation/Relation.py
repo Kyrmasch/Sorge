@@ -47,7 +47,7 @@ class RelationService(implements(IRelation)):
             for tokens in tokenizer.tokenize(sentence):
                 lower_sentence = map(lambda x: x.lower(), tokens)
                 tags = tagger.tag_sentence(lower_sentence)
-                print(tags)
+
                 left = None
                 predicate = None,
                 right = None
@@ -57,14 +57,30 @@ class RelationService(implements(IRelation)):
                     _deps = str(verbs[-1]).split(" ")
                     predicate = "".join([_d.split("_")[0] for _d in _deps])
 
-                lefts = [v for v in tags if "_R_ZEQ" in v]
-                lefts = len(lefts) == 0 and [v for v in tags if "_R_ZE" in v] or lefts
-                if (len(lefts) > 0):
-                    left = str(lefts[0]).split(" ")[0].split("_R")[0]
+                nouns = [v for v in tags if "_R_ZEQ" in v or "_R_ZE" in v or "қа_R_X" in v]
+                if (len(nouns) > 1):
+                    ZEQ = [v for v in nouns if "_R_ZEQ" in v]
+                    X = [v for v in nouns if "қа__R_X" in v]
+
+                    if len(ZEQ) > 0:
+                        left = str(ZEQ[0])
+                    else:
+                        left = str(nouns[0])
+
+                    if len(ZEQ) > 1:
+                        right = str(ZEQ[-1])
+                    elif len(X) > 0:
+                        right = str(X[-1])
+                    else:
+                        right = str(nouns[-1])
+
+                    left = left.split(" ")[0].split("_R")[0]
+                    right = right.split(" ")[0].split("_R")[0]
+
 
                 if (predicate is not None 
-                        and lefts is not None):
-                    right = "%s?" % (index)
+                        and left is not None
+                        and right is not None):
                     triplets.append((left, predicate, right))
                     index = index + 1
 

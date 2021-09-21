@@ -74,7 +74,7 @@ export default function Maps() {
     },
     {
       key: "knowlegegraph",
-      text: "Граф знаний",
+      text: "Bert",
       iconProps: { iconName: "GitGraph" },
       disabled: false,
     },

@@ -79,7 +79,7 @@ class KeyWordService(implements(IKeyWordService)):
         )
 
         self.wiki = WikiService(None)
-
+        
     def stopwords_from_file(self, stop_words: List[str], lang):
         try:
             with open(

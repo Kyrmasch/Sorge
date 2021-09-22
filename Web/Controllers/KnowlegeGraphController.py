@@ -77,33 +77,37 @@ def getGraph(language, text, method = "knowlegegraph") -> GetGraphDto:
 
     if triples is not None:
       for t in triples:
-          o = t[0]
-          r = t[1]
-          s = t[2]
+          _Object = t[0]
+          _Relation = t[1]
+          _Subject = t[2]
+          OValue = 0
+          SValue = 0
 
           Io = []
           Is = []
 
-          if (o != ""):
-              Io = [x for x, y in enumerate(ls_keywords) if y[1] == o]
+          if (_Object != ""):
+              Io = [x for x, y in enumerate(ls_keywords) if y[1] == _Object]
               if len(Io) == 0:
-                  ls_keywords.append((1, o))
-                  Io = [x for x, y in enumerate(ls_keywords) if y[1] == o]
-                  nodes.append(NodeDto(Io[0] + 1, 0, o).__dict__)
+                  ls_keywords.append((1, _Object))
+                  Io = [x for x, y in enumerate(ls_keywords) if y[1] == _Object]
+                  OValue = len([t for t in triples if t[0] == _Object])
+                  nodes.append(NodeDto(Io[0] + 1, 0, _Object).__dict__)
           
-          if (s != ""):
-              Is = [x for x, y in enumerate(ls_keywords) if y[1] == s]
+          if (_Subject != ""):
+              Is = [x for x, y in enumerate(ls_keywords) if y[1] == _Subject]
               if len(Is) == 0:
-                  ls_keywords.append((1, s))
-                  Is = [x for x, y in enumerate(ls_keywords) if y[1] == s]
-                  nodes.append(NodeDto(Is[0] + 1, 0, s).__dict__)       
+                  ls_keywords.append((1, _Subject))
+                  Is = [x for x, y in enumerate(ls_keywords) if y[1] == _Subject]
+                  SValue = len([t for t in triples if t[2] == _Subject])
+                  nodes.append(NodeDto(Is[0] + 1, 0, _Subject).__dict__)       
 
           if (len(Io) > 0) and (len(Is) > 0):
               edges.append(EdgeDto(
                   Io[0] + 1, 
                   Is[0] + 1, 
                   0, 
-                  r,
+                  _Relation,
                   0).to_json())
 
 

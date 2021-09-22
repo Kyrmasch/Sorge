@@ -20,7 +20,10 @@ from Web.Dtos.EdgeDto import EdgeDto
 def check_lang():
     data = request.json
     text = data["text"]
-    lang = detect(text)
+
+    lang = "ru"
+    if text is not None:
+        lang = detect(text)
 
     result = "kazakh"
     if lang == "en":
@@ -35,7 +38,12 @@ def check_lang():
             break
 
     return simplejson.dumps(
-        {"value": result}, ignore_nan=True, encoding="utf-8", ensure_ascii=False
+        {
+            "value": result
+        }, 
+        ignore_nan=True, 
+        encoding="utf-8", 
+        ensure_ascii=False
     )
 
 

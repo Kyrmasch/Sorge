@@ -17,13 +17,28 @@ class RelationService(implements(IRelation)):
     def __init__(self, config):
         self.lang = "english"
 
-    def get_triplets(self, nlp, sentences, lang = "english") -> List[str]:
+    def get_triplets(self, nlp, sentences, lang = "english", developer = False) -> List[str]:
         
         self.lang = lang
         triplets = []
 
         for line in sentences:
             nlp_line = nlp(line)
+
+            if developer == True:
+                print(line)
+                for token in nlp_line:
+                    print(
+                        token.text,
+                        token.lemma_,
+                        token.pos_,
+                        token.tag_,
+                        token.dep_,
+                        token.shape_,
+                        token.is_alpha,
+                        token.is_stop,
+                    )
+
             doc = DocumentDto(nlp, nlp_line)
             relations = self.extract_relations(doc)
 
@@ -106,15 +121,14 @@ class RelationService(implements(IRelation)):
         relation_spans = self.get_relation_spans(doc)
         noun_phrase_pattern = []
         
-        if self.lang == "russian":
-            noun_phrase_pattern.append([{"POS":"ADJ"}, {"POS":"ADJ"}, {"POS":"ADJ"}, {"POS":"NOUN"}])
-            noun_phrase_pattern.append([{"POS":"ADJ"}, {"POS":"ADJ"}, {"POS":"NOUN"}])
-            noun_phrase_pattern.append([{"POS":"ADJ"}, {"POS":"NOUN"}])
-            noun_phrase_pattern.append([{"POS": "PROPN"}, {"POS": "PROPN"}, {"POS": "PROPN"}])
-        
         noun_phrase_pattern.append([{"POS":"NOUN"}])
         noun_phrase_pattern.append([{"POS": "PROPN", "IS_STOP": False}])
         noun_phrase_pattern.append([{"POS": "PRON", "IS_STOP": False}])
+
+        if self.lang == "russian":
+            noun_phrase_pattern.append([{"POS":"ADJ", "OP": "+"}, {"POS":"NOUN"}])
+            noun_phrase_pattern.append([{"POS": "PROPN", "OP": "+"}, {"POS": "PROPN"}])
+            noun_phrase_pattern.append([{"POS": "NOUN", "OP": "+"}, {"LEMMA": "-", "OP": "+"}, {"POS": "NOUN", "OP": "+"}])       
           
         relations = []
 
@@ -191,19 +205,9 @@ class RelationService(implements(IRelation)):
 
         if len(spans_to_search) == 0:
             return None
-
-        if len(spans_to_search) > 2:
-            if (spans_to_search[1].sentence == "-" and
-                    spans_to_search[0].span.start < spans_to_search[2].span.end):
-                 try:
-                    return TextSpanDto(spacy.tokens.span.Span(
-                            spans_to_search[0].span.doc, 
-                            spans_to_search[0].span.start,
-                            spans_to_search[2].span.end
-                        )
-                    )
-                 except:
-                    pass 
+        for span in spans_to_search:
+            if "-" in span.sentence and len(span.sentence) > 1:
+                return span
 
         return spans_to_search[0]
 

@@ -113,8 +113,7 @@ class KeyWordService(implements(IKeyWordService)):
 
         punctuations.append("«")
         punctuations.append("»")
-        punctuations.append("—")
-        punctuations.append("–")
+        punctuations.append(" — ")
 
         tokens = [i for i in word_tokenize(data) if i not in punctuations]
         return " ".join(tokens).lower()
@@ -153,7 +152,7 @@ class KeyWordService(implements(IKeyWordService)):
                 else:
                     words.append(lemma)
 
-        return " ".join(words)
+        return " ".join(words).replace(" - ", "-")
 
     def correct_endings(self, pattern: str, adj: str, noun: str) -> str:
 
@@ -226,12 +225,17 @@ class KeyWordService(implements(IKeyWordService)):
         matcher = doc.matcher
         pattern = [
             [
-                {"POS": "NOUN", "OP": "*"},
+                {"POS": "NOUN", "OP": "+"}, {"LEMMA": "-", "OP": "+"}, {"POS": "NOUN", "OP": "+"},
+                {"POS": "PUNCT", "LEMMA": ","},
+                {"POS": "NOUN"}
+            ],
+            [
+                {"POS": "NOUN", "OP": "+"},
                 {"POS": "PUNCT", "LEMMA": ","},
                 {"POS": "NOUN"},
             ],
             [
-                {"POS": "PROPN", "OP": "*"},
+                {"POS": "PROPN", "OP": "+"},
                 {"POS": "PUNCT", "LEMMA": ","},
                 {"POS": "PROPN"},
             ],
@@ -330,7 +334,7 @@ class KeyWordService(implements(IKeyWordService)):
                 for line in self.split_sentence(data):
                     sentences += self.find_dublicates(nlp_model, line)
 
-                triplets = relation.get_triplets(nlp_model, sentences, lang)
+                triplets = relation.get_triplets(nlp_model, sentences, lang, False)
 
                 if lang == "russian":
                     triplets = self.correct_triplets(triplets)

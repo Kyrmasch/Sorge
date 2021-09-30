@@ -73,17 +73,17 @@ export default function Maps() {
       checked: true,
     },
     {
-      key: "knowlegegraph",
-      text: "Bert",
-      iconProps: { iconName: "GitGraph" },
-      disabled: false,
-    },
-    {
       key: "spacy",
       text: "Spacy",
       iconProps: { iconName: "GitGraph" },
       disabled: false,
     },
+    {
+      key: "knowlegegraph",
+      text: "Bert",
+      iconProps: { iconName: "GitGraph" },
+      disabled: false,
+    }
   ]);
 
   const [keywords, setKeyWords] = React.useState([

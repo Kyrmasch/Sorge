@@ -105,8 +105,8 @@ class RelationService(implements(IRelation)):
             noun_phrase_pattern.append([{"POS": "PROPN"}, {"POS": "PROPN"}, {"POS": "PROPN"}])
         
         noun_phrase_pattern.append([{"POS":"NOUN"}])
-        noun_phrase_pattern.append([{"POS": "PROPN"}])
-        noun_phrase_pattern.append([{"POS": "PRON"}])
+        noun_phrase_pattern.append([{"POS": "PROPN", "IS_STOP": False}])
+        noun_phrase_pattern.append([{"POS": "PRON", "IS_STOP": False}])
           
         relations = []
 

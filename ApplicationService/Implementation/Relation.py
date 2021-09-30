@@ -63,10 +63,7 @@ class RelationService(implements(IRelation)):
                         ZEQ = [v for v in nouns if "_R_ZEQ" in v]
                         X = [v for v in nouns if "қа__R_X" in v]
 
-                        if len(ZEQ) > 0:
-                            left = str(ZEQ[0])
-                        else:
-                            left = str(nouns[0])
+                        left = len(ZEQ) > 0 and str(ZEQ[0]) or str(nouns[0])
 
                         if len(ZEQ) > 1:
                             right = str(ZEQ[-1])
@@ -82,8 +79,9 @@ class RelationService(implements(IRelation)):
                     if (predicate is not None 
                             and left is not None
                             and right is not None):
-                        triplets.append((left, predicate, right))
-                        index = index + 1
+                        if left != right:
+                            triplets.append((left, predicate, right))
+                            index = index + 1
 
         return triplets
 
@@ -164,47 +162,6 @@ class RelationService(implements(IRelation)):
         for match_id, start, end in matches:
             verbs.append(doc.doc[start:end].text)
         return verbs
-
-    def find_dublicates(self, nlp, line):
-        nlp_line = nlp(line)
-        doc = DocumentDto(nlp, nlp_line)
-        
-        # for token in nlp_line:
-        #     print(token.text, token.lemma_, token.pos_, token.tag_, token.dep_,
-        #             token.shape_, token.is_alpha, token.is_stop)
-        
-        matcher = doc.matcher
-        d_pattern = [
-                            [{"POS":"NOUN", "OP": "*"}, {"POS": "PUNCT", "LEMMA": ","}, {"POS":"NOUN"}],
-                            [{"POS":"PROPN", "OP": "*"}, {"POS": "PUNCT", "LEMMA": ","}, {"POS":"PROPN"}]
-                        ]
-        matcher.add("Dublicates", d_pattern)
-        matches = matcher(doc.doc)
-
-        entities = []
-        for match_id, start, end in matches:
-            ent = doc.doc[start:end].text.split(',')
-            for e in ent:
-                word = e.strip()
-                if word not in entities:
-                    exist = [r for r in entities if word in r]
-                    if len(exist) == 0:
-                        entities.append(word)
-
-        sentences = []            
-        if len(entities) > 1:
-            for e in entities:
-                sentence = line
-                for s in entities:
-                    if e != s:
-                        sentence = sentence.replace(s, "")
-                sentence = re.sub(' , ,', ' ', sentence)
-                
-                sentences.append(sentence)
-        else:
-            sentences.append(line)
-
-        return sentences
 
     def find_nearest_pattern(self, doc, pattern, text_span, search_before):
         matcher = doc.matcher

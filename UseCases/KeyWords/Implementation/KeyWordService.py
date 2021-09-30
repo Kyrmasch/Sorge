@@ -28,10 +28,12 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
 from ApplicationService.DepentencyInjection import relation, knowlege_graph
 from UseCases.KeyWords.Interfaces.Dtos.KeyWordDto import KeyWordDto
+from ApplicationService.Dtos.DocumentDto import DocumentDto
 
 from UseCases.Wikipedia.Implementation.WikiService import WikiService
 
 import gc
+
 
 class KeyWordService(implements(IKeyWordService)):
     def __init__(self, config):
@@ -79,7 +81,7 @@ class KeyWordService(implements(IKeyWordService)):
         )
 
         self.wiki = WikiService(None)
-        
+
     def stopwords_from_file(self, stop_words: List[str], lang):
         try:
             with open(
@@ -117,7 +119,13 @@ class KeyWordService(implements(IKeyWordService)):
         tokens = [i for i in word_tokenize(data) if i not in punctuations]
         return " ".join(tokens).lower()
 
-    def tokenize(self, text: str, lang: str = "russian", punctuation: bool = True, verb: bool = False):
+    def tokenize(
+        self,
+        text: str,
+        lang: str = "russian",
+        punctuation: bool = True,
+        verb: bool = False,
+    ):
 
         text = self.delete_punctuation(text, punctuation)
 
@@ -139,7 +147,7 @@ class KeyWordService(implements(IKeyWordService)):
             lemmas = self.ru_lemmatizer.lemmatize(tags)
 
             for word, tags, lemma, *_ in lemmas:
-                if (verb == False):
+                if verb == False:
                     if "VERB" not in tags:
                         words.append(lemma)
                 else:
@@ -148,7 +156,7 @@ class KeyWordService(implements(IKeyWordService)):
         return " ".join(words)
 
     def correct_endings(self, pattern: str, adj: str, noun: str) -> str:
-        
+
         l_oe = ["ч", "щ"]
         gender = self.morph.parse(noun)[0].tag.gender
         k = adj[: len(adj) - 2]
@@ -191,26 +199,85 @@ class KeyWordService(implements(IKeyWordService)):
         corrects = []
         if triplets is not None:
             for t in triplets:
-                left = self.correct(t[0].replace(' - ', '-'))
+                left = self.correct(t[0].replace(" - ", "-"))
                 predicate = t[1]
-                right = self.correct(t[2].replace(' - ', '-'))
+                right = self.correct(t[2].replace(" - ", "-"))
                 corrects.append((left, predicate, right))
             triplets = corrects
         return corrects
 
-    def get_triples(self, data, lang: string, method = "knowlegegraph", 
-                                            entities: List[tuple] = []) -> List[tuple]:
+    def find_dublicates(self, nlp, line, developer=False):
+        nlp_line = nlp(line)
+        doc = DocumentDto(nlp, nlp_line)
+
+        if developer == True:
+            for token in nlp_line:
+                print(
+                    token.text,
+                    token.lemma_,
+                    token.pos_,
+                    token.tag_,
+                    token.dep_,
+                    token.shape_,
+                    token.is_alpha,
+                    token.is_stop,
+                )
+
+        matcher = doc.matcher
+        pattern = [
+            [
+                {"POS": "NOUN", "OP": "*"},
+                {"POS": "PUNCT", "LEMMA": ","},
+                {"POS": "NOUN"},
+            ],
+            [
+                {"POS": "PROPN", "OP": "*"},
+                {"POS": "PUNCT", "LEMMA": ","},
+                {"POS": "PROPN"},
+            ],
+        ]
+        matcher.add("Dublicates", pattern)
+        matches = matcher(doc.doc)
+
+        entities = []
+        for match_id, start, end in matches:
+            ent = doc.doc[start:end].text.split(",")
+            for e in ent:
+                word = e.strip()
+                if word not in entities:
+                    exist = [r for r in entities if word in r]
+                    if len(exist) == 0:
+                        entities.append(word)
+
+        sentences = []
+        if len(entities) > 1:
+            for e in entities:
+                sentence = line
+                for s in entities:
+                    if e != s:
+                        sentence = sentence.replace(s, "")
+                sentence = re.sub(" +", " ", sentence)
+                sentence = re.sub(", ,", " ", sentence)
+                sentences.append(sentence)
+        else:
+            sentences.append(line)
+
+        return sentences
+
+    def get_triples(
+        self, data, lang: string, method="knowlegegraph", entities: List[tuple] = []
+    ) -> List[tuple]:
 
         stop = self.get_stop_words(lang)
         data = u"%s" % (data).lower()
         data = data.replace("«", "").replace("»", "")
 
         if lang in ["russian", "english"]:
-            
+
             model_name = "en_core_web_sm"
-            if (lang == "russian"):
+            if lang == "russian":
                 model_name = "ru_core_news_sm"
-            
+
             nlp_model = spacy.load(model_name)
             for w in stop:
                 nlp_model.vocab[w].is_stop = True
@@ -222,53 +289,66 @@ class KeyWordService(implements(IKeyWordService)):
                 edges = []
 
                 for s in sentences:
-                    doc = nlp_model(u'%s' % (s))
-                                        
+                    doc = nlp_model(u"%s" % (s))
+
                     for token in doc:
                         for child in token.children:
-                            edges.append(('{0}'.format(token.lower_),
-                                        '{0}'.format(child.lower_)))
+                            edges.append(
+                                ("{0}".format(token.lower_), "{0}".format(child.lower_))
+                            )
 
                 graph = nx.Graph(edges)
                 for entity1 in entities:
                     for entity2 in entities:
                         if entity1[1] == entity2[1]:
                             continue
-                        
+
                         print(entity1[1], entity2[1])
                         try:
-                            print(nx.shortest_path_length(graph, source=entity1[1], target=entity2[1]))
-                            print(nx.shortest_path(graph, source=entity1[1], target=entity2[1]))
+                            print(
+                                nx.shortest_path_length(
+                                    graph, source=entity1[1], target=entity2[1]
+                                )
+                            )
+                            print(
+                                nx.shortest_path(
+                                    graph, source=entity1[1], target=entity2[1]
+                                )
+                            )
                         except:
                             pass
 
             elif method == "knowlegegraph":
-                sentences   = knowlege_graph.getSentences(data, nlp_model, lang) 
-                triplets    = knowlege_graph.get_triplets(nlp_model, sentences)
+                sentences = knowlege_graph.getSentences(data, nlp_model, lang)
+                triplets = knowlege_graph.get_triplets(nlp_model, sentences)
             elif method == "spacy":
-                if lang == "russian" or lang == "kazakh":
+                if lang == "russian":
                     data = self.tokenize(data, lang, False, True)
-                    data = re.sub(' +', ' ', data)
-                sentences = self.split_sentence(data)
+                    data = re.sub(" +", " ", data)
 
-                pre_sentences = []
-                for line in sentences:    
-                    pre_sentences += relation.find_dublicates(nlp_model, line)                   
+                sentences = []
+                for line in self.split_sentence(data):
+                    sentences += self.find_dublicates(nlp_model, line)
 
-                triplets  = relation.get_triplets(nlp_model, pre_sentences, lang)
+                triplets = relation.get_triplets(nlp_model, sentences, lang)
 
-                if lang == "russian" or lang == "kazakh":
+                if lang == "russian":
                     triplets = self.correct_triplets(triplets)
-                
+
             del nlp_model
+
             gc.collect()
 
             return triplets
 
         elif lang == "kazakh":
             sentences = self.split_sentence(data)
-            triplets = relation.get_triplets_kz(sentences, self.kz_tokenizer, self.kz_tagger)
+            triplets = relation.get_triplets_kz(
+                sentences, self.kz_tokenizer, self.kz_tagger
+            )
             return triplets
+
+        return []
 
     def rake_extract(self, data: str, lang: str = "russian") -> List[KeyWordDto]:
         data = u"%s" % (data)

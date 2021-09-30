@@ -1,5 +1,7 @@
 from operator import le
 import os
+
+from ApplicationService.Dtos.TextSpanDto import TextSpanDto
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 from typing import List
@@ -100,6 +102,7 @@ class RelationService(implements(IRelation)):
             noun_phrase_pattern.append([{"POS":"ADJ"}, {"POS":"ADJ"}, {"POS":"ADJ"}, {"POS":"NOUN"}])
             noun_phrase_pattern.append([{"POS":"ADJ"}, {"POS":"ADJ"}, {"POS":"NOUN"}])
             noun_phrase_pattern.append([{"POS":"ADJ"}, {"POS":"NOUN"}])
+            noun_phrase_pattern.append([{"POS": "PROPN"}, {"POS": "PROPN"}, {"POS": "PROPN"}])
         
         noun_phrase_pattern.append([{"POS":"NOUN"}])
         noun_phrase_pattern.append([{"POS": "PROPN"}])
@@ -120,15 +123,16 @@ class RelationService(implements(IRelation)):
     def get_relation_spans(self, doc):
         verbs = self.get_verbs(doc)
         
-        fluff_pattern = [[{"POS":"VERB"}, {"POS": "PART", "OP": "*"}, {"POS": "ADV", "OP":"*"}], 
-                            [{"POS": "VERB"},  {"POS": "ADP", "OP": "*"}, {"POS": "DET", "OP":"*"},
-                            {"POS": "AUX", "OP": "*"},  
-                            {"POS": "ADJ", "OP":"*"}, {"POS": "ADV", "OP": "*"}]]
+        fluff_pattern = [
+                            [{"POS":"VERB"}, {"POS": "PART", "OP": "*"}, {"POS": "ADV", "OP":"*"}], 
+                            [{"POS": "VERB"},  {"POS": "ADP", "OP": "*"}, {"POS": "DET", "OP":"*"}, {"POS": "AUX", "OP": "*"}, {"POS": "ADJ", "OP": "*"}, {"POS": "ADV", "OP": "*"}]
+                        ]
         if self.lang == "russian":
-            fluff_pattern = [[{"POS":"VERB"}, {"POS": "PART", "OP": "*"}, {"POS": "ADV", "OP":"*"}], 
-                            [{"POS": "VERB"},  {"POS": "ADP", "OP": "*"}, {"POS": "DET", "OP":"*"},
-                            {"POS": "AUX", "OP": "*"},  
-                            {"POS": "ADV", "OP": "*"}]]
+            fluff_pattern = [
+                                [{"POS": "VERB"}, {"POS": "ADP", "OP": "*"}],
+                                [{"POS": "VERB"}, {"POS": "PART", "OP": "*"}, {"POS": "ADV", "OP": "*"}],
+                                [{"POS": "VERB"},  {"POS": "ADP", "OP": "*"}, {"POS": "DET", "OP": "*"},{"POS": "AUX", "OP": "*"},{"POS": "ADV", "OP": "*"}]
+                            ]
 
         matcher = doc.matcher
         matcher.add("Fluff", fluff_pattern)
@@ -172,6 +176,19 @@ class RelationService(implements(IRelation)):
 
         if len(spans_to_search) == 0:
             return None
+
+        if len(spans_to_search) == 3:
+            if (spans_to_search[1].sentence == "-"):
+                return TextSpanDto(spacy.tokens.span.Span(
+                        spans_to_search[0].span.doc, 
+                        spans_to_search[0].span.start,
+                        spans_to_search[2].span.end,
+                        0,
+                        None,
+                        0,
+                        0
+                    )
+                )
 
         return spans_to_search[0]
 

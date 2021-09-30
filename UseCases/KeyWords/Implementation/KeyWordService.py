@@ -210,7 +210,7 @@ class KeyWordService(implements(IKeyWordService)):
             model_name = "en_core_web_sm"
             if (lang == "russian"):
                 model_name = "ru_core_news_sm"
-
+            
             nlp_model = spacy.load(model_name)
             for w in stop:
                 nlp_model.vocab[w].is_stop = True
@@ -248,10 +248,10 @@ class KeyWordService(implements(IKeyWordService)):
             elif method == "spacy":
                 if lang == "russian" or lang == "kazakh":
                     data = self.tokenize(data, lang, False, True)
-                    for s in stop:
-                        data = data.replace(" %s " % (s), " ")
-                        data = data.replace("(%s " % (s), " ")
-                        data = re.sub(' +', ' ', data)
+                    # for s in stop:
+                    #    data = data.replace(" %s " % (s), " ")
+                    #    data = data.replace("(%s " % (s), " ")
+                    data = re.sub(' +', ' ', data)
                 sentences = self.split_sentence(data)
                 triplets  = relation.get_triplets(nlp_model, sentences, lang)
 

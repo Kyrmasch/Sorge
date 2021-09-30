@@ -248,12 +248,14 @@ class KeyWordService(implements(IKeyWordService)):
             elif method == "spacy":
                 if lang == "russian" or lang == "kazakh":
                     data = self.tokenize(data, lang, False, True)
-                    # for s in stop:
-                    #    data = data.replace(" %s " % (s), " ")
-                    #    data = data.replace("(%s " % (s), " ")
                     data = re.sub(' +', ' ', data)
                 sentences = self.split_sentence(data)
-                triplets  = relation.get_triplets(nlp_model, sentences, lang)
+
+                pre_sentences = []
+                for line in sentences:    
+                    pre_sentences += relation.find_dublicates(nlp_model, line)                   
+
+                triplets  = relation.get_triplets(nlp_model, pre_sentences, lang)
 
                 if lang == "russian" or lang == "kazakh":
                     triplets = self.correct_triplets(triplets)

@@ -23,7 +23,10 @@ def check_lang():
 
     lang = "ru"
     if text is not None:
-        lang = detect(text)
+        try:
+            lang = detect(text)
+        except:
+            pass
 
     result = "kazakh"
     if lang == "en":

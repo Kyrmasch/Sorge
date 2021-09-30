@@ -178,8 +178,7 @@ export default function Maps() {
     if (language != "" && maps) {
       var _maps = [...maps];
       if (language == languages[2].key) {
-        _maps[1].disabled = true;
-        //_maps[2].disabled = true;
+        _maps[2].disabled = true;
         setRelationMethod("basic");
       } else {
         delete _maps[1]["disabled"];

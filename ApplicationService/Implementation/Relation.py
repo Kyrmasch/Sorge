@@ -4,6 +4,7 @@ import os
 from ApplicationService.Dtos.TextSpanDto import TextSpanDto
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
+import re
 from typing import List
 from interface import implements
 from ApplicationService.Interfaces.IRelation import IRelation
@@ -22,9 +23,7 @@ class RelationService(implements(IRelation)):
         triplets = []
 
         for line in sentences:
-           
             nlp_line = nlp(line)
-            
             doc = DocumentDto(nlp, nlp_line)
             relations = self.extract_relations(doc)
 
@@ -59,32 +58,32 @@ class RelationService(implements(IRelation)):
                     _deps = str(verbs[-1]).split(" ")
                     predicate = "".join([_d.split("_")[0] for _d in _deps])
 
-                nouns = [v for v in tags if "_R_ZEQ" in v or "_R_ZE" in v or "қа_R_X" in v]
-                if (len(nouns) > 1):
-                    ZEQ = [v for v in nouns if "_R_ZEQ" in v]
-                    X = [v for v in nouns if "қа__R_X" in v]
+                    nouns = [v for v in tags if "_R_ZEQ" in v or "_R_ZE" in v or "қа_R_X" in v]
+                    if (len(nouns) > 1):
+                        ZEQ = [v for v in nouns if "_R_ZEQ" in v]
+                        X = [v for v in nouns if "қа__R_X" in v]
 
-                    if len(ZEQ) > 0:
-                        left = str(ZEQ[0])
-                    else:
-                        left = str(nouns[0])
+                        if len(ZEQ) > 0:
+                            left = str(ZEQ[0])
+                        else:
+                            left = str(nouns[0])
 
-                    if len(ZEQ) > 1:
-                        right = str(ZEQ[-1])
-                    elif len(X) > 0:
-                        right = str(X[-1])
-                    else:
-                        right = str(nouns[-1])
+                        if len(ZEQ) > 1:
+                            right = str(ZEQ[-1])
+                        elif len(X) > 0:
+                            right = str(X[-1])
+                        else:
+                            right = str(nouns[-1])
 
-                    left = left.split(" ")[0].split("_R")[0]
-                    right = right.split(" ")[0].split("_R")[0]
+                        left = left.split(" ")[0].split("_R")[0]
+                        right = right.split(" ")[0].split("_R")[0]
 
 
-                if (predicate is not None 
-                        and left is not None
-                        and right is not None):
-                    triplets.append((left, predicate, right))
-                    index = index + 1
+                    if (predicate is not None 
+                            and left is not None
+                            and right is not None):
+                        triplets.append((left, predicate, right))
+                        index = index + 1
 
         return triplets
 
@@ -95,6 +94,7 @@ class RelationService(implements(IRelation)):
         return ret_spans
 
     def extract_relations(self, doc):
+
         relation_spans = self.get_relation_spans(doc)
         noun_phrase_pattern = []
         
@@ -125,13 +125,22 @@ class RelationService(implements(IRelation)):
         
         fluff_pattern = [
                             [{"POS":"VERB"}, {"POS": "PART", "OP": "*"}, {"POS": "ADV", "OP":"*"}], 
-                            [{"POS": "VERB"},  {"POS": "ADP", "OP": "*"}, {"POS": "DET", "OP":"*"}, {"POS": "AUX", "OP": "*"}, {"POS": "ADJ", "OP": "*"}, {"POS": "ADV", "OP": "*"}]
+                            [{"POS": "VERB"},  
+                                {"POS": "ADP", "OP": "*"}, 
+                                    {"POS": "DET", "OP":"*"}, 
+                                        {"POS": "AUX", "OP": "*"}, 
+                                            {"POS": "ADJ", "OP": "*"}, 
+                                                {"POS": "ADV", "OP": "*"}]
                         ]
         if self.lang == "russian":
             fluff_pattern = [
                                 [{"POS": "VERB"}, {"POS": "ADP", "OP": "*"}],
-                                [{"POS": "VERB"}, {"POS": "PART", "OP": "*"}, {"POS": "ADV", "OP": "*"}],
-                                [{"POS": "VERB"},  {"POS": "ADP", "OP": "*"}, {"POS": "DET", "OP": "*"},{"POS": "AUX", "OP": "*"},{"POS": "ADV", "OP": "*"}]
+                                [{"POS": "VERB"}, {"POS": "PART", "OP": "*"}, 
+                                                      {"POS": "ADV", "OP": "*"}],
+                                [{"POS": "VERB"},  {"POS": "ADP", "OP": "*"}, 
+                                                      {"POS": "DET", "OP": "*"},
+                                                        {"POS": "AUX", "OP": "*"},
+                                                            {"POS": "ADV", "OP": "*"}]
                             ]
 
         matcher = doc.matcher
@@ -144,9 +153,7 @@ class RelationService(implements(IRelation)):
             joined_spans = self.merge_overlapping_consecutive_word_span(verb_spans)
             longest_span = self.find_longest_span(joined_spans)
             relation_spans.append(longest_span)
-        return relation_spans
-
-            
+        return relation_spans        
 
     def get_verbs(self, doc):
         matcher = doc.matcher
@@ -157,6 +164,47 @@ class RelationService(implements(IRelation)):
         for match_id, start, end in matches:
             verbs.append(doc.doc[start:end].text)
         return verbs
+
+    def find_dublicates(self, nlp, line):
+        nlp_line = nlp(line)
+        doc = DocumentDto(nlp, nlp_line)
+        
+        # for token in nlp_line:
+        #     print(token.text, token.lemma_, token.pos_, token.tag_, token.dep_,
+        #             token.shape_, token.is_alpha, token.is_stop)
+        
+        matcher = doc.matcher
+        d_pattern = [
+                            [{"POS":"NOUN", "OP": "*"}, {"POS": "PUNCT", "LEMMA": ","}, {"POS":"NOUN"}],
+                            [{"POS":"PROPN", "OP": "*"}, {"POS": "PUNCT", "LEMMA": ","}, {"POS":"PROPN"}]
+                        ]
+        matcher.add("Dublicates", d_pattern)
+        matches = matcher(doc.doc)
+
+        entities = []
+        for match_id, start, end in matches:
+            ent = doc.doc[start:end].text.split(',')
+            for e in ent:
+                word = e.strip()
+                if word not in entities:
+                    exist = [r for r in entities if word in r]
+                    if len(exist) == 0:
+                        entities.append(word)
+
+        sentences = []            
+        if len(entities) > 1:
+            for e in entities:
+                sentence = line
+                for s in entities:
+                    if e != s:
+                        sentence = sentence.replace(s, "")
+                sentence = re.sub(' , ,', ' ', sentence)
+                
+                sentences.append(sentence)
+        else:
+            sentences.append(line)
+
+        return sentences
 
     def find_nearest_pattern(self, doc, pattern, text_span, search_before):
         matcher = doc.matcher
@@ -177,18 +225,22 @@ class RelationService(implements(IRelation)):
         if len(spans_to_search) == 0:
             return None
 
-        if len(spans_to_search) == 3:
-            if (spans_to_search[1].sentence == "-"):
-                return TextSpanDto(spacy.tokens.span.Span(
-                        spans_to_search[0].span.doc, 
-                        spans_to_search[0].span.start,
-                        spans_to_search[2].span.end,
-                        0,
-                        None,
-                        0,
-                        0
+        if len(spans_to_search) > 2:
+            if (spans_to_search[1].sentence == "-" and
+                    spans_to_search[0].span.start < spans_to_search[2].span.end):
+                 try:
+                    return TextSpanDto(spacy.tokens.span.Span(
+                            spans_to_search[0].span.doc, 
+                            spans_to_search[0].span.start,
+                            spans_to_search[2].span.end,
+                            0,
+                            None,
+                            0,
+                            0
+                        )
                     )
-                )
+                 except:
+                    pass 
 
         return spans_to_search[0]
 

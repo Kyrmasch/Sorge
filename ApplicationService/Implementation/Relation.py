@@ -58,17 +58,27 @@ class RelationService(implements(IRelation)):
                     _deps = str(verbs[-1]).split(" ")
                     predicate = "".join([_d.split("_")[0] for _d in _deps])
 
-                    nouns = [v for v in tags if "_R_ZEQ" in v or "_R_ZE" in v or "қа_R_X" in v]
+                    nouns = [tag for tag in tags 
+                                if "_R_ZEQ" in tag 
+                                    or "_R_ZE" in tag 
+                                    or "қа_R_X" in tag
+                                    or "ке_R_X" in tag
+                                    or "ға_R_X" in tag
+                                    or "ге_R_X" in tag]
                     if (len(nouns) > 1):
-                        ZEQ = [v for v in nouns if "_R_ZEQ" in v]
-                        X = [v for v in nouns if "қа__R_X" in v]
+                        ZEQ = [tag for tag in nouns if "_R_ZEQ" in tag]
+                        R_X = [tag for tag in nouns 
+                                    if "қа__R_X" in tag
+                                    or "ке_R_X" in tag
+                                    or "ға_R_X" in tag
+                                    or "ге_R_X" in tag]
 
                         left = len(ZEQ) > 0 and str(ZEQ[0]) or str(nouns[0])
 
                         if len(ZEQ) > 1:
                             right = str(ZEQ[-1])
-                        elif len(X) > 0:
-                            right = str(X[-1])
+                        elif len(R_X) > 0:
+                            right = str(R_X[-1])
                         else:
                             right = str(nouns[-1])
 
@@ -189,11 +199,7 @@ class RelationService(implements(IRelation)):
                     return TextSpanDto(spacy.tokens.span.Span(
                             spans_to_search[0].span.doc, 
                             spans_to_search[0].span.start,
-                            spans_to_search[2].span.end,
-                            0,
-                            None,
-                            0,
-                            0
+                            spans_to_search[2].span.end
                         )
                     )
                  except:

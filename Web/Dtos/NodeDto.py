@@ -1,5 +1,5 @@
 class NodeDto(object):
     def __init__(self, id, value, label):
         self.id = id
-        self.value  = value
+        self.value = value
         self.label  = label

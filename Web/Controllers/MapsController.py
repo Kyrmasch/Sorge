@@ -52,7 +52,7 @@ def check_lang():
 
 def get_example_text():
     example = open(
-        "%s/ApplicationService/Files/examples/russian.txt" % (os.getcwd()), "r"
+        "%s/ApplicationService/Files/examples/kazakh.txt" % (os.getcwd()), "r"
     )
     text = example.read()
     return simplejson.dumps(

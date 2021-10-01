@@ -3,11 +3,10 @@ from Web.Dtos.GetGraphDto import GetGraphDto
 import simplejson
 from flask import (
     request,
-    jsonify,
     request,
-    redirect,
-    url_for,
 )
+
+from collections import Counter
 import os
 import time
 from UseCases.DepentencyInjection import keywords
@@ -75,6 +74,14 @@ def getGraph(language, text, method = "knowlegegraph") -> GetGraphDto:
     display_keywords = []
 
     if triples is not None:
+
+      counter_array = []
+      for t in triples:
+        counter_array.append(t[0])
+        counter_array.append(t[2])
+
+      counter = dict(Counter(counter_array))
+
       for t in triples:
           _Object = t[0]
           _Relation = t[1]
@@ -88,14 +95,14 @@ def getGraph(language, text, method = "knowlegegraph") -> GetGraphDto:
               if len(Io) == 0:
                   display_keywords.append((1, _Object))
                   Io = [x for x, y in enumerate(display_keywords) if y[1] == _Object]
-                  nodes.append(NodeDto(Io[0] + 1, 0,  _Object).__dict__)
+                  nodes.append(NodeDto(Io[0] + 1, 0,  _Object, counter.get(_Object, 1)).__dict__)
           
           if (_Subject != ""):
               Is = [x for x, y in enumerate(display_keywords) if y[1] == _Subject]
               if len(Is) == 0:
                   display_keywords.append((1, _Subject))
                   Is = [x for x, y in enumerate(display_keywords) if y[1] == _Subject]
-                  nodes.append(NodeDto(Is[0] + 1, 0,_Subject).__dict__)       
+                  nodes.append(NodeDto(Is[0] + 1, 0,_Subject, counter.get(_Subject, 1)).__dict__)       
 
           if (len(Io) > 0) and (len(Is) > 0):
               edges.append(EdgeDto(

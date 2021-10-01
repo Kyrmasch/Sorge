@@ -34,7 +34,7 @@ from UseCases.Wikipedia.Implementation.WikiService import WikiService
 
 import gc
 
-develop_mode = True
+develop_mode = False
 
 class KeyWordService(implements(IKeyWordService)):
     def __init__(self, config):

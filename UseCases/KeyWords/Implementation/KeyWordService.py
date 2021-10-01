@@ -34,6 +34,7 @@ from UseCases.Wikipedia.Implementation.WikiService import WikiService
 
 import gc
 
+develop_mode = True
 
 class KeyWordService(implements(IKeyWordService)):
     def __init__(self, config):
@@ -226,45 +227,74 @@ class KeyWordService(implements(IKeyWordService)):
         pattern = [
             [
                 {"POS": "NOUN", "OP": "+"}, {"LEMMA": "-", "OP": "+"}, {"POS": "NOUN", "OP": "+"},
-                {"POS": "PUNCT", "LEMMA": ","},
+                {"POS": "PUNCT", "LEMMA": ",", "OP": "+"},
                 {"POS": "NOUN"}
             ],
             [
                 {"POS": "NOUN", "OP": "+"},
-                {"POS": "PUNCT", "LEMMA": ","},
+                {"POS": "PUNCT", "LEMMA": ",", "OP": "+"},
+                {"POS": "PROPN"}
+            ],
+            [
+                {"POS": "NOUN", "OP": "+"},
+                {"POS": "PUNCT", "LEMMA": ",", "OP": "+"},
                 {"POS": "NOUN"},
             ],
             [
                 {"POS": "PROPN", "OP": "+"},
-                {"POS": "PUNCT", "LEMMA": ","},
+                {"POS": "PUNCT", "LEMMA": ",", "OP": "+"},
                 {"POS": "PROPN"},
             ],
         ]
         matcher.add("Dublicates", pattern)
         matches = matcher(doc.doc)
 
-        entities = []
+        spans = []
         for match_id, start, end in matches:
+            
             ent = doc.doc[start:end].text.split(",")
             for e in ent:
-                word = e.strip()
-                if word not in entities:
-                    exist = [r for r in entities if word in r]
-                    if len(exist) == 0:
-                        entities.append(word)
+                if e not in spans:
+                    spans.append(e.strip())
+
+        if (any(spans)):
+            spans.sort(key=lambda s: len(s), reverse=True)
+            print(spans)
+
+        entities = []
+        for word in spans:
+            if develop_mode == True:
+                print("Dublicate: %s" % (word))
+            if word not in entities and " " not in word:
+                exist = [r for r in entities if word in r]
+                if len(exist) == 0:
+                    entities.append(word)
 
         sentences = []
         if len(entities) > 1:
             for e in entities:
+                if develop_mode == True:
+                    print("Dublicate sentence: %s" % (e))
                 sentence = line
                 for s in entities:
                     if e != s:
+                        sentence = sentence.replace("%s ," % (s), "")
+                        sentence = sentence.replace(", %s" % (s), "")
                         sentence = sentence.replace(s, "")
                 sentence = re.sub(" +", " ", sentence)
                 sentence = re.sub(", ,", " ", sentence)
-                sentences.append(sentence)
+                sentence = sentence.strip()
+                if (sentence[-1] == ","):
+                    sentence = sentence[:-1]
+
+                if sentence not in sentences:
+                    sentences.append(sentence)
         else:
             sentences.append(line)
+
+        if develop_mode == True:
+            for s in sentences:
+                print("Sentence: %s" % (s))
 
         return sentences
 
@@ -334,7 +364,7 @@ class KeyWordService(implements(IKeyWordService)):
                 for line in self.split_sentence(data):
                     sentences += self.find_dublicates(nlp_model, line)
 
-                triplets = relation.get_triplets(nlp_model, sentences, lang, False)
+                triplets = relation.get_triplets(nlp_model, sentences, lang, develop_mode)
 
                 if lang == "russian":
                     triplets = self.correct_triplets(triplets)

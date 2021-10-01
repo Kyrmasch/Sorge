@@ -15,7 +15,7 @@ class RelationService(implements(IRelation)):
         self.lang = "english"
 
     def get_triplets(
-        self, nlp, sentences, lang="english", developer=False
+        self, nlp, sentences, lang="english", developer = False
     ) -> List[str]:
 
         self.lang = lang
@@ -61,7 +61,7 @@ class RelationService(implements(IRelation)):
 
         return triplets
 
-    def extract_relations_kz(self, nlp, doc, developer=False):
+    def extract_relations_kz(self, nlp, doc, developer = False):
         triplets = []
 
         verbs = self.get_verbs_kz(nlp, doc)
@@ -183,7 +183,7 @@ class RelationService(implements(IRelation)):
         matcher.add("Fluff", fluff_pattern)
         matches = matcher(doc.doc)
         verbs = []
-        for match_id, start, end in matches:
+        for _, start, end in matches:
             verbs.append(doc.doc[start:end].text)
         return verbs
 
@@ -194,7 +194,7 @@ class RelationService(implements(IRelation)):
 
         matches = matcher(doc.doc)
         verbs = []
-        for match_id, start, end in matches:
+        for _, start, end in matches:
             verbs.append(doc.doc[start:end].text)
 
         verbs.sort(key=lambda s: len(s), reverse=True)
@@ -206,7 +206,7 @@ class RelationService(implements(IRelation)):
         matches = matcher(doc.doc)
 
         nouns = []
-        for match_id, start, end in matches:
+        for _, start, end in matches:
             nouns.append(doc.doc[start:end].text)
 
         if any(nouns):
@@ -316,7 +316,7 @@ class RelationService(implements(IRelation)):
         sorted_spans = sorted(text_spans, key=lambda s: s.length, reverse=True)
         return sorted_spans[0]
 
-    def find_dublicates(self, nlp, line, developer=False):
+    def find_dublicates(self, nlp, line, developer = False):
         nlp_line = nlp(line)
         doc = DocumentDto(nlp, nlp_line)
 
@@ -362,8 +362,7 @@ class RelationService(implements(IRelation)):
         matches = matcher(doc.doc)
 
         spans = []
-        for match_id, start, end in matches:
-
+        for _, start, end in matches:
             ent = doc.doc[start:end].text.split(",")
             for e in ent:
                 if e not in spans and " " not in e.strip():

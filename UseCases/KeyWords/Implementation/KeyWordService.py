@@ -249,49 +249,14 @@ class KeyWordService(implements(IKeyWordService)):
             nlp_model.vocab[w].is_stop = True
 
         triplets = []
-        if args.method == "basic":
-            data = self.tokenize(data, args.lang, False, False)
-            sentences = self.split_sentence(data)
-            edges = []
 
-            for s in sentences:
-                doc = nlp_model(u"%s" % (s))
-
-                for token in doc:
-                    for child in token.children:
-                        edges.append(
-                            ("{0}".format(token.lower_), "{0}".format(child.lower_))
-                        )
-
-            graph = nx.Graph(edges)
-            for entity1 in args.entities:
-                for entity2 in args.entities:
-                    if entity1[1] == entity2[1]:
-                        continue
-                    
-                    if develop_mode == True:
-                        print(entity1[1], entity2[1])
-                    try:
-                        print(
-                            nx.shortest_path_length(
-                                graph, source=entity1[1], target=entity2[1]
-                            )
-                        )
-                        print(
-                            nx.shortest_path(
-                                graph, source=entity1[1], target=entity2[1]
-                            )
-                        )
-                    except:
-                        pass
-
-        elif args.method == "knowlegegraph":
+        if args.method == "knowlegegraph":
             sentences = knowlege_graph.getSentences(data, nlp_model, args.lang)
             triplets = knowlege_graph.get_triplets(nlp_model, sentences)
 
-        elif args.method == "spacy":
+        if args.method == "spacy":
             if args.lang == "russian":
-                data = self.tokenize(data, args.lang, False, True)
+                data = self.tokenize(TokenizeParamsDto(data, args.lang, False, True))
                 data = re.sub(" +", " ", data)
 
             sentences = []
@@ -310,7 +275,7 @@ class KeyWordService(implements(IKeyWordService)):
     def rake_extract(self, data: str, lang: str = "russian") -> List[KeyWordDto]:
         data = u"%s" % (data)
         stop_words = set(self.get_stop_words(lang))
-        text = self.tokenize(data, lang, False)
+        text = self.tokenize(TokenizeParamsDto(data, lang, False))
 
         max_length = 2
 
@@ -346,7 +311,7 @@ class KeyWordService(implements(IKeyWordService)):
         text_array = []
         for item in ls:
             text = self.delete_punctuation(item)
-            text = self.tokenize(text, lang)
+            text = self.tokenize(TokenizeParamsDto(text, lang))
             text_array.append(text)
 
         corpus = pd.DataFrame(text_array)

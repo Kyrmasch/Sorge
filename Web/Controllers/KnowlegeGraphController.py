@@ -10,7 +10,7 @@ from collections import Counter
 import os
 import time
 from UseCases.DepentencyInjection import keywords
-from UseCases.KeyWords.Interfaces.Dtos.KeyWordDto import KeyWordDto
+from UseCases.KeyWords.Interfaces.Dtos.TripletsParamsDto import TripletsParamsDto
 from Web.Dtos.NodeDto import NodeDto
 from Web.Dtos.EdgeDto import EdgeDto
 
@@ -66,7 +66,7 @@ def map_knowlegegraph_build():
 
 def getGraph(language, text, method = "knowlegegraph") -> GetGraphDto:
 
-    triples = keywords.get_triples(text, language, method)
+    triples = keywords.get_triples(TripletsParamsDto(text, language, method))
 
     nodes = []
     edges = []

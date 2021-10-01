@@ -1,41 +1,37 @@
+import gc
 import os
 import re
 import string
 from typing import List
-from numpy import number
-
-import pandas as pd
-from interface import implements
-from nltk.corpus import stopwords
-from rake_nltk import Metric, Rake
-from UseCases.KeyWords.Interfaces.IKeyWordService import IKeyWordService
 
 import networkx as nx
-import string
-
+import pandas as pd
 import pymorphy2
 import rulemma
 import rupostagger
 import rutokenizer
 import spacy
 import spacy_udpipe
-from Infrastructure.Implementation.kaznlp.morphology.analyzers import AnalyzerDD
+from ApplicationService.DepentencyInjection import knowlege_graph, relation
+from Infrastructure.Implementation.kaznlp.morphology.analyzers import \
+    AnalyzerDD
 from Infrastructure.Implementation.kaznlp.morphology.taggers import TaggerHMM
-from Infrastructure.Implementation.kaznlp.normalization.ininorm import Normalizer
-from Infrastructure.Implementation.kaznlp.tokenization.tokhmm import TokenizerHMM
-from Infrastructure.Implementation.kaznlp.tokenization.tokrex import TokenizeRex
+from Infrastructure.Implementation.kaznlp.tokenization.tokhmm import \
+    TokenizerHMM
+from interface import implements
+from nltk.corpus import stopwords
 from nltk.tokenize import sent_tokenize, word_tokenize
+from rake_nltk import Metric, Rake
 from sklearn.feature_extraction.text import TfidfVectorizer
-from ApplicationService.DepentencyInjection import relation, knowlege_graph
 from UseCases.KeyWords.Interfaces.Dtos.KeyWordDto import KeyWordDto
-from ApplicationService.Dtos.DocumentDto import DocumentDto
-
+from UseCases.KeyWords.Interfaces.Dtos.TripletsParamsDto import \
+    TripletsParamsDto
+from UseCases.KeyWords.Interfaces.Dtos.TokenizeParamsDto import \
+    TokenizeParamsDto
+from UseCases.KeyWords.Interfaces.IKeyWordService import IKeyWordService
 from UseCases.Wikipedia.Implementation.WikiService import WikiService
 
-import gc
-
 develop_mode = False
-
 
 class KeyWordService(implements(IKeyWordService)):
     def __init__(self, config):
@@ -84,7 +80,7 @@ class KeyWordService(implements(IKeyWordService)):
 
         self.wiki = WikiService(None)
 
-    def stopwords_from_file(self, stop_words: List[str], lang):
+    def stopwords_from_file(self, stop_words: List[str], lang: str):
         try:
             with open(
                 "%s/ApplicationService/Files/stopwords/%s.txt" % (self.wd, lang)
@@ -120,22 +116,16 @@ class KeyWordService(implements(IKeyWordService)):
         tokens = [i for i in word_tokenize(data) if i not in punctuations]
         return " ".join(tokens).lower()
 
-    def tokenize(
-        self,
-        text: str,
-        lang: str = "russian",
-        punctuation: bool = True,
-        verb: bool = False,
-    ):
+    def tokenize(self, args: TokenizeParamsDto):
 
-        text = self.delete_punctuation(text, punctuation)
+        text = self.delete_punctuation(args.text, args.punctuation)
 
         words = []
 
-        if lang == "kazakh":
+        if args.lang == "kazakh":
             for sentence in self.kz_tokenizer.tokenize(text):
                 lower_sentence = map(lambda x: x.lower(), sentence)
-                for i, a in enumerate(self.kz_tagger.tag_sentence(lower_sentence)):
+                for _, a in enumerate(self.kz_tagger.tag_sentence(lower_sentence)):
                     if "_R_ET" not in str(a) and "_R_EB" not in str(a):
                         try:
                             lemma = str(a).split("_")[0]
@@ -143,12 +133,12 @@ class KeyWordService(implements(IKeyWordService)):
                         except:
                             pass
         else:
-            tokens = self.ru_tokenizer.tokenize(text)
-            tags = self.ru_tagger.tag(tokens)
-            lemmas = self.ru_lemmatizer.lemmatize(tags)
+            tokens  = self.ru_tokenizer.tokenize(text)
+            tags    = self.ru_tagger.tag(tokens)
+            lemmas  = self.ru_lemmatizer.lemmatize(tags)
 
-            for word, tags, lemma, *_ in lemmas:
-                if verb == False:
+            for _, tags, lemma, *_ in lemmas:
+                if args.verb == False:
                     if "VERB" not in tags:
                         words.append(lemma)
                 else:
@@ -174,9 +164,10 @@ class KeyWordService(implements(IKeyWordService)):
         return pattern.format(adj=adj, noun=noun)
 
     def correct(self, data: str) -> str:
-        tokens = self.ru_tokenizer.tokenize(data)
-        tags = self.ru_tagger.tag(tokens)
-        lemmas = self.ru_lemmatizer.lemmatize(tags)
+        
+        tokens  = self.ru_tokenizer.tokenize(data)
+        tags    = self.ru_tagger.tag(tokens)
+        lemmas  = self.ru_lemmatizer.lemmatize(tags)
 
         semantics = []
         for word, tags, lemma, *_ in lemmas:
@@ -197,6 +188,14 @@ class KeyWordService(implements(IKeyWordService)):
         return data
 
     def correct_triplets(self, triplets) -> List[tuple]:
+        
+        """
+        Скорректировать триплеты - только для русского языка
+        Parameters:
+        
+        triplets: массив tuple
+        """
+        
         corrects = []
         if triplets is not None:
             for t in triplets:
@@ -207,107 +206,20 @@ class KeyWordService(implements(IKeyWordService)):
             triplets = corrects
         return corrects
 
-    def find_dublicates(self, nlp, line, developer=False):
-        nlp_line = nlp(line)
-        doc = DocumentDto(nlp, nlp_line)
+    def get_model(self, lang: str):
+        
+        """
+        Получение модели Spacy
+        Parameters:
+        
+        lang: Язык
+        """
 
-        if developer == True:
-            for token in nlp_line:
-                print(
-                    token.text,
-                    token.lemma_,
-                    token.pos_,
-                    token.tag_,
-                    token.dep_,
-                    token.shape_,
-                    token.is_alpha,
-                    token.is_stop,
-                )
-
-        matcher = doc.matcher
-        pattern = [
-            [
-                {"POS": "NOUN", "OP": "+"},
-                {"LEMMA": "-", "OP": "+"},
-                {"POS": "NOUN", "OP": "+"},
-                {"POS": "PUNCT", "LEMMA": ",", "OP": "+"},
-                {"POS": "NOUN"},
-            ],
-            [
-                {"POS": "NOUN", "OP": "+"},
-                {"POS": "PUNCT", "LEMMA": ",", "OP": "+"},
-                {"POS": "PROPN"},
-            ],
-            [
-                {"POS": "NOUN", "OP": "+"},
-                {"POS": "PUNCT", "LEMMA": ",", "OP": "+"},
-                {"POS": "NOUN"},
-            ],
-            [
-                {"POS": "PROPN", "OP": "+"},
-                {"POS": "PUNCT", "LEMMA": ",", "OP": "+"},
-                {"POS": "PROPN"},
-            ],
-        ]
-        matcher.add("Dublicates", pattern)
-        matches = matcher(doc.doc)
-
-        spans = []
-        for match_id, start, end in matches:
-
-            ent = doc.doc[start:end].text.split(",")
-            for e in ent:
-                if e not in spans and " " not in e.strip():
-                    spans.append(e.strip())
-
-        if any(spans):
-            spans.sort(key=lambda s: len(s), reverse=True)
-
-        entities = []
-        for word in spans:
-            if develop_mode == True:
-                print("Dublicate: %s" % (word))
-            if word not in entities and " " not in word:
-                exist = [r for r in entities if word in r]
-                if len(exist) == 0:
-                    entities.append(word)
-
-        sentences = []
-        if len(entities) > 1:
-            for e in entities:
-                if develop_mode == True:
-                    print("Dublicate sentence: %s" % (e))
-                sentence = line
-                for s in entities:
-                    if e != s:
-                        sentence = sentence.replace("%s ," % (s), "")
-                        sentence = sentence.replace(", %s" % (s), "")
-                        sentence = sentence.replace(s, "")
-                sentence = re.sub(" +", " ", sentence)
-                sentence = re.sub(", ,", " ", sentence)
-                sentence = sentence.strip()
-                if sentence[-1] == ",":
-                    sentence = sentence[:-1].strip()
-                if sentence[-1] == ".":
-                    sentence = sentence[:-1].strip()
-
-                if sentence not in sentences:
-                    sentences.append(sentence)
-        else:
-            sentences.append(line)
-
-        if develop_mode == True:
-            for s in sentences:
-                print("Sentence: %s" % (s))
-
-        return sentences
-
-    def get_model(self, lang):
-        if lang == "english":
+        if lang     == "english":
             return spacy.load("en_core_web_sm")
-        elif lang == "russian":
+        elif lang   == "russian":
             return spacy.load("ru_core_news_sm")
-        elif lang == "kazakh":
+        elif lang   == "kazakh":
             return spacy_udpipe.load_from_path(
                 "ky",
                 "%s/ApplicationService/Files/udpipe/%s.udpipe"
@@ -315,23 +227,30 @@ class KeyWordService(implements(IKeyWordService)):
             )
         return None
 
-    def get_triples(
-        self, data, lang: string, method="knowlegegraph", entities: List[tuple] = []
-    ) -> List[tuple]:
+    
+    def get_triples(self, args: TripletsParamsDto) -> List[tuple]:
+        
+        """
+        Получение триплетов
+        Авторы: Курмаш Апаев, Алия Нугуманова
+        Parameters:
+        
+        args: TripletsParamsDto
+        """
 
-        nlp_model = self.get_model(lang)
+        nlp_model = self.get_model(args.lang)
         if nlp_model is None:
             return []
 
-        stop = self.get_stop_words(lang)
-        data = u"%s" % (data) 
+        stop = self.get_stop_words(args.lang)
+        data = u"%s" % (args.data) 
 
         for w in stop:
             nlp_model.vocab[w].is_stop = True
 
         triplets = []
-        if method == "basic":
-            data = self.tokenize(data, lang, False, False)
+        if args.method == "basic":
+            data = self.tokenize(data, args.lang, False, False)
             sentences = self.split_sentence(data)
             edges = []
 
@@ -345,12 +264,13 @@ class KeyWordService(implements(IKeyWordService)):
                         )
 
             graph = nx.Graph(edges)
-            for entity1 in entities:
-                for entity2 in entities:
+            for entity1 in args.entities:
+                for entity2 in args.entities:
                     if entity1[1] == entity2[1]:
                         continue
-
-                    print(entity1[1], entity2[1])
+                    
+                    if develop_mode == True:
+                        print(entity1[1], entity2[1])
                     try:
                         print(
                             nx.shortest_path_length(
@@ -365,21 +285,21 @@ class KeyWordService(implements(IKeyWordService)):
                     except:
                         pass
 
-        elif method == "knowlegegraph":
-            sentences = knowlege_graph.getSentences(data, nlp_model, lang)
+        elif args.method == "knowlegegraph":
+            sentences = knowlege_graph.getSentences(data, nlp_model, args.lang)
             triplets = knowlege_graph.get_triplets(nlp_model, sentences)
 
-        elif method == "spacy":
-            if lang == "russian":
-                data = self.tokenize(data, lang, False, True)
+        elif args.method == "spacy":
+            if args.lang == "russian":
+                data = self.tokenize(data, args.lang, False, True)
                 data = re.sub(" +", " ", data)
 
             sentences = []
             for line in self.split_sentence(data):
-                sentences += self.find_dublicates(nlp_model, line)
+                sentences += relation.find_dublicates(nlp_model, line)
 
-            triplets = relation.get_triplets(nlp_model, sentences, lang, develop_mode)
-            if lang == "russian":
+            triplets = relation.get_triplets(nlp_model, sentences, args.lang, develop_mode)
+            if args.lang == "russian":
                 triplets = self.correct_triplets(triplets)
 
         del nlp_model

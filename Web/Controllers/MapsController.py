@@ -12,7 +12,7 @@ import os
 import time
 from UseCases.DepentencyInjection import keywords
 from langdetect import detect
-from UseCases.KeyWords.Interfaces.Dtos.KeyWordDto import KeyWordDto
+from UseCases.KeyWords.Interfaces.Dtos.TripletsParamsDto import TripletsParamsDto
 from Web.Dtos.NodeDto import NodeDto
 from Web.Dtos.EdgeDto import EdgeDto
 
@@ -129,7 +129,9 @@ def getGraph(method, language, text) -> GetGraphDto:
                 ls_keywords.append((key.score, key.word))
                 index = index + 1
 
-    triplets = keywords.get_triples(text, language, "not", entities = ls_keywords)
+    triplets = keywords.get_triples(
+                        TripletsParamsDto(text, language, "not", entities = ls_keywords)
+               )
 
     edges = [
         {"from": 2, "to": 8, "value": 3, "title": "3 emails per week"},

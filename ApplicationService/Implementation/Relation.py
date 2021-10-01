@@ -1,15 +1,10 @@
-from operator import le
 import os
-
-from ApplicationService.Dtos.TextSpanDto import TextSpanDto
-
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 import re
 from typing import List
 from interface import implements
 from ApplicationService.Interfaces.IRelation import IRelation
-import spacy
 from spacy.matcher import Matcher
 from ApplicationService.Dtos.RelationDto import RelationDto
 from ApplicationService.Dtos.DocumentDto import DocumentDto
@@ -88,7 +83,7 @@ class RelationService(implements(IRelation)):
 
             if developer == True:
                 print((left, verbs, right))
-                
+
             triplets.append((left, verbs, right))
 
         return triplets
@@ -320,3 +315,98 @@ class RelationService(implements(IRelation)):
 
         sorted_spans = sorted(text_spans, key=lambda s: s.length, reverse=True)
         return sorted_spans[0]
+
+    def find_dublicates(self, nlp, line, developer=False):
+        nlp_line = nlp(line)
+        doc = DocumentDto(nlp, nlp_line)
+
+        if developer == True:
+            for token in nlp_line:
+                print(
+                    token.text,
+                    token.lemma_,
+                    token.pos_,
+                    token.tag_,
+                    token.dep_,
+                    token.shape_,
+                    token.is_alpha,
+                    token.is_stop,
+                )
+
+        matcher = doc.matcher
+        pattern = [
+            [
+                {"POS": "NOUN", "OP": "+"},
+                {"LEMMA": "-", "OP": "+"},
+                {"POS": "NOUN", "OP": "+"},
+                {"POS": "PUNCT", "LEMMA": ",", "OP": "+"},
+                {"POS": "NOUN"},
+            ],
+            [
+                {"POS": "NOUN", "OP": "+"},
+                {"POS": "PUNCT", "LEMMA": ",", "OP": "+"},
+                {"POS": "PROPN"},
+            ],
+            [
+                {"POS": "NOUN", "OP": "+"},
+                {"POS": "PUNCT", "LEMMA": ",", "OP": "+"},
+                {"POS": "NOUN"},
+            ],
+            [
+                {"POS": "PROPN", "OP": "+"},
+                {"POS": "PUNCT", "LEMMA": ",", "OP": "+"},
+                {"POS": "PROPN"},
+            ],
+        ]
+        matcher.add("Dublicates", pattern)
+        matches = matcher(doc.doc)
+
+        spans = []
+        for match_id, start, end in matches:
+
+            ent = doc.doc[start:end].text.split(",")
+            for e in ent:
+                if e not in spans and " " not in e.strip():
+                    spans.append(e.strip())
+
+        if any(spans):
+            spans.sort(key=lambda s: len(s), reverse=True)
+
+        entities = []
+        for word in spans:
+            if developer == True:
+                print("Dublicate: %s" % (word))
+            if word not in entities and " " not in word:
+                exist = [r for r in entities if word in r]
+                if len(exist) == 0:
+                    entities.append(word)
+
+        sentences = []
+        if len(entities) > 1:
+            for e in entities:
+                if developer == True:
+                    print("Dublicate sentence: %s" % (e))
+                sentence = line
+                for s in entities:
+                    if e != s:
+                        sentence = sentence.replace("%s ," % (s), "")
+                        sentence = sentence.replace(", %s" % (s), "")
+                        sentence = sentence.replace(s, "")
+                sentence = re.sub(" +", " ", sentence)
+                sentence = re.sub(", ,", " ", sentence)
+                sentence = sentence.strip()
+                if sentence[-1] == ",":
+                    sentence = sentence[:-1].strip()
+                if sentence[-1] == ".":
+                    sentence = sentence[:-1].strip()
+
+                if sentence not in sentences:
+                    sentences.append(sentence)
+        else:
+            sentences.append(line)
+
+        if developer == True:
+            for s in sentences:
+                print("Sentence: %s" % (s))
+
+        return sentences

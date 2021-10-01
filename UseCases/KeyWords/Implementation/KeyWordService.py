@@ -254,12 +254,12 @@ class KeyWordService(implements(IKeyWordService)):
             
             ent = doc.doc[start:end].text.split(",")
             for e in ent:
-                if e not in spans:
+                if e not in spans and " " not in e.strip():
                     spans.append(e.strip())
 
         if (any(spans)):
             spans.sort(key=lambda s: len(s), reverse=True)
-            print(spans)
+            print("Dublicates: %s" % (spans))
 
         entities = []
         for word in spans:
@@ -285,7 +285,9 @@ class KeyWordService(implements(IKeyWordService)):
                 sentence = re.sub(", ,", " ", sentence)
                 sentence = sentence.strip()
                 if (sentence[-1] == ","):
-                    sentence = sentence[:-1]
+                    sentence = sentence[:-1].strip()
+                if (sentence[-1] == "."):
+                    sentence = sentence[:-1].strip()
 
                 if sentence not in sentences:
                     sentences.append(sentence)

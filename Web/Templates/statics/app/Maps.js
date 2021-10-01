@@ -46,6 +46,10 @@ var optionsMap = {
       to: { enabled: true, scaleFactor: 1, type: "arrow" },
       from: { enabled: false, scaleFactor: 1, type: "arrow" },
     },
+    smooth: {
+      type: "dynamic",
+      forceDirection: "none"
+    }
   },
   nodes: {
     font: {

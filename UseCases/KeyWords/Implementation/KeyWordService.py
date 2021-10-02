@@ -115,12 +115,11 @@ class KeyWordService(implements(IKeyWordService)):
         punctuations.append(" — ")
 
         tokens = [i for i in word_tokenize(data) if i not in punctuations]
-        return " ".join(tokens).lower()
+        return " ".join(tokens)
 
     def tokenize(self, args: TokenizeParamsDto):
 
         text = self.delete_punctuation(args.text, args.punctuation)
-
         words = []
 
         if args.lang == "kazakh":
@@ -138,12 +137,13 @@ class KeyWordService(implements(IKeyWordService)):
             tags    = self.ru_tagger.tag(tokens)
             lemmas  = self.ru_lemmatizer.lemmatize(tags)
 
-            for _, tags, lemma, *_ in lemmas:
+            for word, tags, lemma, *_ in lemmas:
+                ready_lemma = word[0].isupper() and word.capitalize() or lemma
                 if args.verb == False:
                     if "VERB" not in tags:
-                        words.append(lemma)
+                        words.append(ready_lemma)
                 else:
-                    words.append(lemma)
+                    words.append(ready_lemma)
 
         return " ".join(words).replace(" - ", "-")
 
@@ -245,6 +245,7 @@ class KeyWordService(implements(IKeyWordService)):
 
         stop = self.get_stop_words(args.lang)
         data = u"%s" % (args.data) 
+        data = data.replace(" − ", " ")
         data = data.replace(" - ", " ")
 
         for w in stop:
@@ -257,12 +258,14 @@ class KeyWordService(implements(IKeyWordService)):
             triplets = knowlege_graph.get_triplets(nlp_model, sentences)
 
         if args.method == "spacy":
-            if args.lang == "russian":
-                data = self.tokenize(TokenizeParamsDto(data, args.lang, False, True))
-                data = re.sub(" +", " ", data)
+            if args.lang in ["russian", "english"]:
+                 data = self.tokenize(TokenizeParamsDto(data, args.lang, False, True))
+                 data = re.sub(" +", " ", data)
 
             sentences = []
             for line in self.split_sentence(data):
+                if line.endswith("."):
+                    line = line[:-1]
                 sentences += relation.find_dublicates(nlp_model, line)
 
             triplets = relation.get_triplets(nlp_model, sentences, args.lang, develop_mode)

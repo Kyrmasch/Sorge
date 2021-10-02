@@ -12,6 +12,7 @@ import "vis-network/dist/vis-network";
 import { CommandBar } from '@fluentui/react/lib/CommandBar';
 import { isMobile } from 'react-device-detect';
 import { MessageBar } from '@fluentui/react/lib/MessageBar';
+import { Toggle } from '@fluentui/react/lib/Toggle';
 
 var languages = [
   {
@@ -132,22 +133,13 @@ export default function Maps() {
   });
   const [words, setWords] = React.useState([]);
   const [wordsDialog, setWordsDialog] = React.useState(false);
-  const [relationMethod, setRelationMethod] = React.useState("basic");
+  const [relationMethod, setRelationMethod] = React.useState("spacy");
   const [actionType, setActionType] = React.useState("build");
+  const [isDemo, setIsDemo] = React.useState(true);
 
   React.useEffect(() => {
     document.title = "Sorge - Концепт карта";
-    fetch("/maps/example", {
-      method: "post",
-      headers: {
-        Accept: "application/json, text/plain, */*",
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((text) => {
-        setText(text.value);
-      });
+    getDemoText(language);
   }, []);
 
   React.useEffect(() => {
@@ -180,31 +172,55 @@ export default function Maps() {
 
   React.useEffect(() => {
     if (language != "" && maps) {
-      var _maps = [...maps];
+      let $maps = [...maps];
       if (language == languages[2].key) {
-        _maps[2].disabled = true;
-        setRelationMethod("basic");
-      } else {
-        delete _maps[1]["disabled"];
-        delete _maps[2]["disabled"];
+        $maps[2].disabled = true;
+        setRelationMethod("spacy");
+        setActionType("knowlegegraph");
+      } 
+      else {
+        delete $maps[2]["disabled"];
       }
-      setMaps(_maps);
+
+      if (isDemo) {
+        getDemoText(language);
+      }
+
+      setMaps($maps);
     }
   }, [language]);
 
   React.useEffect(() => {
     if (relationMethod != "") {
-      var kw = keywords.map((i) => {
+      var $keywords = keywords.map((i) => {
         if (relationMethod != "basic") {
           i.disabled = true;
-        } else {
+        } 
+        else {
           delete i["disabled"];
         }
         return i;
       });
-      setKeyWords(kw);
+      setKeyWords($keywords);
     }
   }, [relationMethod]);
+
+  const getDemoText = (lang) => {
+    fetch("/maps/example", {
+      method: "post",
+      headers: {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        language: lang
+      }),
+    })
+      .then((res) => res.json())
+      .then((text) => {
+        setText(text.value);
+      });
+  }
 
   const build = () => {
     if (text.length > 0 && actionType != "") {
@@ -282,6 +298,10 @@ export default function Maps() {
     var dataURL = canvas.toDataURL("image/png");
     var newTab = window.open('about:blank', 'image from canvas');
     newTab.document.write("<img src='" + dataURL + "' alt='from canvas'/>");
+  }
+
+  const handleDemoChange = (e, v) => {
+    setIsDemo(v);
   }
 
   return (
@@ -362,6 +382,12 @@ export default function Maps() {
                         description={`${text.length} символов`}
                         onChange={(e) => handleChangeText(e.target.value)}
                       />
+                    </Stack>
+                    <Stack
+                      tokens={{ childrenGap: 24 }}
+                      style={{ marginTop: 12 }}
+                      horizontal={true}>
+                        <Toggle label="Использовать демонстративный текст при переключении языка" checked={isDemo} inlineLabel onChange={handleDemoChange} />
                     </Stack>
                     <Stack
                       tokens={{ childrenGap: 24 }}

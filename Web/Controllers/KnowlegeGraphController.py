@@ -73,44 +73,41 @@ def getGraph(language, text, method = "knowlegegraph") -> GetGraphDto:
 
     display_keywords = []
 
-    if triples is not None:
+    if any(triples):
 
       counter_array = []
-      for t in triples:
-        counter_array.append(t[0])
-        counter_array.append(t[2])
+      for item in triples:
+        counter_array.append(item.left)
+        counter_array.append(item.rigth)
 
       counter = dict(Counter(counter_array))
 
-      for t in triples:
-          _Object = t[0]
-          _Relation = t[1]
-          _Subject = t[2]
-
+      for item in triples:
           Io = []
           Is = []
 
-          if (_Object != ""):
-              Io = [x for x, y in enumerate(display_keywords) if y[1] == _Object]
+          if (item.left != ""):
+              Io = [x for x, y in enumerate(display_keywords) if y[1] == item.left]
               if len(Io) == 0:
-                  display_keywords.append((1, _Object))
-                  Io = [x for x, y in enumerate(display_keywords) if y[1] == _Object]
-                  nodes.append(NodeDto(Io[0] + 1, 0,  _Object, counter.get(_Object, 1)).__dict__)
+                  display_keywords.append((1, item.left))
+                  Io = [x for x, y in enumerate(display_keywords) if y[1] == item.left]
+                  nodes.append(NodeDto(Io[0] + 1, 0,  item.left, counter.get(item.left, 1)).__dict__)
           
-          if (_Subject != ""):
-              Is = [x for x, y in enumerate(display_keywords) if y[1] == _Subject]
+          if (item.rigth != ""):
+              Is = [x for x, y in enumerate(display_keywords) if y[1] == item.rigth]
               if len(Is) == 0:
-                  display_keywords.append((1, _Subject))
-                  Is = [x for x, y in enumerate(display_keywords) if y[1] == _Subject]
-                  nodes.append(NodeDto(Is[0] + 1, 0,_Subject, counter.get(_Subject, 1)).__dict__)       
+                  display_keywords.append((1, item.rigth))
+                  Is = [x for x, y in enumerate(display_keywords) if y[1] == item.rigth]
+                  nodes.append(NodeDto(Is[0] + 1, 0,item.rigth, counter.get(item.rigth, 1)).__dict__)       
 
           if (len(Io) > 0) and (len(Is) > 0):
               edges.append(EdgeDto(
                   Io[0] + 1, 
                   Is[0] + 1, 
                   0, 
-                  _Relation,
-                  0).to_json())
+                  item.relation,
+                  0)
+                  .to_json())
 
 
     return GetGraphDto(nodes, edges, display_keywords)

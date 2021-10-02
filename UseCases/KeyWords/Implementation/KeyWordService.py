@@ -24,6 +24,7 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 from rake_nltk import Metric, Rake
 from sklearn.feature_extraction.text import TfidfVectorizer
 from UseCases.KeyWords.Interfaces.Dtos.KeyWordDto import KeyWordDto
+from UseCases.KeyWords.Interfaces.Dtos.TripletsDto import TripletsDto
 from UseCases.KeyWords.Interfaces.Dtos.TripletsParamsDto import \
     TripletsParamsDto
 from UseCases.KeyWords.Interfaces.Dtos.TokenizeParamsDto import \
@@ -228,7 +229,7 @@ class KeyWordService(implements(IKeyWordService)):
         return None
 
     
-    def get_triples(self, args: TripletsParamsDto) -> List[tuple]:
+    def get_triples(self, args: TripletsParamsDto) -> List[TripletsDto]:
         
         """
         Получение триплетов
@@ -269,8 +270,8 @@ class KeyWordService(implements(IKeyWordService)):
 
         del nlp_model
         gc.collect()
-
-        return triplets
+        
+        return [TripletsDto(t[0], t[1], t[2]) for t in triplets]
 
     def rake_extract(self, data: str, lang: str = "russian") -> List[KeyWordDto]:
         data = u"%s" % (data)

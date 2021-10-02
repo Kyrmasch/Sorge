@@ -51,8 +51,10 @@ def check_lang():
 
 
 def get_example_text():
+    data = request.json
+    language = data["language"]
     example = open(
-        "%s/ApplicationService/Files/examples/kazakh.txt" % (os.getcwd()), "r"
+        "%s/ApplicationService/Files/examples/%s.txt" % (os.getcwd(), language), "r"
     )
     text = example.read()
     return simplejson.dumps(

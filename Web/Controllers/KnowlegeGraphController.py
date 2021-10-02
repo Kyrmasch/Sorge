@@ -91,14 +91,18 @@ def getGraph(language, text, method = "knowlegegraph") -> GetGraphDto:
               if len(Io) == 0:
                   display_keywords.append((1, item.left))
                   Io = [x for x, y in enumerate(display_keywords) if y[1] == item.left]
-                  nodes.append(NodeDto(Io[0] + 1, 0,  item.left, counter.get(item.left, 1)).__dict__)
+
+                  count = counter.get(item.left, 1)
+                  nodes.append(NodeDto(Io[0] + 1, 0,  item.left, count).__dict__)
           
           if (item.rigth != ""):
               Is = [x for x, y in enumerate(display_keywords) if y[1] == item.rigth]
               if len(Is) == 0:
                   display_keywords.append((1, item.rigth))
                   Is = [x for x, y in enumerate(display_keywords) if y[1] == item.rigth]
-                  nodes.append(NodeDto(Is[0] + 1, 0,item.rigth, counter.get(item.rigth, 1)).__dict__)       
+
+                  count = counter.get(item.rigth, 1)
+                  nodes.append(NodeDto(Is[0] + 1, 0, item.rigth, count).__dict__)       
 
           if (len(Io) > 0) and (len(Is) > 0):
               edges.append(EdgeDto(

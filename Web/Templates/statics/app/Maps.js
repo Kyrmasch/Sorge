@@ -36,6 +36,7 @@ var languages = [
 ];
 
 var optionsMap = {
+  locale: 'ru',
   physics: true,
   autoResize: true,
   edges: {
@@ -50,14 +51,16 @@ var optionsMap = {
     smooth: {
       type: "dynamic",
       forceDirection: "none"
-    }
+    },
+    shadow: true
   },
   nodes: {
     font: {
       size: 14,
       face: "Verdana",
     },
-    shape: "dot"
+    shape: "dot",
+    shadow: true
   },
   interaction: {
     hideEdgesOnDrag: true,

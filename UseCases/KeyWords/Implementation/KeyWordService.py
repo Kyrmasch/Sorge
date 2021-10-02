@@ -245,6 +245,7 @@ class KeyWordService(implements(IKeyWordService)):
 
         stop = self.get_stop_words(args.lang)
         data = u"%s" % (args.data) 
+        data = data.replace(" - ", " ")
 
         for w in stop:
             nlp_model.vocab[w].is_stop = True

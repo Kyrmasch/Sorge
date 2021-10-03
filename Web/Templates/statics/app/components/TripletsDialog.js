@@ -52,7 +52,7 @@ export default function TripletsDialog(props) {
                     },
                 }}
                 modalProps={modalProps}>
-                <div style={{minWidth: '600px', maxWidth: '700px'}}>
+                <div style={{minWidth: '650px', maxWidth: '700px', maxHeight: '400px', overflowY: 'auto'}}>
                     {
                         graph.edges.map((m, index) => {
                             let l = graph.nodes.filter(x => x.id == m.from)[0].label;

@@ -1,4 +1,6 @@
 import os
+
+from ApplicationService.Dtos.RelationTripletsParamsDto import RelationTripletsParamsDto
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 import re
@@ -14,17 +16,15 @@ class RelationService(implements(IRelation)):
     def __init__(self, config):
         self.lang = "english"
 
-    def get_triplets(
-        self, nlp, sentences, lang="english", developer = False
-    ) -> List[str]:
+    def get_triplets(self, args: RelationTripletsParamsDto) -> List[str]:
 
-        self.lang = lang
+        self.lang = args.lang
         triplets = []
 
-        for line in sentences:
-            nlp_line = nlp(line)
+        for line in args.sentences:
+            nlp_line = args.nlp(line)
 
-            if developer == True:
+            if args.develop_mode == True:
                 print(line)
                 for token in nlp_line:
                     print(
@@ -39,20 +39,20 @@ class RelationService(implements(IRelation)):
                     )
 
             relations = []
-            if lang == "english" or lang == "russian":
-                doc = DocumentDto(nlp, nlp_line)
-                relations = self.extract_relations(doc, developer)
-            elif lang == "kazakh":
-                relations = self.extract_relations_kz(nlp, nlp_line, developer)
+            if args.lang in ["english", "russian"]:
+                doc = DocumentDto(args.nlp, nlp_line)
+                relations = self.extract_relations(doc, args.develop_mode)
+            elif args.lang == "kazakh":
+                relations = self.extract_relations_kz(args.nlp, nlp_line, args.develop_mode)
 
             for relation in relations:
-                if lang == "english" or lang == "russian":
+                if args.lang in ["english", "russian"]:
                     value = (
                         relation.left_phrase.sentence,
                         relation.relation_phrase.sentence,
                         relation.right_phrase.sentence,
                     )
-                elif lang == "kazakh":
+                elif args.lang == "kazakh":
                     value = relation
 
                 exists = [t for t in triplets if t[0] == value[0] and t[2] == value[2]]

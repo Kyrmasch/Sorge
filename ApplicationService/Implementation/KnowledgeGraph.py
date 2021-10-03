@@ -1,4 +1,6 @@
 import os
+
+from ApplicationService.Dtos.RelationTripletsParamsDto import RelationTripletsParamsDto
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 from typing import List
@@ -13,12 +15,12 @@ class KnowledgeGraphService(implements(IRelation)):
         self.nlp = None
         self.lang = "english"
 
-    def get_triplets(self, nlp, sentences) -> List[str]:
+    def get_triplets(self, args: RelationTripletsParamsDto) -> List[str]:
         
-        self.nlp = nlp
+        self.nlp = args.nlp
 
         triplets = []
-        for sentence in sentences:
+        for sentence in args.sentences:
             value = self.processSentence(sentence, self.nlp)
             exists = [t for t in triplets if t[0] == value[0] and t[2] == value[2]]
             if len(exists) == 0:

@@ -13,6 +13,7 @@ import rutokenizer
 import spacy
 import spacy_udpipe
 from ApplicationService.DepentencyInjection import knowlege_graph, relation
+from ApplicationService.Dtos.RelationTripletsParamsDto import RelationTripletsParamsDto
 from Infrastructure.Implementation.kaznlp.morphology.analyzers import \
     AnalyzerDD
 from Infrastructure.Implementation.kaznlp.morphology.taggers import TaggerHMM
@@ -268,7 +269,7 @@ class KeyWordService(implements(IKeyWordService)):
                     line = line[:-1]
                 sentences += relation.find_dublicates(nlp_model, line)
 
-            triplets = relation.get_triplets(nlp_model, sentences, args.lang, develop_mode)
+            triplets = relation.get_triplets(RelationTripletsParamsDto(nlp_model, sentences, args.lang, develop_mode))
             if args.lang == "russian":
                 triplets = self.correct_triplets(triplets)
 

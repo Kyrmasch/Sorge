@@ -52,7 +52,6 @@ class RelationService(implements(IRelation)):
 
                 exists = [t for t in triplets if t[0] == rel_tuple[0] and t[2] == rel_tuple[2]]
                 if any(exists) == False:
-                    print((rel_tuple[0], rel_tuple[1], rel_tuple[2], matchers))
                     triplets.append((rel_tuple[0], rel_tuple[1], rel_tuple[2], matchers))
 
         return triplets

@@ -13,6 +13,7 @@ import { CommandBar } from '@fluentui/react/lib/CommandBar';
 import { isMobile } from 'react-device-detect';
 import { MessageBar } from '@fluentui/react/lib/MessageBar';
 import { Toggle } from '@fluentui/react/lib/Toggle';
+import TripletsDialog from './components/TripletsDialog';
 
 var languages = [
   {
@@ -121,6 +122,13 @@ export default function Maps() {
       onClick: () => setWordsDialog(true),
     },
     {
+      key: 'patterns',
+      text: 'Анализ связей',
+      iconProps: { iconName: 'ThumbnailViewMirrored' },
+      split: true,
+      onClick: () => analizePatterns(),
+    },
+    {
       key: 'save',
       text: 'Сохранить',
       iconProps: { iconName: 'Save' },
@@ -137,10 +145,12 @@ export default function Maps() {
     nodes: [],
     edges: [],
   });
+  const [matchers, setMatchers] = React.useState([]);
   const [words, setWords] = React.useState([]);
   const [wordsDialog, setWordsDialog] = React.useState(false);
   const [relationMethod, setRelationMethod] = React.useState(maps[1]);
   const [isDemo, setIsDemo] = React.useState(true);
+  const [analize, setAnalize] = React.useState(false);
 
   React.useEffect(() => {
     document.title = "Sorge - Концепт карта";
@@ -206,6 +216,16 @@ export default function Maps() {
         return i;
       });
       setKeyWords($keywords);
+
+      var $graphcommants = [...graphcommands]
+      if (relationMethod.key != "spacy") {
+        $graphcommants[1].disabled = true;
+      } 
+      else {
+        delete $graphcommants[1]["disabled"];
+      }
+      setGraphCommands($graphcommants);
+      
     }
   }, [relationMethod]);
 
@@ -253,7 +273,7 @@ export default function Maps() {
               nodes: answer.data.nodes,
               edges: answer.data.edges,
             });
-
+            setMatchers(answer.data.matchers);
             setWords(answer.data.words);
           }
           setLoad(false);
@@ -287,6 +307,7 @@ export default function Maps() {
       nodes: [],
       edges: [],
     });
+    setMatchers([]);
     setWords([]);
   };
 
@@ -295,6 +316,10 @@ export default function Maps() {
     var dataURL = canvas.toDataURL("image/png");
     var newTab = window.open('about:blank', 'image from canvas');
     newTab.document.write("<img src='" + dataURL + "' alt='from canvas'/>");
+  }
+
+  const analizePatterns = () => {
+    setAnalize(true);
   }
 
   const handleDemoChange = (e, v) => {
@@ -484,11 +509,20 @@ export default function Maps() {
                         toggle={setWordsDialog}
                       ></KeyWordsDialog>
                     )}
+                    {
+                      analize && (
+                        <TripletsDialog toggle={setAnalize} 
+                                        graph={graph} 
+                                        matchers = {matchers} 
+                                        title={'Анализ связей'} 
+                                        subtext = {'Используемые шаблоны для сущностей'}/>
+                      )
+                    } 
                   </div>
                 </Stack>
               </div>
             </div>
-          </div>
+          </div>    
         </div>
       )}
       {

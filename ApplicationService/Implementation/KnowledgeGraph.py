@@ -87,7 +87,9 @@ class KnowledgeGraphService(implements(IRelation)):
         if True == False:
             print(subject.strip(), ",", relation.strip(), ",", object.strip())
 
-        return (subject.strip(), relation.strip(), object.strip())
+        matcher = None
+
+        return (subject.strip(), relation.strip(), object.strip(), matcher)
 
     def processSentence(self, sentence, nlp_model):
         tokens = nlp_model(sentence)

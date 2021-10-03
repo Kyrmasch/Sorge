@@ -1,4 +1,6 @@
+from typing import List
 from numpy import result_type
+from UseCases.KeyWords.Interfaces.Dtos.TripletsDto import TripletsDto
 from Web.Dtos.GetGraphDto import GetGraphDto
 import simplejson
 from flask import (
@@ -66,12 +68,15 @@ def map_knowlegegraph_build():
 
 def getGraph(language, text, method = "knowlegegraph") -> GetGraphDto:
 
-    triples = keywords.get_triples(TripletsParamsDto(text, language, method))
+    triples: List[TripletsDto] = keywords.get_triples(TripletsParamsDto(text, language, method))
 
-    nodes = []
-    edges = []
+    for t in triples:
+      print(t.to_tuple())
 
-    display_keywords = []
+    nodes    = []
+    edges    = []
+    matchers = []
+    entities = []
 
     if any(triples):
 
@@ -87,19 +92,19 @@ def getGraph(language, text, method = "knowlegegraph") -> GetGraphDto:
           Is = []
 
           if (item.left != ""):
-              Io = [x for x, y in enumerate(display_keywords) if y[1] == item.left]
+              Io = [x for x, y in enumerate(entities) if y[1] == item.left]
               if len(Io) == 0:
-                  display_keywords.append((1, item.left))
-                  Io = [x for x, y in enumerate(display_keywords) if y[1] == item.left]
+                  entities.append((1, item.left))
+                  Io = [x for x, y in enumerate(entities) if y[1] == item.left]
 
                   count = counter.get(item.left, 1)
                   nodes.append(NodeDto(Io[0] + 1, 0,  item.left, count).__dict__)
           
           if (item.rigth != ""):
-              Is = [x for x, y in enumerate(display_keywords) if y[1] == item.rigth]
+              Is = [x for x, y in enumerate(entities) if y[1] == item.rigth]
               if len(Is) == 0:
-                  display_keywords.append((1, item.rigth))
-                  Is = [x for x, y in enumerate(display_keywords) if y[1] == item.rigth]
+                  entities.append((1, item.rigth))
+                  Is = [x for x, y in enumerate(entities) if y[1] == item.rigth]
 
                   count = counter.get(item.rigth, 1)
                   nodes.append(NodeDto(Is[0] + 1, 0, item.rigth, count).__dict__)       
@@ -112,6 +117,7 @@ def getGraph(language, text, method = "knowlegegraph") -> GetGraphDto:
                   item.relation,
                   0)
                   .to_json())
+              matchers.append(item.matchers)
 
 
-    return GetGraphDto(nodes, edges, display_keywords)
+    return GetGraphDto(nodes, edges, entities, matchers)

@@ -201,10 +201,13 @@ class KeyWordService(implements(IKeyWordService)):
         corrects = []
         if triplets is not None:
             for t in triplets:
+                
                 left = self.correct(t[0].replace(" - ", "-"))
                 predicate = t[1]
                 right = self.correct(t[2].replace(" - ", "-"))
-                corrects.append((left, predicate, right))
+                matchers = t[3]
+
+                corrects.append((left, predicate, right, matchers))
             triplets = corrects
         return corrects
 
@@ -246,7 +249,7 @@ class KeyWordService(implements(IKeyWordService)):
 
         stop = self.get_stop_words(args.lang)
         data = u"%s" % (args.data) 
-        for s in [" — ", " - "]:
+        for s in [" — ", " - ", "−"]:
             data = data.replace(s, " ")
 
         for w in stop:
@@ -256,7 +259,7 @@ class KeyWordService(implements(IKeyWordService)):
 
         if args.method == "knowlegegraph":
             sentences = knowlege_graph.getSentences(data, nlp_model, args.lang)
-            triplets = knowlege_graph.get_triplets(nlp_model, sentences)
+            triplets = knowlege_graph.get_triplets(RelationTripletsParamsDto(nlp_model, sentences))
 
         if args.method == "spacy":
             if args.lang in ["russian", "english"]:
@@ -276,7 +279,7 @@ class KeyWordService(implements(IKeyWordService)):
         del nlp_model
         gc.collect()
         
-        return [TripletsDto(t[0], t[1], t[2]) for t in triplets]
+        return [TripletsDto(t[0], t[1], t[2], t[3]) for t in triplets]
 
     def rake_extract(self, data: str, lang: str = "russian") -> List[KeyWordDto]:
         data = u"%s" % (data)

@@ -246,13 +246,13 @@ class KeyWordService(implements(IKeyWordService)):
 
         stop = self.get_stop_words(args.lang)
         data = u"%s" % (args.data) 
-        data = data.replace(" − ", " ")
-        data = data.replace(" - ", " ")
+        for s in [" — ", " - "]:
+            data = data.replace(s, " ")
 
         for w in stop:
             nlp_model.vocab[w].is_stop = True
 
-        triplets = []
+        triplets: List[tuple] = []
 
         if args.method == "knowlegegraph":
             sentences = knowlege_graph.getSentences(data, nlp_model, args.lang)
@@ -263,7 +263,7 @@ class KeyWordService(implements(IKeyWordService)):
                  data = self.tokenize(TokenizeParamsDto(data, args.lang, False, True))
                  data = re.sub(" +", " ", data)
 
-            sentences = []
+            sentences: List[str] = []
             for line in self.split_sentence(data):
                 if line.endswith("."):
                     line = line[:-1]
@@ -281,7 +281,7 @@ class KeyWordService(implements(IKeyWordService)):
     def rake_extract(self, data: str, lang: str = "russian") -> List[KeyWordDto]:
         data = u"%s" % (data)
         stop_words = set(self.get_stop_words(lang))
-        text = self.tokenize(TokenizeParamsDto(data, lang, False))
+        text: str = self.tokenize(TokenizeParamsDto(data, lang, False))
 
         max_length = 2
 
@@ -296,7 +296,7 @@ class KeyWordService(implements(IKeyWordService)):
 
         words = r.get_ranked_phrases_with_scores()
 
-        result = []
+        result: List[KeyWordDto] = []
         for w in words:
             text = w[1]
             score = w[0]

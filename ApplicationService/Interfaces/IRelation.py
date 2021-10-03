@@ -5,5 +5,5 @@ from ApplicationService.Dtos.RelationTripletsParamsDto import RelationTripletsPa
 
 class IRelation(Interface):
     
-    def get_triplets(self, args: RelationTripletsParamsDto) -> List[str]:
+    def get_triplets(self, args: RelationTripletsParamsDto) -> List[tuple]:
         pass

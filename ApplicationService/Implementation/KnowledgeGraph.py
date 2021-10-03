@@ -15,7 +15,7 @@ class KnowledgeGraphService(implements(IRelation)):
         self.nlp = None
         self.lang = "english"
 
-    def get_triplets(self, args: RelationTripletsParamsDto) -> List[str]:
+    def get_triplets(self, args: RelationTripletsParamsDto) -> List[tuple]:
         
         self.nlp = args.nlp
 

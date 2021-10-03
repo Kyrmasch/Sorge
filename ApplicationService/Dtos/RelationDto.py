@@ -10,3 +10,6 @@ class RelationDto:
     
     def __str__(self):
         return f'({self.left_phrase.sentence}, {self.relation_phrase.sentence}, {self.right_phrase.sentence})'
+
+    def get_tuple(self):
+        return (self.left_phrase.sentence, self.relation_phrase.sentence, self.right_phrase.sentence)

@@ -1,6 +1,7 @@
 import os
 
 from ApplicationService.Dtos.RelationTripletsParamsDto import RelationTripletsParamsDto
+from ApplicationService.Dtos.TextSpanDto import TextSpanDto
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 import re
@@ -16,10 +17,10 @@ class RelationService(implements(IRelation)):
     def __init__(self, config):
         self.lang = "english"
 
-    def get_triplets(self, args: RelationTripletsParamsDto) -> List[str]:
+    def get_triplets(self, args: RelationTripletsParamsDto) -> List[tuple]:
 
         self.lang = args.lang
-        triplets = []
+        triplets: List[tuple] = []
 
         for line in args.sentences:
             nlp_line = args.nlp(line)
@@ -38,7 +39,7 @@ class RelationService(implements(IRelation)):
                         token.is_stop,
                     )
 
-            relations = []
+            relations : List[RelationDto] = []
             if args.lang in ["english", "russian"]:
                 doc = DocumentDto(args.nlp, nlp_line)
                 relations = self.extract_relations(doc, args.develop_mode)
@@ -46,26 +47,20 @@ class RelationService(implements(IRelation)):
                 relations = self.extract_relations_kz(args.nlp, nlp_line, args.develop_mode)
 
             for relation in relations:
-                if args.lang in ["english", "russian"]:
-                    value = (
-                        relation.left_phrase.sentence,
-                        relation.relation_phrase.sentence,
-                        relation.right_phrase.sentence,
-                    )
-                elif args.lang == "kazakh":
-                    value = relation
+                rel_tuple: tuple = relation.get_tuple()
 
-                exists = [t for t in triplets if t[0] == value[0] and t[2] == value[2]]
-                if len(exists) == 0:
-                    triplets.append(value)
+                exists = [t for t in triplets if t[0] == rel_tuple[0] and t[2] == rel_tuple[2]]
+                if any(exists):
+                    triplets.append(rel_tuple)
 
         return triplets
 
-    def extract_relations_kz(self, nlp, doc, developer = False):
-        triplets = []
+    def extract_relations_kz(self, nlp, doc, developer = False) -> List[RelationDto]:
+        
+        triplets: List[RelationDto] = []
 
-        verbs = self.get_verbs_kz(nlp, doc)
-        if any(verbs):
+        verb = self.get_verbs_kz(nlp, doc)
+        if verb is not None:
             left_pattern = [
                 [{"IS_SENT_START": True, "OP": "+"}, {"POS": "ADJ", "OP": "*"}]
             ]
@@ -81,10 +76,16 @@ class RelationService(implements(IRelation)):
             ]
             right = self.get_noun_kz(nlp, doc, right_pattern)
 
-            if developer == True:
-                print((left, verbs, right))
+            if left is not None and right is not None:
+                if developer == True:
+                    print((left.text, verb.text, right.text))
 
-            triplets.append((left, verbs, right))
+                triplets.append(RelationDto(
+                    TextSpanDto(left), 
+                    TextSpanDto(verb), 
+                    TextSpanDto(right)
+                    )
+                )
 
         return triplets
 
@@ -94,7 +95,7 @@ class RelationService(implements(IRelation)):
             ret_spans.append(doc.span(start, end))
         return ret_spans
 
-    def extract_relations(self, doc, developer=False):
+    def extract_relations(self, doc, developer=False) -> List[RelationDto]:
 
         relation_spans = self.get_relation_spans(doc)
         noun_phrase_pattern = []
@@ -195,10 +196,10 @@ class RelationService(implements(IRelation)):
         matches = matcher(doc.doc)
         verbs = []
         for _, start, end in matches:
-            verbs.append(doc.doc[start:end].text)
+            verbs.append(doc.doc[start:end])
 
-        verbs.sort(key=lambda s: len(s), reverse=True)
-        return verbs[0]
+        verbs.sort(key=lambda s: len(s.text), reverse=True)
+        return any(verbs) and verbs[0] or None
 
     def get_noun_kz(self, nlp, doc, pattern):
         matcher = Matcher(nlp.vocab)
@@ -207,10 +208,10 @@ class RelationService(implements(IRelation)):
 
         nouns = []
         for _, start, end in matches:
-            nouns.append(doc.doc[start:end].text)
+            nouns.append(doc.doc[start:end])
 
         if any(nouns):
-            nouns.sort(key=lambda s: len(s), reverse=True)
+            nouns.sort(key=lambda s: len(s.text), reverse=True)
             return nouns[0]
         return None
 

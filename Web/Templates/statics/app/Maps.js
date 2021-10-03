@@ -77,18 +77,21 @@ export default function Maps() {
     {
       key: "basic",
       text: "Базовый",
+      action: 'build',
       iconProps: { iconName: "GitGraph" },
       checked: true,
     },
     {
       key: "spacy",
       text: "Spacy",
+      action: 'knowlegegraph',
       iconProps: { iconName: "GitGraph" },
       disabled: false,
     },
     {
       key: "knowlegegraph",
       text: "Bert",
+      action: 'knowlegegraph',
       iconProps: { iconName: "GitGraph" },
       disabled: false,
     }
@@ -136,8 +139,7 @@ export default function Maps() {
   });
   const [words, setWords] = React.useState([]);
   const [wordsDialog, setWordsDialog] = React.useState(false);
-  const [relationMethod, setRelationMethod] = React.useState("spacy");
-  const [actionType, setActionType] = React.useState("build");
+  const [relationMethod, setRelationMethod] = React.useState(maps[1]);
   const [isDemo, setIsDemo] = React.useState(true);
 
   React.useEffect(() => {
@@ -178,8 +180,7 @@ export default function Maps() {
       let $maps = [...maps];
       if (language == languages[2].key) {
         $maps[2].disabled = true;
-        setRelationMethod("spacy");
-        setActionType("knowlegegraph");
+        setRelationMethod(maps[1]);
       } 
       else {
         delete $maps[2]["disabled"];
@@ -194,9 +195,9 @@ export default function Maps() {
   }, [language]);
 
   React.useEffect(() => {
-    if (relationMethod != "") {
+    if (relationMethod) {
       var $keywords = keywords.map((i) => {
-        if (relationMethod != "basic") {
+        if (relationMethod.key != "basic") {
           i.disabled = true;
         } 
         else {
@@ -226,13 +227,13 @@ export default function Maps() {
   }
 
   const build = () => {
-    if (text.length > 0 && actionType != "") {
+    if (text.length > 0) {
       setLoad(true);
       setEmpty();
 
       let _text = text.replace(/\s+/g, " ");
 
-      fetch(`/maps/${actionType}`, {
+      fetch(`/maps/${relationMethod.action}`, {
         method: "post",
         headers: {
           Accept: "application/json, text/plain, */*",
@@ -241,7 +242,7 @@ export default function Maps() {
         body: JSON.stringify({
           text: _text,
           method: method,
-          relation: relationMethod,
+          relation: relationMethod.key,
           language: language,
         }),
       })
@@ -273,14 +274,7 @@ export default function Maps() {
   };
 
   const handleSelectMap = (e, o) => {
-    setRelationMethod(o.key);
-
-    if (o.key == "basic") {
-      setActionType("build");
-    } else {
-      setActionType("knowlegegraph");
-    }
-
+    setRelationMethod(o);
     setEmpty();
   };
 
@@ -410,7 +404,7 @@ export default function Maps() {
                         <ChoiceGroup
                           label="Способ построения карты"
                           defaultSelectedKey="rake"
-                          selectedKey={relationMethod}
+                          selectedKey={relationMethod.key}
                           options={maps}
                           onChange={handleSelectMap}
                         />

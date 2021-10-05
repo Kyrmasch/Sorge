@@ -11,7 +11,7 @@ class IKeyWordService(Interface):
     def get_triples(self, args: TripletsParamsDto) -> List[tuple]:
         pass
 
-    def tokenize(self, args: TokenizeParamsDto):
+    def tokenize(self, args: TokenizeParamsDto, model):
         pass
     
     def rake_extract(self, data: str, lang: str ="russian"):

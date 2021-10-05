@@ -70,9 +70,6 @@ def getGraph(language, text, method = "knowlegegraph") -> GetGraphDto:
 
     triples: List[TripletsDto] = keywords.get_triples(TripletsParamsDto(text, language, method))
 
-    for t in triples:
-      print(t.to_tuple())
-
     nodes    = []
     edges    = []
     matchers = []

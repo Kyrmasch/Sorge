@@ -4,12 +4,8 @@ import re
 import string
 from typing import List
 
-import networkx as nx
 import pandas as pd
 import pymorphy2
-import rulemma
-import rupostagger
-import rutokenizer
 import spacy
 import spacy_udpipe
 from ApplicationService.DepentencyInjection import knowlege_graph, relation
@@ -40,13 +36,6 @@ class KeyWordService(implements(IKeyWordService)):
         self.wd = os.getcwd()
 
         self.morph = pymorphy2.MorphAnalyzer()
-
-        self.ru_lemmatizer = rulemma.Lemmatizer()
-        self.ru_lemmatizer.load()
-        self.ru_tokenizer = rutokenizer.Tokenizer()
-        self.ru_tokenizer.load()
-        self.ru_tagger = rupostagger.RuPosTagger()
-        self.ru_tagger.load()
 
         self.mdl = os.path.join(
             self.wd,
@@ -118,7 +107,7 @@ class KeyWordService(implements(IKeyWordService)):
         tokens = [i for i in word_tokenize(data) if i not in punctuations]
         return " ".join(tokens)
 
-    def tokenize(self, args: TokenizeParamsDto):
+    def tokenize(self, args: TokenizeParamsDto, model):
 
         text = self.delete_punctuation(args.text, args.punctuation)
         words = []
@@ -134,17 +123,21 @@ class KeyWordService(implements(IKeyWordService)):
                         except:
                             pass
         else:
-            tokens  = self.ru_tokenizer.tokenize(text)
-            tags    = self.ru_tagger.tag(tokens)
-            lemmas  = self.ru_lemmatizer.lemmatize(tags)
+            doc = model(text)
 
-            for word, tags, lemma, *_ in lemmas:
-                ready_lemma = word[0].isupper() and word.capitalize() or lemma
+            for token in doc:
+                ready_lemma = token.text[0].isupper() and token.lemma_.capitalize() or token.lemma_
+                if (args.just_lemma == True):
+                    ready_lemma = token.lemma_
+
                 if args.verb == False:
-                    if "VERB" not in tags:
+                    if "VERB" != token.pos_:
                         words.append(ready_lemma)
                 else:
                     words.append(ready_lemma)
+            
+            gc.collect()
+
 
         return " ".join(words).replace(" - ", "-")
 
@@ -165,15 +158,16 @@ class KeyWordService(implements(IKeyWordService)):
 
         return pattern.format(adj=adj, noun=noun)
 
-    def correct(self, data: str) -> str:
+    def correct(self, data: str, model = None) -> str:
         
-        tokens  = self.ru_tokenizer.tokenize(data)
-        tags    = self.ru_tagger.tag(tokens)
-        lemmas  = self.ru_lemmatizer.lemmatize(tags)
+        nlp = model is None and spacy.load("ru_core_news_sm") or model
+        doc = nlp(data)
 
         semantics = []
-        for word, tags, lemma, *_ in lemmas:
-            semantics.append((word, tags.split("|")[0]))
+
+        for token in doc:
+            semantics.append((token.text, token.pos_))
+
         if len(semantics) > 1:
             if semantics[-2][1] == "ADJ" and semantics[-1][1] == "NOUN":
                 adj = ""
@@ -189,7 +183,7 @@ class KeyWordService(implements(IKeyWordService)):
 
         return data
 
-    def correct_triplets(self, triplets) -> List[tuple]:
+    def correct_triplets(self, triplets, model) -> List[tuple]:
         
         """
         Скорректировать триплеты - только для русского языка
@@ -202,9 +196,9 @@ class KeyWordService(implements(IKeyWordService)):
         if triplets is not None:
             for t in triplets:
                 
-                left = self.correct(t[0].replace(" - ", "-"))
+                left = self.correct(t[0].replace(" - ", "-"), model)
                 predicate = t[1]
-                right = self.correct(t[2].replace(" - ", "-"))
+                right = self.correct(t[2].replace(" - ", "-"), model)
                 matchers = t[3]
 
                 corrects.append((left, predicate, right, matchers))
@@ -262,9 +256,13 @@ class KeyWordService(implements(IKeyWordService)):
             triplets = knowlege_graph.get_triplets(RelationTripletsParamsDto(nlp_model, sentences))
 
         if args.method == "spacy":
-            if args.lang in ["russian", "english"]:
-                 data = self.tokenize(TokenizeParamsDto(data, args.lang, False, True))
-                 data = re.sub(" +", " ", data)
+            if args.lang in ["russian"]:
+                 data = self.tokenize(
+                     TokenizeParamsDto(data, args.lang, False, True), 
+                     nlp_model
+                    )
+            
+            data = re.sub(" +", " ", data)
 
             sentences: List[str] = []
             for line in self.split_sentence(data):
@@ -274,7 +272,7 @@ class KeyWordService(implements(IKeyWordService)):
 
             triplets = relation.get_triplets(RelationTripletsParamsDto(nlp_model, sentences, args.lang, develop_mode))
             if args.lang == "russian":
-                triplets = self.correct_triplets(triplets)
+                triplets = self.correct_triplets(triplets, nlp_model)
 
         del nlp_model
         gc.collect()
@@ -282,9 +280,14 @@ class KeyWordService(implements(IKeyWordService)):
         return [TripletsDto(t[0], t[1], t[2], t[3]) for t in triplets]
 
     def rake_extract(self, data: str, lang: str = "russian") -> List[KeyWordDto]:
+        model = self.get_model(lang)
+        
         data = u"%s" % (data)
         stop_words = set(self.get_stop_words(lang))
-        text: str = self.tokenize(TokenizeParamsDto(data, lang, False))
+        text: str = self.tokenize(
+            TokenizeParamsDto(data, lang, False, False, True),
+            model
+        )
 
         max_length = 2
 
@@ -296,31 +299,39 @@ class KeyWordService(implements(IKeyWordService)):
             ranking_metric=Metric.WORD_FREQUENCY,
         )
         r.extract_keywords_from_text(text)
-
         words = r.get_ranked_phrases_with_scores()
-
         result: List[KeyWordDto] = []
+
         for w in words:
             text = w[1]
             score = w[0]
             if lang == "russian":
                 try:
-                    text = self.correct(text)
+                    text = self.correct(text, model)
                 except Exception as e:
                     print(str(e))
 
             result.append(KeyWordDto(text, score))
 
+        del model
+
+        gc.collect()
+
         return result
 
     def tf_extract(self, data: str, lang: str = "russian") -> List[KeyWordDto]:
+        model = self.get_model(lang)
+
         stop_words = self.get_stop_words(lang)
         ls = self.split_sentence(data)
 
         text_array = []
         for item in ls:
             text = self.delete_punctuation(item)
-            text = self.tokenize(TokenizeParamsDto(text, lang))
+            text = self.tokenize(
+                TokenizeParamsDto(text, lang, True, False, True),
+                model
+            )
             text_array.append(text)
 
         corpus = pd.DataFrame(text_array)

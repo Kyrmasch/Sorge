@@ -342,7 +342,7 @@ export default function Maps() {
           <div
             class="ms-Grid"
             dir="ltr"
-            style={{ height: "100%", overflowY: "scroll", overflowX: "auto" }}
+            style={{ height: "calc(100vh - 55px)", overflowY: "scroll", overflowX: "auto" }}
           >
             <div class="ms-Grid-row" style={{ height: "100%" }}>
               <div class="ms-Grid-col ms-sm2 ms-md2ms-lg2"></div>

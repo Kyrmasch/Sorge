@@ -53,4 +53,5 @@ flasgger
 stanfordnlp==0.2.0
 networkx==2.3
 textacy
+spacy
 spacy-udpipe

@@ -224,7 +224,7 @@ export default function Home() {
             {
                 ready && (
                     <div className="main" style={{ bottom: '0px', height: 'calc(100% - 56px)', backgroundColor: '#faf9f8', position: 'relative' }}>
-                        <div class="ms-Grid" dir="ltr" style={{ height: '100%', overflowY: 'scroll', overflowX: 'auto' }}>
+                        <div class="ms-Grid" dir="ltr" style={{ height: 'calc(100vh - 55px)', overflowY: 'scroll', overflowX: 'auto' }}>
                             <div class="ms-Grid-row" style={{ height: '100%' }}>
                                 <div class="ms-Grid-col ms-sm2 ms-md2ms-lg2"></div>
                                 <div class="ms-Grid-col ms-sm8 ms-md8 ms-lg8" style={{ height: '100%', backgroundColor: '#fff', }}>

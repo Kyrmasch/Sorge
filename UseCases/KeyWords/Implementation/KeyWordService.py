@@ -9,23 +9,19 @@ import pymorphy2
 import spacy
 import spacy_udpipe
 from ApplicationService.DepentencyInjection import knowlege_graph, relation
-from ApplicationService.Dtos.RelationTripletsParamsDto import RelationTripletsParamsDto
-from Infrastructure.Implementation.kaznlp.morphology.analyzers import \
-    AnalyzerDD
-from Infrastructure.Implementation.kaznlp.morphology.taggers import TaggerHMM
-from Infrastructure.Implementation.kaznlp.tokenization.tokhmm import \
-    TokenizerHMM
+from ApplicationService.Dtos.RelationTripletsParamsDto import \
+    RelationTripletsParamsDto
 from interface import implements
 from nltk.corpus import stopwords
 from nltk.tokenize import sent_tokenize, word_tokenize
 from rake_nltk import Metric, Rake
 from sklearn.feature_extraction.text import TfidfVectorizer
 from UseCases.KeyWords.Interfaces.Dtos.KeyWordDto import KeyWordDto
+from UseCases.KeyWords.Interfaces.Dtos.TokenizeParamsDto import \
+    TokenizeParamsDto
 from UseCases.KeyWords.Interfaces.Dtos.TripletsDto import TripletsDto
 from UseCases.KeyWords.Interfaces.Dtos.TripletsParamsDto import \
     TripletsParamsDto
-from UseCases.KeyWords.Interfaces.Dtos.TokenizeParamsDto import \
-    TokenizeParamsDto
 from UseCases.KeyWords.Interfaces.IKeyWordService import IKeyWordService
 from UseCases.Wikipedia.Implementation.WikiService import WikiService
 
@@ -34,40 +30,7 @@ develop_mode = False
 class KeyWordService(implements(IKeyWordService)):
     def __init__(self, config):
         self.wd = os.getcwd()
-
         self.morph = pymorphy2.MorphAnalyzer()
-
-        self.mdl = os.path.join(
-            self.wd,
-            "Infrastructure",
-            "Implementation",
-            "kaznlp",
-            "tokenization",
-            "tokhmm.mdl",
-        )
-        self.kz_tokenizer = TokenizerHMM(model=self.mdl)
-        self.kz_analyzer = AnalyzerDD()
-        self.kz_analyzer.load_model(
-            os.path.join(
-                self.wd,
-                "Infrastructure",
-                "Implementation",
-                "kaznlp",
-                "morphology",
-                "mdl",
-            )
-        )
-        self.kz_tagger = TaggerHMM(lyzer=self.kz_analyzer)
-        self.kz_tagger.load_model(
-            os.path.join(
-                self.wd,
-                "Infrastructure",
-                "Implementation",
-                "kaznlp",
-                "morphology",
-                "mdl",
-            )
-        )
 
         self.wiki = WikiService(None)
 
@@ -112,32 +75,20 @@ class KeyWordService(implements(IKeyWordService)):
         text = self.delete_punctuation(args.text, args.punctuation)
         words = []
 
-        if args.lang == "kazakh":
-            for sentence in self.kz_tokenizer.tokenize(text):
-                lower_sentence = map(lambda x: x.lower(), sentence)
-                for _, a in enumerate(self.kz_tagger.tag_sentence(lower_sentence)):
-                    if "_R_ET" not in str(a) and "_R_EB" not in str(a):
-                        try:
-                            lemma = str(a).split("_")[0]
-                            words.append(lemma)
-                        except:
-                            pass
-        else:
-            doc = model(text)
+        doc = model(text)
 
-            for token in doc:
-                ready_lemma = token.text[0].isupper() and token.lemma_.capitalize() or token.lemma_
-                if (args.just_lemma == True):
-                    ready_lemma = token.lemma_
+        for token in doc:
+            ready_lemma = token.text[0].isupper() and token.lemma_.capitalize() or token.lemma_
+            if (args.just_lemma == True):
+                ready_lemma = token.lemma_
 
-                if args.verb == False:
-                    if "VERB" != token.pos_:
-                        words.append(ready_lemma)
-                else:
+            if args.verb == False:
+                if "VERB" != token.pos_:
                     words.append(ready_lemma)
-            
-            gc.collect()
-
+            else:
+                words.append(ready_lemma)
+        
+        gc.collect()
 
         return " ".join(words).replace(" - ", "-")
 

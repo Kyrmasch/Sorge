@@ -48,12 +48,26 @@ export default function Header(props) {
     }, [tabs]);
 
     const onChange = (tab, e) => {
-        if (tab.props.code != 'api') {
-            setCurrent(tab.props.itemKey);
-            history.push(`/${tab.props.code}`)
-        }
-        else {
-            window.open(`https://sorge.ektu.kz/api?url=/api/${system}.json`, '_blank').focus();
+        console.log(tab.props.code);
+
+        switch (tab.props.code) {
+            case 'api': {
+                window.open(`https://sorge.ektu.kz/api?url=/api/${system}.json`, '_blank').focus();  
+                break;
+            }
+            case 'prodigy': {
+                window.open(`https://sorge.ektu.kz:444`, '_blank').focus();
+                break;
+            }
+            case 'prodigy_api': {
+                window.open(`https://sorge.ektu.kz:444/docs`, '_blank').focus(); 
+                break;
+            }
+            default: {
+                setCurrent(tab.props.itemKey);
+                history.push(`/${tab.props.code}`)
+                break;
+            }
         }
     }
 
@@ -91,12 +105,12 @@ export default function Header(props) {
                                                 )
                                             })
                                         }
-                                        <PivotItem
+                                        {/* <PivotItem
                                             headerText={"Sorge Api"}
                                             code={"api"}
                                             itemKey={"swagger"}
                                             styles={{}}>
-                                        </PivotItem>
+                                        </PivotItem> */}
                                     </Pivot>
                                 </div>
                             </Stack>

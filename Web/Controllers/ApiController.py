@@ -18,8 +18,13 @@ def get_tabs():
 
     if current_user.system == "sorge":
         tabs.append(TabItemDto("Парсер", "",1).__dict__)
+        tabs.append(TabItemDto("Sorge Api", "api", 2).__dict__)
     elif current_user.system == "maps":
         tabs.append(TabItemDto("Концепт карта", "maps", 1).__dict__)
+        tabs.append(TabItemDto("Sorge Api", "api", 2).__dict__)
+        tabs.append(TabItemDto("Prodigy", "prodigy", 3).__dict__)
+        # tabs.append(TabItemDto("Prodigy Api", "prodigy_api", 4).__dict__)
+    
 
     return simplejson.dumps(
       GetTabsDto(current_user.system, tabs).__dict__, 

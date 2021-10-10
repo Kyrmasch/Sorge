@@ -500,6 +500,7 @@ export default function Maps() {
                               <Stack tokens={{ childrenGap: 24 }} horizontal={false}>
                                 <Stack.Item>
                                   <Dropdown
+                                    required={true}
                                     placeholder="Выберите модель"
                                     label="Обученные модели"
                                     options={bertModels}

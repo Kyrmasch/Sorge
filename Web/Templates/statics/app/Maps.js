@@ -188,7 +188,7 @@ export default function Maps() {
   React.useEffect(() => {
     if (language != "" && maps) {
       let $maps = [...maps];
-      if (language == languages[2].key) {
+      if (language == languages[2].key || language == languages[1].key) {
         $maps[2].disabled = true;
         setRelationMethod(maps[1]);
       } 

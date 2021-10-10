@@ -16,16 +16,17 @@ from ApplicationService.Interfaces.IRelation import IRelation
 
 class SpacyRelationService(implements(IRelation)):
     def __init__(self, config):
-        pass
+        self.nlp = None
 
     def get_triplets(self, args: RelationTripletsParamsDto) -> List[tuple]:
         
         triplets = []
 
-        nlp = spacy.load(args.nlp)
+        if self.nlp is None:
+            self.nlp = spacy.load(args.nlp)
 
         for text in args.sentences:
-            doc_entities = nlp(text)
+            doc_entities = self.nlp(text)
             entities = []
 
             for ent in doc_entities.ents:
@@ -43,7 +44,7 @@ class SpacyRelationService(implements(IRelation)):
                 words = [t.text for t in doc_entities]
                 spaces = [t.whitespace_ for t in doc_entities]
                 pred = Doc(
-                    nlp.vocab,
+                    self.nlp.vocab,
                     words=words,
                     spaces=spaces,
                 )
@@ -54,7 +55,7 @@ class SpacyRelationService(implements(IRelation)):
                     ents.append(span)
                 pred.ents = ents
 
-                for _, proc in nlp.pipeline:
+                for _, proc in self.nlp.pipeline:
                     pred = proc(pred)
 
                 for value, rel_dict in pred._.rel.items():
@@ -78,8 +79,5 @@ class SpacyRelationService(implements(IRelation)):
                                                                 (e.label_, pr, b.label_)
                                                             )
                                             )
-
-        del nlp
-        gc.collect()
 
         return triplets

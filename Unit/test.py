@@ -53,7 +53,7 @@ from spacy.tokens import DocBin
 #     db.add(doc)
 # db.to_disk("./ru.relation.spacy")
 
-npl = spacy.load("/home/user/Sorge/Sorge/Unit/ru_realction/model-last")
+npl = spacy.load("/home/user/Sorge/Sorge/Unit/geo_relation/model-best")
 doc = npl("Усть-Каменогрск стоит на Иртыше")
 for ent in doc.ents:
     print(ent.text, ent.start_char, ent.end_char, ent.label_)

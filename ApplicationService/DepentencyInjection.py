@@ -3,6 +3,7 @@ from ApplicationService.Implementation.Socket import Socket
 from ApplicationService.Implementation.Table import Table
 from ApplicationService.Implementation.KnowledgeGraph import KnowledgeGraphService
 from ApplicationService.Implementation.Relation import RelationService
+from ApplicationService.Implementation.SpacyRelation import SpacyRelationService
 
 class SocketProvider(containers.DeclarativeContainer):
     config = providers.Configuration()
@@ -20,7 +21,12 @@ class RelationProvider(containers.DeclarativeContainer):
     config = providers.Configuration()
     relation_provider = providers.Singleton(RelationService, config)
 
+class SpacyRelationProvider(containers.DeclarativeContainer):
+    config = providers.Configuration()
+    relation_provider = providers.Singleton(SpacyRelationService, config)
+
 socket          = SocketProvider().socket_provider().socketio
 table           = TableProvider().table_provider()
 knowlege_graph  = KnowledgeGraphProvider().knowlege_graph_provider()
 relation        = RelationProvider().relation_provider()
+spacy_relation  = SpacyRelationProvider().relation_provider()

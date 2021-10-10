@@ -90,7 +90,7 @@ export default function Maps() {
       disabled: false,
     },
     {
-      key: "knowlegegraph",
+      key: "bert",
       text: "Bert",
       action: 'knowlegegraph',
       iconProps: { iconName: "GitGraph" },
@@ -264,6 +264,7 @@ export default function Maps() {
           method: method,
           relation: relationMethod.key,
           language: language,
+          sa: 'geo'
         }),
       })
         .then((res) => res.json())

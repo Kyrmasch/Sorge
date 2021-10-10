@@ -56,7 +56,7 @@ export default function Header(props) {
                 break;
             }
             case 'prodigy': {
-                window.open(`https://sorge.ektu.kz:444`, '_blank').focus();
+                window.open(`https://sorge.ektu.kz:444/?session=cm`, '_blank').focus();
                 break;
             }
             case 'prodigy_api': {

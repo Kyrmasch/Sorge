@@ -1,4 +1,5 @@
 /Web/Templates/statics/node_modules
+/ApplicationService/Files/models
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

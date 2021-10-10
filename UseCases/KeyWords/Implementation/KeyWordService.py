@@ -8,7 +8,7 @@ import pandas as pd
 import pymorphy2
 import spacy
 import spacy_udpipe
-from ApplicationService.DepentencyInjection import knowlege_graph, relation
+from ApplicationService.DepentencyInjection import knowlege_graph, relation, spacy_relation
 from ApplicationService.Dtos.RelationTripletsParamsDto import \
     RelationTripletsParamsDto
 from interface import implements
@@ -205,7 +205,28 @@ class KeyWordService(implements(IKeyWordService)):
         if args.method == "knowlegegraph":
             sentences = knowlege_graph.getSentences(data, nlp_model, args.lang)
             triplets = knowlege_graph.get_triplets(RelationTripletsParamsDto(nlp_model, sentences))
-
+        
+        if args.method == "bert":
+            data = re.sub(" +", " ", data)
+            sentences: List[str] = []
+            for line in self.split_sentence(data):
+                if line.endswith("."):
+                    line = line[:-1]
+                sentences.append(line)
+                
+            if args.lang == "russian":
+                relation_model = spacy.load("/home/user/Sorge/Sorge/ApplicationService/Files/models/ru_geo_gpu_v1")
+                triplets = spacy_relation.get_triplets(
+                    RelationTripletsParamsDto(
+                        relation_model, 
+                        sentences, 
+                        args.lang, 
+                        develop_mode
+                    )
+                )
+                
+                del relation_model
+            
         if args.method == "spacy":
             if args.lang in ["russian"]:
                  data = self.tokenize(
@@ -221,7 +242,9 @@ class KeyWordService(implements(IKeyWordService)):
                     line = line[:-1]
                 sentences += relation.find_dublicates(nlp_model, line)
 
-            triplets = relation.get_triplets(RelationTripletsParamsDto(nlp_model, sentences, args.lang, develop_mode))
+            triplets = relation.get_triplets(
+                RelationTripletsParamsDto(nlp_model, sentences, args.lang, develop_mode)
+            )
             if args.lang == "russian":
                 triplets = self.correct_triplets(triplets, nlp_model)
 

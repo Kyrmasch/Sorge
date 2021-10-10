@@ -55,20 +55,30 @@ def map_knowlegegraph_build():
               schema:
                 $ref: '#/components/schemas/Graph'
     """
-    data = request.json
-    text = data["text"]
-    language = data["language"]
-    method = data["relation"]
+    data      = request.json
+    text      = data["text"]
+    language  = data["language"]
+    method    = data["relation"]
 
-    graph = getGraph(language, text, method)
+    # Subject area
+    sa        = data["sa"]
+
+    graph = getGraph(language, text, method, sa)
 
     return simplejson.dumps(
         {"data": graph.__dict__}, ignore_nan=True, encoding="utf-8", ensure_ascii=False
     )
 
-def getGraph(language, text, method = "knowlegegraph") -> GetGraphDto:
+def getGraph(language, text, method = "bert", sa = None) -> GetGraphDto:
 
-    triples: List[TripletsDto] = keywords.get_triples(TripletsParamsDto(text, language, method))
+    triples: List[TripletsDto] = keywords.get_triples(
+      TripletsParamsDto(
+        text, 
+        language, 
+        method, 
+        [], 
+        sa)
+    )
 
     nodes    = []
     edges    = []

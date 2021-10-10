@@ -34,3 +34,4 @@ class ApplicationContainer(containers.DeclarativeContainer):
     knowlegegraph_build     = flask.View(KnowlegeGraphController.map_knowlegegraph_build)
     example_text            = flask.View(MapsController.get_example_text)
     detect_lang             = flask.View(MapsController.check_lang)
+    get_model               = flask.View(MapsController.get_models)

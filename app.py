@@ -133,6 +133,14 @@ def create_app():
         ],
     )
 
+    app.add_url_rule(
+        "/maps/get_models",
+        view_func=login_required(container.get_model.as_view()),
+        methods=[
+            "GET",
+        ],
+    )
+
     auth.loginManager.init_app(app)
 
     app.config["JSON_AS_ASCII"] = False

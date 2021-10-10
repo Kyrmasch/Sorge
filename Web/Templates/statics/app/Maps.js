@@ -9,11 +9,12 @@ import Graph from "react-graph-vis";
 import { ChoiceGroup } from "@fluentui/react/lib/ChoiceGroup";
 import KeyWordsDialog from "./components/KeyWordsDialog";
 import "vis-network/dist/vis-network";
-import { CommandBar } from '@fluentui/react/lib/CommandBar';
-import { isMobile } from 'react-device-detect';
-import { MessageBar } from '@fluentui/react/lib/MessageBar';
-import { Toggle } from '@fluentui/react/lib/Toggle';
-import TripletsDialog from './components/TripletsDialog';
+import { CommandBar } from "@fluentui/react/lib/CommandBar";
+import { isMobile } from "react-device-detect";
+import { MessageBar } from "@fluentui/react/lib/MessageBar";
+import { Toggle } from "@fluentui/react/lib/Toggle";
+import TripletsDialog from "./components/TripletsDialog";
+import { Dropdown, DropdownMenuItemType } from "@fluentui/react/lib/Dropdown";
 
 var languages = [
   {
@@ -37,7 +38,7 @@ var languages = [
 ];
 
 var optionsMap = {
-  locale: 'ru',
+  locale: "ru",
   physics: true,
   autoResize: true,
   edges: {
@@ -51,9 +52,9 @@ var optionsMap = {
     },
     smooth: {
       type: "dynamic",
-      forceDirection: "none"
+      forceDirection: "none",
     },
-    shadow: true
+    shadow: true,
   },
   nodes: {
     font: {
@@ -61,7 +62,7 @@ var optionsMap = {
       face: "Verdana",
     },
     shape: "dot",
-    shadow: true
+    shadow: true,
   },
   interaction: {
     hideEdgesOnDrag: true,
@@ -78,24 +79,24 @@ export default function Maps() {
     {
       key: "basic",
       text: "Базовый",
-      action: 'build',
+      action: "build",
       iconProps: { iconName: "GitGraph" },
       checked: true,
     },
     {
       key: "spacy",
       text: "Spacy",
-      action: 'knowlegegraph',
+      action: "knowlegegraph",
       iconProps: { iconName: "GitGraph" },
       disabled: false,
     },
     {
       key: "bert",
       text: "Bert",
-      action: 'knowlegegraph',
+      action: "knowlegegraph",
       iconProps: { iconName: "GitGraph" },
       disabled: false,
-    }
+    },
   ]);
 
   const [keywords, setKeyWords] = React.useState([
@@ -115,26 +116,29 @@ export default function Maps() {
 
   const [graphcommands, setGraphCommands] = React.useState([
     {
-      key: 'entities',
-      text: 'Сущности',
-      iconProps: { iconName: 'LookupEntities' },
+      key: "entities",
+      text: "Сущности",
+      iconProps: { iconName: "LookupEntities" },
       split: true,
       onClick: () => setWordsDialog(true),
     },
     {
-      key: 'patterns',
-      text: 'Анализ связей',
-      iconProps: { iconName: 'ThumbnailViewMirrored' },
+      key: "patterns",
+      text: "Анализ связей",
+      iconProps: { iconName: "ThumbnailViewMirrored" },
       split: true,
       onClick: () => analizePatterns(),
     },
     {
-      key: 'save',
-      text: 'Сохранить',
-      iconProps: { iconName: 'Save' },
+      key: "save",
+      text: "Сохранить",
+      iconProps: { iconName: "Save" },
       onClick: () => saveGraph(),
-    }
-  ])
+    },
+  ]);
+
+  const [bertModels, setBertModels] = React.useState([]);
+  const [selectedModel, setSelectedModel] = React.useState(null);
 
   const [method, setMethod] = React.useState("rake");
   const [language, setLanguage] = React.useState("russian");
@@ -155,6 +159,7 @@ export default function Maps() {
   React.useEffect(() => {
     document.title = "Sorge - Концепт карта";
     getDemoText(language);
+    getModels();
   }, []);
 
   React.useEffect(() => {
@@ -191,8 +196,7 @@ export default function Maps() {
       if (language == languages[2].key || language == languages[1].key) {
         $maps[2].disabled = true;
         setRelationMethod(maps[1]);
-      } 
-      else {
+      } else {
         delete $maps[2]["disabled"];
       }
 
@@ -201,6 +205,7 @@ export default function Maps() {
       }
 
       setMaps($maps);
+      setSelectedModel(null);
     }
   }, [language]);
 
@@ -209,25 +214,33 @@ export default function Maps() {
       var $keywords = keywords.map((i) => {
         if (relationMethod.key != "basic") {
           i.disabled = true;
-        } 
-        else {
+        } else {
           delete i["disabled"];
         }
         return i;
       });
       setKeyWords($keywords);
 
-      var $graphcommants = [...graphcommands]
-      if (relationMethod.key != "spacy") {
+      var $graphcommants = [...graphcommands];
+      if (relationMethod.key == "basic") {
         $graphcommants[1].disabled = true;
-      } 
-      else {
+      } else {
         delete $graphcommants[1]["disabled"];
       }
       setGraphCommands($graphcommants);
-      
+      setSelectedModel(null);
     }
   }, [relationMethod]);
+
+  const getModels = () => {
+    fetch("/maps/get_models", {
+      method: "get",
+    })
+      .then((res) => res.json())
+      .then((options) => {
+        setBertModels(options);
+      });
+  };
 
   const getDemoText = (lang) => {
     fetch("/maps/example", {
@@ -237,14 +250,14 @@ export default function Maps() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        language: lang
+        language: lang,
       }),
     })
       .then((res) => res.json())
       .then((text) => {
         setText(text.value);
       });
-  }
+  };
 
   const build = () => {
     if (text.length > 0) {
@@ -264,7 +277,7 @@ export default function Maps() {
           method: method,
           relation: relationMethod.key,
           language: language,
-          sa: 'geo'
+          sa: "geo",
         }),
       })
         .then((res) => res.json())
@@ -315,17 +328,21 @@ export default function Maps() {
   const saveGraph = () => {
     var canvas = document.getElementsByTagName("canvas")[0];
     var dataURL = canvas.toDataURL("image/png");
-    var newTab = window.open('about:blank', 'image from canvas');
+    var newTab = window.open("about:blank", "image from canvas");
     newTab.document.write("<img src='" + dataURL + "' alt='from canvas'/>");
-  }
+  };
 
   const analizePatterns = () => {
     setAnalize(true);
-  }
+  };
 
   const handleDemoChange = (e, v) => {
     setIsDemo(v);
-  }
+  };
+
+  const handleSelectModel = (e, o) => {
+    setSelectedModel(bertModels[o].key);
+  };
 
   return (
     <React.Fragment>
@@ -343,7 +360,11 @@ export default function Maps() {
           <div
             class="ms-Grid"
             dir="ltr"
-            style={{ height: "calc(100vh - 55px)", overflowY: "scroll", overflowX: "auto" }}
+            style={{
+              height: "calc(100vh - 55px)",
+              overflowY: "scroll",
+              overflowX: "auto",
+            }}
           >
             <div class="ms-Grid-row" style={{ height: "100%" }}>
               <div class="ms-Grid-col ms-sm2 ms-md2ms-lg2"></div>
@@ -409,8 +430,14 @@ export default function Maps() {
                     <Stack
                       tokens={{ childrenGap: 24 }}
                       style={{ marginTop: 12 }}
-                      horizontal={true}>
-                        <Toggle label="Использовать демонстративный текст при переключении языка" checked={isDemo} inlineLabel onChange={handleDemoChange} />
+                      horizontal={true}
+                    >
+                      <Toggle
+                        label="Использовать демонстративный текст при переключении языка"
+                        checked={isDemo}
+                        inlineLabel
+                        onChange={handleDemoChange}
+                      />
                     </Stack>
                     <Stack
                       tokens={{ childrenGap: 24 }}
@@ -451,18 +478,57 @@ export default function Maps() {
                       horizontal={true}
                     >
                       <Stack.Item>
-                        <PrimaryButton
-                          styles={{
-                            root: {
-                              width: 292,
-                            },
-                          }}
-                          text="Построить"
-                          onClick={() => build()}
-                          allowDisabledFocus
-                          disabled={text.length == 0 || load}
-                          checked={false}
-                        />
+                        {
+                          ['basic', 'spacy'].includes(relationMethod.key) && (
+                            <PrimaryButton
+                              styles={{
+                                root: {
+                                  width: 292,
+                                },
+                              }}
+                              text="Построить"
+                              onClick={() => build()}
+                              allowDisabledFocus
+                              disabled={text.length == 0 || load}
+                              checked={false}
+                            />
+                          )
+                        }
+                        {
+                          ['bert'].includes(relationMethod.key) && (
+                            <>
+                              <Stack tokens={{ childrenGap: 24 }} horizontal={false}>
+                                <Stack.Item>
+                                  <Dropdown
+                                    placeholder="Выберите модель"
+                                    label="Обученные модели"
+                                    options={bertModels}
+                                    styles={{
+                                      dropdown: {
+                                        width: 292
+                                      }
+                                    }}
+                                    onChanged={handleSelectModel}
+                                  />
+                                </Stack.Item>
+                                <Stack.Item>
+                                  <PrimaryButton
+                                    styles={{
+                                      root: {
+                                        width: 292,
+                                      },
+                                    }}
+                                    text="Построить"
+                                    onClick={() => build()}
+                                    allowDisabledFocus
+                                    disabled={text.length == 0 || load || selectedModel == null}
+                                    checked={false}
+                                  />
+                                </Stack.Item>
+                              </Stack>
+                            </>
+                          )
+                        }
                       </Stack.Item>
                     </Stack>
                     {load == true && (
@@ -479,11 +545,11 @@ export default function Maps() {
                           items={graphcommands}
                           styles={{
                             root: {
-                              marginTop: '24px',
-                              paddingLeft: '6px',
-                              borderTop: '1px solid rgb(107, 148, 184)',
-                              paddingTop: '8px'
-                            }
+                              marginTop: "24px",
+                              paddingLeft: "6px",
+                              borderTop: "1px solid rgb(107, 148, 184)",
+                              paddingTop: "8px",
+                            },
                           }}
                         />
                         <Graph
@@ -494,7 +560,7 @@ export default function Maps() {
                             height: "600px",
                             backgroundColor: "rgb(243, 242, 241)",
                             margin: "24px 0px",
-                            marginTop: '0px',
+                            marginTop: "0px",
                             backgroundImage:
                               "linear-gradient(white .4rem, transparent .4rem), linear-gradient(90deg, white .4rem, transparent .4rem)",
                             backgroundSize: "5rem 5rem",
@@ -510,31 +576,31 @@ export default function Maps() {
                         toggle={setWordsDialog}
                       ></KeyWordsDialog>
                     )}
-                    {
-                      analize && (
-                        <TripletsDialog toggle={setAnalize} 
-                                        graph={graph} 
-                                        matchers = {matchers} 
-                                        title={'Анализ связей'} 
-                                        subtext = {'Используемые шаблоны для сущностей'}/>
-                      )
-                    } 
+                    {analize && (
+                      <TripletsDialog
+                        toggle={setAnalize}
+                        graph={graph}
+                        matchers={matchers}
+                        title={"Анализ связей"}
+                        subtext={
+                          relationMethod == "bert"
+                            ? "Сила связи между сущностями"
+                            : "Используемые шаблоны для сущностей"
+                        }
+                      />
+                    )}
                   </div>
                 </Stack>
               </div>
             </div>
-          </div>    
+          </div>
         </div>
       )}
-      {
-        ready && isMobile && (
-          <>
-            <MessageBar>
-              Недоступен для мобильной версии.
-            </MessageBar>
-          </>
-        )
-      }
+      {ready && isMobile && (
+        <>
+          <MessageBar>Недоступен для мобильной версии.</MessageBar>
+        </>
+      )}
     </React.Fragment>
   );
 }

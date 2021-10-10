@@ -13,6 +13,7 @@ import time
 from UseCases.DepentencyInjection import keywords
 from langdetect import detect
 from UseCases.KeyWords.Interfaces.Dtos.TripletsParamsDto import TripletsParamsDto
+from Web.Dtos.ModelItemDto import ModelItemDto
 from Web.Dtos.NodeDto import NodeDto
 from Web.Dtos.EdgeDto import EdgeDto
 
@@ -61,6 +62,14 @@ def get_example_text():
         {"value": text}, ignore_nan=True, encoding="utf-8", ensure_ascii=False
     )
 
+def get_models():
+    options = [
+        ModelItemDto('ru_geo_gpu_v1', 'Модель ГЕО (с трансформерами)').__dict__
+    ]
+
+    return simplejson.dumps(
+        options, ignore_nan=True, encoding="utf-8", ensure_ascii=False
+    )
 
 def map_build():
     """

@@ -18,4 +18,5 @@ class RelationDto:
 
     def get_matchers(self):
         return (self.left_matcher,
+                'VERB+',
                 self.right_matcher)

@@ -82,7 +82,7 @@ export default function TripletsDialog(props) {
                                         <div className="ms-fontSize-16">{m.label}</div>    
                                         <div className="ms-fontSize-12" style={{
                                             color: 'rgb(0, 120, 212)'
-                                        }}>{'VERB+'}</div>
+                                        }}>{matcher[1]}</div>
                                     </Stack.Item>
                                     <Stack.Item styles={{
                                         root: {
@@ -92,7 +92,7 @@ export default function TripletsDialog(props) {
                                         <div className="ms-fontSize-16">{r}</div>   
                                         <div className="ms-fontSize-12"style={{
                                             color: 'rgb(0, 120, 212)'
-                                        }}>{matcher[1]}</div> 
+                                        }}>{matcher[2]}</div> 
                                     </Stack.Item>
                                 </Stack>
                             )

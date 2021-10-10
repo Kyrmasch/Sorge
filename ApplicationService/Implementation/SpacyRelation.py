@@ -69,7 +69,13 @@ class SpacyRelationService(implements(IRelation)):
 
                                         include = [t for t in triplets if t[0] == e.text and t[2] == b.text]
                                         if not any(include):
-                                            triplets.append((e.text, m, b.text, None))
+                                            triplets.append((
+                                                                e.text, 
+                                                                m, 
+                                                                b.text, 
+                                                                (e.label_, pr, b.label_)
+                                                            )
+                                            )
 
 
         return triplets

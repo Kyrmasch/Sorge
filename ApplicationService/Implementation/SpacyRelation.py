@@ -18,15 +18,14 @@ class SpacyRelationService(implements(IRelation)):
     def __init__(self, config):
         self.nlp = None
 
-    def get_triplets(self, args: RelationTripletsParamsDto) -> List[tuple]:
+    def get_triplets(self, args: RelationTripletsParamsDto, queue = None) -> List[tuple]:
         
         triplets = []
 
-        if self.nlp is None:
-            self.nlp = spacy.load(args.nlp)
+        nlp = spacy.load(args.nlp)
 
         for text in args.sentences:
-            doc_entities = self.nlp(text)
+            doc_entities = nlp(text)
             entities = []
 
             for ent in doc_entities.ents:
@@ -44,7 +43,7 @@ class SpacyRelationService(implements(IRelation)):
                 words = [t.text for t in doc_entities]
                 spaces = [t.whitespace_ for t in doc_entities]
                 pred = Doc(
-                    self.nlp.vocab,
+                    nlp.vocab,
                     words=words,
                     spaces=spaces,
                 )
@@ -55,7 +54,7 @@ class SpacyRelationService(implements(IRelation)):
                     ents.append(span)
                 pred.ents = ents
 
-                for _, proc in self.nlp.pipeline:
+                for _, proc in nlp.pipeline:
                     pred = proc(pred)
 
                 for value, rel_dict in pred._.rel.items():
@@ -79,5 +78,8 @@ class SpacyRelationService(implements(IRelation)):
                                                                 (e.label_, pr, b.label_)
                                                             )
                                             )
+
+        if queue is not None:
+            queue.put(triplets)
 
         return triplets

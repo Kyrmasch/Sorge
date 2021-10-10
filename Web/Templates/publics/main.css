@@ -167,3 +167,7 @@ html, body, #root {
         display: none;
     }
 }
+
+.slideBox-210:hover .ms-Slider-active {
+    background: rgb(78, 173, 245) !important;
+}

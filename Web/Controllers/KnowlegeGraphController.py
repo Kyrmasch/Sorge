@@ -60,16 +60,16 @@ def map_knowlegegraph_build():
     language  = data["language"]
     method    = data["relation"]
 
-    # Subject area
-    sa        = data["sa"]
+    # Bert model
+    selectedMedel = data["sa"]
 
-    graph = getGraph(language, text, method, sa)
+    graph = getGraph(language, text, method, selectedMedel)
 
     return simplejson.dumps(
         {"data": graph.__dict__}, ignore_nan=True, encoding="utf-8", ensure_ascii=False
     )
 
-def getGraph(language, text, method = "bert", sa = None) -> GetGraphDto:
+def getGraph(language, text, method = "bert", selectedMedel = None) -> GetGraphDto:
 
     triples: List[TripletsDto] = keywords.get_triples(
       TripletsParamsDto(
@@ -77,7 +77,7 @@ def getGraph(language, text, method = "bert", sa = None) -> GetGraphDto:
         language, 
         method, 
         [], 
-        sa)
+        selectedMedel)
     )
 
     nodes    = []

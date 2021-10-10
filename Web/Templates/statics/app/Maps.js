@@ -148,7 +148,7 @@ export default function Maps() {
       text: 'Сила связи',
       ariaLabel: 'Сила связи',
       iconOnly: true,
-      iconProps: { iconName: 'Slider' },
+      iconProps: { iconName: 'BranchFork2' },
       onClick: () => setGraphSliderShow(true),
     }
   ]);
@@ -256,7 +256,16 @@ export default function Maps() {
     })
       .then((res) => res.json())
       .then((options) => {
-        setBertModels(options);
+        let items = options.map((i) => {
+          if (i.ishead == true) {
+            return { key: i.key, text: i.text, itemType: DropdownMenuItemType.Header }
+          }
+          if (i.isdeliver == true) {
+            return { key: i.key, text: '-', itemType: DropdownMenuItemType.Divider }
+          }
+          return { key: i.key, text: i.text}
+        })
+        setBertModels(items);
       });
   };
 
@@ -295,7 +304,7 @@ export default function Maps() {
           method: method,
           relation: relationMethod.key,
           language: language,
-          sa: "geo",
+          sa: selectedModel,
         }),
       })
         .then((res) => res.json())
@@ -562,7 +571,7 @@ export default function Maps() {
                       <>
                         <CommandBar
                           items={graphCommands}
-                          farItems={grapthFar}
+                          farItems={relationMethod.key == "bert" ? grapthFar : []}
                           styles={{
                             root: {
                               marginTop: "24px",
@@ -612,8 +621,18 @@ export default function Maps() {
                     {graphSliderShow && (
                       <TeachingBubble
                         target={`#${graphSliderId}`}
-                        primaryButtonProps={null}
-                        secondaryButtonProps={null}
+                        primaryButtonProps={
+                          {
+                            children: 'Применить',
+                            onClick: () => {}
+                          }
+                        }
+                        secondaryButtonProps={
+                          {
+                            children: 'Сбросить',
+                            onClick: () => {}
+                          }
+                        }
                         onDismiss={() => setGraphSliderShow(false)}
                         headline="Настроить порог связи между сущностями"
                       >
@@ -622,12 +641,18 @@ export default function Maps() {
                             titleLabel: {
                               color: 'white'
                             },
-                            line: {
-                              borderColor: 'white'
+                            activeSection: {
+                              background: 'rgb(78, 173, 245)',
+                              ":hover": {
+                                background: 'rgb(78, 173, 245) !important'
+                              },
+                              ":active": {
+                                background: 'rgb(78, 173, 245) !important'
+                              }
                             },
                             valueLabel: {
                               color: 'white'
-                            }
+                            },
                           }}
                           label="Значение" 
                           min={0} 

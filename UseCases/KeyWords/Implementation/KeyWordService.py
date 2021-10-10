@@ -24,7 +24,7 @@ from UseCases.KeyWords.Interfaces.Dtos.TripletsParamsDto import \
     TripletsParamsDto
 from UseCases.KeyWords.Interfaces.IKeyWordService import IKeyWordService
 from UseCases.Wikipedia.Implementation.WikiService import WikiService
-import concurrent.futures
+from multiprocessing import Process, Queue
 
 develop_mode = False
 
@@ -216,18 +216,21 @@ class KeyWordService(implements(IKeyWordService)):
                 sentences.append(line)
                 
             if args.lang == "russian":
-                with concurrent.futures.ThreadPoolExecutor() as executor:
-                    future = executor.submit(
-                        spacy_relation.get_triplets, 
-                        RelationTripletsParamsDto(
-                        "/home/user/Sorge/Sorge/ApplicationService/Files/models/ru_geo_gpu_v1", 
-                        sentences, 
-                        args.lang, 
-                        develop_mode
-                    ))
-                    triplets = future.result()
-                    
-                    del future
+                queue = Queue()
+                subprocess = Process(
+                    target = spacy_relation.get_triplets, 
+                    args=(RelationTripletsParamsDto(
+                            "/home/user/Sorge/Sorge/ApplicationService/Files/models/%s" % (args.sa), 
+                            sentences, 
+                            args.lang, 
+                            develop_mode),
+                            queue,))
+                subprocess.start()
+                subprocess.join()
+                triplets = queue.get()
+
+                del subprocess
+                del queue
             
         if args.method == "spacy":
             if args.lang in ["russian"]:

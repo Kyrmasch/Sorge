@@ -1,3 +1,4 @@
+import gc
 import os
 
 from ApplicationService.Dtos.RelationTripletsParamsDto import RelationTripletsParamsDto
@@ -15,15 +16,16 @@ from ApplicationService.Interfaces.IRelation import IRelation
 
 class SpacyRelationService(implements(IRelation)):
     def __init__(self, config):
-        self.nlp = None
-        self.lang = "russain"
+        pass
 
     def get_triplets(self, args: RelationTripletsParamsDto) -> List[tuple]:
-        self.nlp = args.nlp
+        
         triplets = []
 
+        nlp = spacy.load(args.nlp)
+
         for text in args.sentences:
-            doc_entities = args.nlp(text)
+            doc_entities = nlp(text)
             entities = []
 
             for ent in doc_entities.ents:
@@ -41,7 +43,7 @@ class SpacyRelationService(implements(IRelation)):
                 words = [t.text for t in doc_entities]
                 spaces = [t.whitespace_ for t in doc_entities]
                 pred = Doc(
-                    self.nlp.vocab,
+                    nlp.vocab,
                     words=words,
                     spaces=spaces,
                 )
@@ -52,7 +54,7 @@ class SpacyRelationService(implements(IRelation)):
                     ents.append(span)
                 pred.ents = ents
 
-                for _, proc in self.nlp.pipeline:
+                for _, proc in nlp.pipeline:
                     pred = proc(pred)
 
                 for value, rel_dict in pred._.rel.items():
@@ -77,5 +79,7 @@ class SpacyRelationService(implements(IRelation)):
                                                             )
                                             )
 
+        del nlp
+        gc.collect()
 
         return triplets

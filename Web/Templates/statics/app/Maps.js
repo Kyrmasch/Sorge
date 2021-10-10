@@ -15,6 +15,9 @@ import { MessageBar } from "@fluentui/react/lib/MessageBar";
 import { Toggle } from "@fluentui/react/lib/Toggle";
 import TripletsDialog from "./components/TripletsDialog";
 import { Dropdown, DropdownMenuItemType } from "@fluentui/react/lib/Dropdown";
+import { TeachingBubble } from '@fluentui/react/lib/TeachingBubble';
+import { useBoolean, useId } from '@fluentui/react-hooks';
+import { Slider } from "@fluentui/react/lib/Slider";
 
 var languages = [
   {
@@ -75,6 +78,8 @@ var optionsMap = {
 export default function Maps() {
   const culture = useParams().culture || "ru";
   const history = useHistory();
+  const graphSliderId = useId('sliderTarget');
+
   const [maps, setMaps] = React.useState([
     {
       key: "basic",
@@ -114,7 +119,7 @@ export default function Maps() {
     },
   ]);
 
-  const [graphcommands, setGraphCommands] = React.useState([
+  const [graphCommands, setGraphCommands] = React.useState([
     {
       key: "entities",
       text: "Сущности",
@@ -136,6 +141,19 @@ export default function Maps() {
       onClick: () => saveGraph(),
     },
   ]);
+  const [grapthFar, setGraphFar] = React.useState([
+    {
+      id: graphSliderId,
+      key: 'edge_streng',
+      text: 'Сила связи',
+      ariaLabel: 'Сила связи',
+      iconOnly: true,
+      iconProps: { iconName: 'Slider' },
+      onClick: () => setGraphSliderShow(true),
+    }
+  ]);
+  const [graphSliderShow, setGraphSliderShow] = React.useState(false);
+  const [graphEdgeLimit, setGraphEdgeLimit] = React.useState(0.2);
 
   const [bertModels, setBertModels] = React.useState([]);
   const [selectedModel, setSelectedModel] = React.useState(null);
@@ -221,7 +239,7 @@ export default function Maps() {
       });
       setKeyWords($keywords);
 
-      var $graphcommants = [...graphcommands];
+      var $graphcommants = [...graphCommands];
       if (relationMethod.key == "basic") {
         $graphcommants[1].disabled = true;
       } else {
@@ -543,7 +561,8 @@ export default function Maps() {
                     {graph.nodes.length > 0 && (
                       <>
                         <CommandBar
-                          items={graphcommands}
+                          items={graphCommands}
+                          farItems={grapthFar}
                           styles={{
                             root: {
                               marginTop: "24px",
@@ -584,11 +603,42 @@ export default function Maps() {
                         matchers={matchers}
                         title={"Анализ связей"}
                         subtext={
-                          relationMethod == "bert"
+                          relationMethod.key == "bert"
                             ? "Сила связи между сущностями"
                             : "Используемые шаблоны для сущностей"
                         }
                       />
+                    )}
+                    {graphSliderShow && (
+                      <TeachingBubble
+                        target={`#${graphSliderId}`}
+                        primaryButtonProps={null}
+                        secondaryButtonProps={null}
+                        onDismiss={() => setGraphSliderShow(false)}
+                        headline="Настроить порог связи между сущностями"
+                      >
+                        <Slider 
+                          styles={{
+                            titleLabel: {
+                              color: 'white'
+                            },
+                            line: {
+                              borderColor: 'white'
+                            },
+                            valueLabel: {
+                              color: 'white'
+                            }
+                          }}
+                          label="Значение" 
+                          min={0} 
+                          max={1} 
+                          step={0.1} 
+                          value={graphEdgeLimit}
+                          defaultValue={graphEdgeLimit} 
+                          onChange={(e) => setGraphEdgeLimit(e)}
+                          showValue 
+                          snapToStep />
+                      </TeachingBubble>
                     )}
                   </div>
                 </Stack>

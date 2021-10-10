@@ -225,9 +225,14 @@ class KeyWordService(implements(IKeyWordService)):
                             args.lang, 
                             develop_mode),
                             queue,))
-                subprocess.start()
-                subprocess.join()
-                triplets = queue.get()
+                try:
+                    subprocess.start()
+                    subprocess.join()             
+                    triplets = queue.get()
+                    if triplets is None:
+                        triplets = []
+                except:
+                    pass
 
                 del subprocess
                 del queue

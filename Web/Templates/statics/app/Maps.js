@@ -211,7 +211,7 @@ export default function Maps() {
   React.useEffect(() => {
     if (language != "" && maps) {
       let $maps = [...maps];
-      if (language == languages[2].key || language == languages[1].key) {
+      if (language == languages[2].key) {
         $maps[2].disabled = true;
         setRelationMethod(maps[1]);
       } else {
@@ -258,12 +258,12 @@ export default function Maps() {
       .then((options) => {
         let items = options.map((i) => {
           if (i.ishead == true) {
-            return { key: i.key, text: i.text, itemType: DropdownMenuItemType.Header }
+            return { key: i.key, text: i.text, itemType: DropdownMenuItemType.Header, language: i.language }
           }
           if (i.isdeliver == true) {
-            return { key: i.key, text: '-', itemType: DropdownMenuItemType.Divider }
+            return { key: i.key, text: '-', itemType: DropdownMenuItemType.Divider, language: i.language }
           }
-          return { key: i.key, text: i.text}
+          return { key: i.key, text: i.text, language: i.language}
         })
         setBertModels(items);
       });
@@ -530,7 +530,7 @@ export default function Maps() {
                                     required={true}
                                     placeholder="Выберите модель"
                                     label="Обученные модели"
-                                    options={bertModels}
+                                    options={bertModels.filter(x => x.language == language)}
                                     styles={{
                                       dropdown: {
                                         width: 292

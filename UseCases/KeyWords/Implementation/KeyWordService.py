@@ -84,6 +84,9 @@ class KeyWordService(implements(IKeyWordService)):
             ready_lemma = (
                 token.text[0].isupper() and token.lemma_.capitalize() or token.lemma_
             )
+            if token.text.isupper():
+                ready_lemma = token.lemma_.upper()
+
             if args.just_lemma == True:
                 ready_lemma = token.lemma_
 
@@ -213,7 +216,6 @@ class KeyWordService(implements(IKeyWordService)):
             )
 
         if args.method == "bert":
-            data = re.sub(" +", " ", data)
             sentences: List[str] = []
             for line in self.split_sentence(data):
                 if line.endswith("."):

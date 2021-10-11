@@ -113,8 +113,9 @@ def getGraph(language, text, method="bert", selectedMedel=None) -> GetGraphDto:
                     nodes.append(NodeDto(Is[0] + 1, 0, item.rigth, count).__dict__)
 
             if (len(Io) > 0) and (len(Is) > 0):
+                length = max(len(item.left), len(item.rigth)) + len(item.relation)
                 edges.append(
-                    EdgeDto(Io[0] + 1, Is[0] + 1, 0, item.relation, 0).to_json()
+                    EdgeDto(Io[0] + 1, Is[0] + 1, 0, item.relation, length * 5).to_json()
                 )
                 matchers.append(item.matchers)
 

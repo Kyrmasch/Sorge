@@ -6,8 +6,9 @@ from flask import (
     url_for,
 )
 from Infrastructure.DepentencyInjection import auth
-from Infrastructure.Interfaces.Auth.Dto.LoginDto import LoginDto 
+from Infrastructure.Interfaces.Auth.Dto.LoginDto import LoginDto
 from Infrastructure.Interfaces.Auth.Dto.SignInDto import SignInDto
+
 
 def signin():
     data = request.json

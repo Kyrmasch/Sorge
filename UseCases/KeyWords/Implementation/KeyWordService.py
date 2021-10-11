@@ -8,25 +8,27 @@ import pandas as pd
 import pymorphy2
 import spacy
 import spacy_udpipe
-from ApplicationService.DepentencyInjection import knowlege_graph, relation, spacy_relation
-from ApplicationService.Dtos.RelationTripletsParamsDto import \
-    RelationTripletsParamsDto
+from ApplicationService.DepentencyInjection import (
+    knowlege_graph,
+    relation,
+    spacy_relation,
+)
+from ApplicationService.Dtos.RelationTripletsParamsDto import RelationTripletsParamsDto
 from interface import implements
 from nltk.corpus import stopwords
 from nltk.tokenize import sent_tokenize, word_tokenize
 from rake_nltk import Metric, Rake
 from sklearn.feature_extraction.text import TfidfVectorizer
 from UseCases.KeyWords.Interfaces.Dtos.KeyWordDto import KeyWordDto
-from UseCases.KeyWords.Interfaces.Dtos.TokenizeParamsDto import \
-    TokenizeParamsDto
+from UseCases.KeyWords.Interfaces.Dtos.TokenizeParamsDto import TokenizeParamsDto
 from UseCases.KeyWords.Interfaces.Dtos.TripletsDto import TripletsDto
-from UseCases.KeyWords.Interfaces.Dtos.TripletsParamsDto import \
-    TripletsParamsDto
+from UseCases.KeyWords.Interfaces.Dtos.TripletsParamsDto import TripletsParamsDto
 from UseCases.KeyWords.Interfaces.IKeyWordService import IKeyWordService
 from UseCases.Wikipedia.Implementation.WikiService import WikiService
 from multiprocessing import Process, Queue
 
 develop_mode = False
+
 
 class KeyWordService(implements(IKeyWordService)):
     def __init__(self, config):
@@ -79,8 +81,10 @@ class KeyWordService(implements(IKeyWordService)):
         doc = model(text)
 
         for token in doc:
-            ready_lemma = token.text[0].isupper() and token.lemma_.capitalize() or token.lemma_
-            if (args.just_lemma == True):
+            ready_lemma = (
+                token.text[0].isupper() and token.lemma_.capitalize() or token.lemma_
+            )
+            if args.just_lemma == True:
                 ready_lemma = token.lemma_
 
             if args.verb == False:
@@ -88,7 +92,7 @@ class KeyWordService(implements(IKeyWordService)):
                     words.append(ready_lemma)
             else:
                 words.append(ready_lemma)
-        
+
         gc.collect()
 
         return " ".join(words).replace(" - ", "-")
@@ -110,8 +114,8 @@ class KeyWordService(implements(IKeyWordService)):
 
         return pattern.format(adj=adj, noun=noun)
 
-    def correct(self, data: str, model = None) -> str:
-        
+    def correct(self, data: str, model=None) -> str:
+
         nlp = model is None and spacy.load("ru_core_news_sm") or model
         doc = nlp(data)
 
@@ -136,18 +140,18 @@ class KeyWordService(implements(IKeyWordService)):
         return data
 
     def correct_triplets(self, triplets, model) -> List[tuple]:
-        
+
         """
         Скорректировать триплеты - только для русского языка
         Parameters:
-        
+
         triplets: массив tuple
         """
-        
+
         corrects = []
         if triplets is not None:
             for t in triplets:
-                
+
                 left = self.correct(t[0].replace(" - ", "-"), model)
                 predicate = t[1]
                 right = self.correct(t[2].replace(" - ", "-"), model)
@@ -158,19 +162,19 @@ class KeyWordService(implements(IKeyWordService)):
         return corrects
 
     def get_model(self, lang: str):
-        
+
         """
         Получение модели Spacy
         Parameters:
-        
+
         lang: Язык
         """
 
-        if lang     == "english":
+        if lang == "english":
             return spacy.load("en_core_web_sm")
-        elif lang   == "russian":
+        elif lang == "russian":
             return spacy.load("ru_core_news_sm")
-        elif lang   == "kazakh":
+        elif lang == "kazakh":
             return spacy_udpipe.load_from_path(
                 "ky",
                 "%s/ApplicationService/Files/udpipe/%s.udpipe"
@@ -178,14 +182,13 @@ class KeyWordService(implements(IKeyWordService)):
             )
         return None
 
-    
     def get_triples(self, args: TripletsParamsDto) -> List[TripletsDto]:
-        
+
         """
         Получение триплетов
         Авторы: Курмаш Апаев, Алия Нугуманова
         Parameters:
-        
+
         args: TripletsParamsDto
         """
 
@@ -194,7 +197,7 @@ class KeyWordService(implements(IKeyWordService)):
             return []
 
         stop = self.get_stop_words(args.lang)
-        data = u"%s" % (args.data) 
+        data = u"%s" % (args.data)
         for s in [" — ", " - ", "−"]:
             data = data.replace(s, " ")
 
@@ -205,8 +208,10 @@ class KeyWordService(implements(IKeyWordService)):
 
         if args.method == "knowlegegraph":
             sentences = knowlege_graph.getSentences(data, nlp_model, args.lang)
-            triplets = knowlege_graph.get_triplets(RelationTripletsParamsDto(nlp_model, sentences))
-        
+            triplets = knowlege_graph.get_triplets(
+                RelationTripletsParamsDto(nlp_model, sentences)
+            )
+
         if args.method == "bert":
             data = re.sub(" +", " ", data)
             sentences: List[str] = []
@@ -214,20 +219,25 @@ class KeyWordService(implements(IKeyWordService)):
                 if line.endswith("."):
                     line = line[:-1]
                 sentences.append(line)
-                
+
             if args.lang == "russian":
                 queue = Queue()
                 subprocess = Process(
-                    target = spacy_relation.get_triplets, 
-                    args=(RelationTripletsParamsDto(
-                            "/home/user/Sorge/Sorge/ApplicationService/Files/models/%s" % (args.sa), 
-                            sentences, 
-                            args.lang, 
-                            develop_mode),
-                            queue,))
+                    target=spacy_relation.get_triplets,
+                    args=(
+                        RelationTripletsParamsDto(
+                            "/home/user/Sorge/Sorge/ApplicationService/Files/models/%s"
+                            % (args.sa),
+                            sentences,
+                            args.lang,
+                            develop_mode,
+                        ),
+                        queue,
+                    ),
+                )
                 try:
                     subprocess.start()
-                    subprocess.join()             
+                    subprocess.join()
                     triplets = queue.get()
                     if triplets is None:
                         triplets = []
@@ -236,14 +246,13 @@ class KeyWordService(implements(IKeyWordService)):
 
                 del subprocess
                 del queue
-            
+
         if args.method == "spacy":
             if args.lang in ["russian"]:
-                 data = self.tokenize(
-                     TokenizeParamsDto(data, args.lang, False, True), 
-                     nlp_model
-                    )
-            
+                data = self.tokenize(
+                    TokenizeParamsDto(data, args.lang, False, True), nlp_model
+                )
+
             data = re.sub(" +", " ", data)
 
             sentences: List[str] = []
@@ -260,17 +269,16 @@ class KeyWordService(implements(IKeyWordService)):
 
         del nlp_model
         gc.collect()
-        
+
         return [TripletsDto(t[0], t[1], t[2], t[3]) for t in triplets]
 
     def rake_extract(self, data: str, lang: str = "russian") -> List[KeyWordDto]:
         model = self.get_model(lang)
-        
+
         data = u"%s" % (data)
         stop_words = set(self.get_stop_words(lang))
         text: str = self.tokenize(
-            TokenizeParamsDto(data, lang, False, False, True),
-            model
+            TokenizeParamsDto(data, lang, False, False, True), model
         )
 
         max_length = 2
@@ -313,8 +321,7 @@ class KeyWordService(implements(IKeyWordService)):
         for item in ls:
             text = self.delete_punctuation(item)
             text = self.tokenize(
-                TokenizeParamsDto(text, lang, True, False, True),
-                model
+                TokenizeParamsDto(text, lang, True, False, True), model
             )
             text_array.append(text)
 

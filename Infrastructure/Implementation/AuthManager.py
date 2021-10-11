@@ -17,9 +17,17 @@ class AuthManager(implements(IAuthManager)):
         self.loginManager.login_view = "login"
 
         users = []
-        users.append(UserEntity(0, "admin", "Администратор", "4899443", 'sorge'))
-        users.append(UserEntity(1, "admin", "Администратор", "122335719", 'maps'))
-        users.append(UserEntity(2, "developer", "Разработчик", "d25260bf-6238-4089-b447-d902fed711a6", "sorge"))
+        users.append(UserEntity(0, "admin", "Администратор", "4899443", "sorge"))
+        users.append(UserEntity(1, "admin", "Администратор", "122335719", "maps"))
+        users.append(
+            UserEntity(
+                2,
+                "developer",
+                "Разработчик",
+                "d25260bf-6238-4089-b447-d902fed711a6",
+                "sorge",
+            )
+        )
         users.append(UserEntity(3, "developer", "Разработчик", "Q1w2e3r4", "sorge"))
 
         self.users = users
@@ -33,8 +41,8 @@ class AuthManager(implements(IAuthManager)):
 
     def request_loader(self, request):
         result = None
-        if 'X-API-KEY' in request.headers:
-            api_key = request.headers['X-API-KEY']
+        if "X-API-KEY" in request.headers:
+            api_key = request.headers["X-API-KEY"]
             if api_key:
                 result = None
                 for u in self.users:

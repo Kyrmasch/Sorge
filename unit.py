@@ -1,5 +1,6 @@
 import os
 from typing import Pattern
+
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import spacy_udpipe
 import spacy
@@ -11,15 +12,13 @@ from ApplicationService.Dtos.DocumentDto import DocumentDto
 path = "/home/user/Sorge/lib/python3.8/site-packages/spacy_udpipe/models/kazakh-ud-2.0-170801.udpipe"
 
 sentence = "Ертіс өзені Өскемен арқылы өтеді"
-nlp  = spacy_udpipe.load_from_path("ky", path)
+nlp = spacy_udpipe.load_from_path("ky", path)
 doc = nlp(sentence)
+
 
 def get_verbs(doc):
     matcher = Matcher(nlp.vocab)
-    pattern = [
-        [{"POS":"ADP", "OP": "*"}, {"DEP":"ROOT"}],
-        [{"DEP":"ROOT"}]
-    ]
+    pattern = [[{"POS": "ADP", "OP": "*"}, {"DEP": "ROOT"}], [{"DEP": "ROOT"}]]
     matcher.add("Fluff", pattern)
 
     matches = matcher(doc.doc)
@@ -27,8 +26,9 @@ def get_verbs(doc):
     for match_id, start, end in matches:
         verbs.append(doc.doc[start:end].text)
     verbs.sort(key=lambda s: len(s), reverse=True)
-    
+
     return verbs[0]
+
 
 def noun(doc, pattern):
     matcher = Matcher(nlp.vocab)
@@ -44,22 +44,34 @@ def noun(doc, pattern):
         return nouns[0]
     return None
 
+
 verbs = get_verbs(doc)
 print(verbs)
-if any(verbs): 
-    
-    pattern = [
-        [{"IS_SENT_START": True, "OP": "+"}, {"POS":"ADJ", "OP": "*"}]
-    ]
+if any(verbs):
+
+    pattern = [[{"IS_SENT_START": True, "OP": "+"}, {"POS": "ADJ", "OP": "*"}]]
     left = noun(doc, pattern)
 
     pattern = [
-        [{"IS_SENT_START": False, "POS": "PART", "OP": "*"}, {"IS_SENT_START": False, "POS": "NOUN", "OP": "+"}, {"POS":"AUX", "OP": "*"}, {"POS":"NOUN", "OP": "*"}]
+        [
+            {"IS_SENT_START": False, "POS": "PART", "OP": "*"},
+            {"IS_SENT_START": False, "POS": "NOUN", "OP": "+"},
+            {"POS": "AUX", "OP": "*"},
+            {"POS": "NOUN", "OP": "*"},
+        ]
     ]
     right = noun(doc, pattern)
 
     print((left, verbs, right))
 
 for token in doc:
-    print(token.text, token.lemma_, token.pos_, token.tag_, token.dep_,
-            token.shape_, token.is_alpha, token.is_stop)
+    print(
+        token.text,
+        token.lemma_,
+        token.pos_,
+        token.tag_,
+        token.dep_,
+        token.shape_,
+        token.is_alpha,
+        token.is_stop,
+    )

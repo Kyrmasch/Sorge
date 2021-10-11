@@ -55,10 +55,10 @@ def map_knowlegegraph_build():
               schema:
                 $ref: '#/components/schemas/Graph'
     """
-    data      = request.json
-    text      = data["text"]
-    language  = data["language"]
-    method    = data["relation"]
+    data = request.json
+    text = data["text"]
+    language = data["language"]
+    method = data["relation"]
 
     # Bert model
     selectedMedel = data["sa"]
@@ -69,62 +69,53 @@ def map_knowlegegraph_build():
         {"data": graph.__dict__}, ignore_nan=True, encoding="utf-8", ensure_ascii=False
     )
 
-def getGraph(language, text, method = "bert", selectedMedel = None) -> GetGraphDto:
+
+def getGraph(language, text, method="bert", selectedMedel=None) -> GetGraphDto:
 
     triples: List[TripletsDto] = keywords.get_triples(
-      TripletsParamsDto(
-        text, 
-        language, 
-        method, 
-        [], 
-        selectedMedel)
+        TripletsParamsDto(text, language, method, [], selectedMedel)
     )
 
-    nodes    = []
-    edges    = []
+    nodes = []
+    edges = []
     matchers = []
     entities = []
 
     if any(triples):
 
-      counter_array = []
-      for item in triples:
-        counter_array.append(item.left)
-        counter_array.append(item.rigth)
+        counter_array = []
+        for item in triples:
+            counter_array.append(item.left)
+            counter_array.append(item.rigth)
 
-      counter = dict(Counter(counter_array))
+        counter = dict(Counter(counter_array))
 
-      for item in triples:
-          Io = []
-          Is = []
+        for item in triples:
+            Io = []
+            Is = []
 
-          if (item.left != ""):
-              Io = [x for x, y in enumerate(entities) if y[1] == item.left]
-              if len(Io) == 0:
-                  entities.append((1, item.left))
-                  Io = [x for x, y in enumerate(entities) if y[1] == item.left]
+            if item.left != "":
+                Io = [x for x, y in enumerate(entities) if y[1] == item.left]
+                if len(Io) == 0:
+                    entities.append((1, item.left))
+                    Io = [x for x, y in enumerate(entities) if y[1] == item.left]
 
-                  count = counter.get(item.left, 1)
-                  nodes.append(NodeDto(Io[0] + 1, 0,  item.left, count).__dict__)
-          
-          if (item.rigth != ""):
-              Is = [x for x, y in enumerate(entities) if y[1] == item.rigth]
-              if len(Is) == 0:
-                  entities.append((1, item.rigth))
-                  Is = [x for x, y in enumerate(entities) if y[1] == item.rigth]
+                    count = counter.get(item.left, 1)
+                    nodes.append(NodeDto(Io[0] + 1, 0, item.left, count).__dict__)
 
-                  count = counter.get(item.rigth, 1)
-                  nodes.append(NodeDto(Is[0] + 1, 0, item.rigth, count).__dict__)       
+            if item.rigth != "":
+                Is = [x for x, y in enumerate(entities) if y[1] == item.rigth]
+                if len(Is) == 0:
+                    entities.append((1, item.rigth))
+                    Is = [x for x, y in enumerate(entities) if y[1] == item.rigth]
 
-          if (len(Io) > 0) and (len(Is) > 0):
-              edges.append(EdgeDto(
-                  Io[0] + 1, 
-                  Is[0] + 1, 
-                  0, 
-                  item.relation,
-                  0)
-                  .to_json())
-              matchers.append(item.matchers)
+                    count = counter.get(item.rigth, 1)
+                    nodes.append(NodeDto(Is[0] + 1, 0, item.rigth, count).__dict__)
 
+            if (len(Io) > 0) and (len(Is) > 0):
+                edges.append(
+                    EdgeDto(Io[0] + 1, Is[0] + 1, 0, item.relation, 0).to_json()
+                )
+                matchers.append(item.matchers)
 
     return GetGraphDto(nodes, edges, entities, matchers)

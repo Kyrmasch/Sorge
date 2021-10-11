@@ -42,12 +42,7 @@ def check_lang():
             break
 
     return simplejson.dumps(
-        {
-            "value": result
-        }, 
-        ignore_nan=True, 
-        encoding="utf-8", 
-        ensure_ascii=False
+        {"value": result}, ignore_nan=True, encoding="utf-8", ensure_ascii=False
     )
 
 
@@ -62,18 +57,20 @@ def get_example_text():
         {"value": text}, ignore_nan=True, encoding="utf-8", ensure_ascii=False
     )
 
+
 def get_models():
     options = [
-        ModelItemDto('withTransformer', 'С трансформерами', False, True).__dict__,
-        ModelItemDto('ru_geo_gpu_v1', 'Модель ГЕО').__dict__,   
-        ModelItemDto('withTransformerDeliver', '', False, False, True).__dict__,
-        ModelItemDto('outTransformer', 'Без трансформеров', False, True).__dict__,
-        ModelItemDto('ru_geo_cpu_v1', 'Модель ГЕО').__dict__,
+        ModelItemDto("withTransformer", "С трансформерами", False, True).__dict__,
+        ModelItemDto("ru_geo_gpu_v1", "Модель ГЕО").__dict__,
+        ModelItemDto("withTransformerDeliver", "", False, False, True).__dict__,
+        ModelItemDto("outTransformer", "Без трансформеров", False, True).__dict__,
+        ModelItemDto("ru_geo_cpu_v1", "Модель ГЕО").__dict__,
     ]
 
     return simplejson.dumps(
         options, ignore_nan=True, encoding="utf-8", ensure_ascii=False
     )
+
 
 def map_build():
     """
@@ -145,8 +142,8 @@ def getGraph(method, language, text) -> GetGraphDto:
                 index = index + 1
 
     triplets = keywords.get_triples(
-                        TripletsParamsDto(text, language, "not", entities = ls_keywords)
-               )
+        TripletsParamsDto(text, language, "not", entities=ls_keywords)
+    )
 
     edges = [
         {"from": 2, "to": 8, "value": 3, "title": "3 emails per week"},

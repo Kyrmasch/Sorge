@@ -1,12 +1,15 @@
 from typing import List
 from interface import implements
-from UseCases.PortableDocumentFormat.Interfaces.IPdfParserService import IPdfParserService
+from UseCases.PortableDocumentFormat.Interfaces.IPdfParserService import (
+    IPdfParserService,
+)
 from ApplicationService.Dtos.ParseDto import ParseDto
 from ApplicationService.Dtos.ResultTablesDto import ResultTablesDto
 import tabula
 from ApplicationService.DepentencyInjection import table as Atable
 from Infrastructure.DepentencyInjection import mediatr
 from UseCases.Commands.SetProgressCommanddHandler import ProgressCommand
+
 
 class PdfParserService(implements(IPdfParserService)):
     def __init__(self, config):
@@ -40,8 +43,8 @@ class PdfParserService(implements(IPdfParserService)):
                 guids = []
 
                 for t in tables:
-                    
-                    df = Atable.aks(t)  
+
+                    df = Atable.aks(t)
                     core, df = Atable.getCoreColumn(df)
                     if core is not None:
                         cores.append(core)

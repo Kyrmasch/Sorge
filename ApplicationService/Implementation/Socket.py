@@ -5,6 +5,7 @@ from ApplicationService.Interfaces.ISocket import ISocket
 socketio = SocketIO()
 socket_clients = {}
 
+
 class Socket(implements(ISocket)):
     def __init__(self, config):
         self.socketio = socketio
@@ -12,5 +13,6 @@ class Socket(implements(ISocket)):
     @staticmethod
     def join(self, message):
         print(message)
+
 
 socketio.on_event("join", Socket.join)

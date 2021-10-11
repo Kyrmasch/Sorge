@@ -2,6 +2,7 @@ import os
 
 from ApplicationService.Dtos.RelationTripletsParamsDto import RelationTripletsParamsDto
 from ApplicationService.Dtos.TextSpanDto import TextSpanDto
+
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 import re
@@ -39,43 +40,51 @@ class RelationService(implements(IRelation)):
                         token.is_stop,
                     )
 
-            relations : List[RelationDto] = []
+            relations: List[RelationDto] = []
             if args.lang in ["english", "russian"]:
                 doc = DocumentDto(args.nlp, nlp_line)
                 relations = self.extract_relations(doc, args.develop_mode)
             elif args.lang == "kazakh":
-                relations = self.extract_relations_kz(args.nlp, nlp_line, args.develop_mode)
+                relations = self.extract_relations_kz(
+                    args.nlp, nlp_line, args.develop_mode
+                )
 
             for relation in relations:
                 rel_tuple: tuple = relation.get_tuple()
                 matchers = relation.get_matchers()
 
-                exists = [t for t in triplets if t[0] == rel_tuple[0] and t[2] == rel_tuple[2]]
+                exists = [
+                    t for t in triplets if t[0] == rel_tuple[0] and t[2] == rel_tuple[2]
+                ]
                 if any(exists) == False:
-                    triplets.append((rel_tuple[0], rel_tuple[1], rel_tuple[2], matchers))
+                    triplets.append(
+                        (rel_tuple[0], rel_tuple[1], rel_tuple[2], matchers)
+                    )
 
         return triplets
 
-    def extract_relations_kz(self, nlp, doc, developer = False) -> List[RelationDto]:
-        
+    def extract_relations_kz(self, nlp, doc, developer=False) -> List[RelationDto]:
+
         triplets: List[RelationDto] = []
 
         verb = self.get_verbs_kz(nlp, doc)
         if verb is not None:
 
             left_pattern = {
-                "ADJ (OP*) + NOUN": [{"IS_SENT_START": True, "OP": "+"}, {"POS": "ADJ", "OP": "*"}]
+                "ADJ (OP*) + NOUN": [
+                    {"IS_SENT_START": True, "OP": "+"},
+                    {"POS": "ADJ", "OP": "*"},
+                ]
             }
             left, left_matcher = self.get_noun_kz(nlp, doc, left_pattern)
 
             right_pattern = {
-                "AUX (OP*) + PART (OP*) + NOUN (IS_SENT_START = False)":
-                    [
-                        {"IS_SENT_START": False, "POS": "PART", "OP": "*"},
-                        {"IS_SENT_START": False, "POS": "NOUN", "OP": "+"},
-                        {"POS": "AUX", "OP": "*"},
-                        {"POS": "NOUN", "OP": "*"},
-                    ]
+                "AUX (OP*) + PART (OP*) + NOUN (IS_SENT_START = False)": [
+                    {"IS_SENT_START": False, "POS": "PART", "OP": "*"},
+                    {"IS_SENT_START": False, "POS": "NOUN", "OP": "+"},
+                    {"POS": "AUX", "OP": "*"},
+                    {"POS": "NOUN", "OP": "*"},
+                ]
             }
             right, right_matcher = self.get_noun_kz(nlp, doc, right_pattern)
 
@@ -83,12 +92,13 @@ class RelationService(implements(IRelation)):
                 if developer == True:
                     print((left.text, verb.text, right.text))
 
-                triplets.append(RelationDto(
-                    TextSpanDto(left), 
-                    TextSpanDto(verb), 
-                    TextSpanDto(right),
-                    left_matcher,
-                    right_matcher
+                triplets.append(
+                    RelationDto(
+                        TextSpanDto(left),
+                        TextSpanDto(verb),
+                        TextSpanDto(right),
+                        left_matcher,
+                        right_matcher,
                     )
                 )
 
@@ -109,17 +119,35 @@ class RelationService(implements(IRelation)):
 
         noun_phrase_dict = {}
 
-        noun_phrase_dict["NOUN"]                                    = [{"POS": "NOUN"}]
-        noun_phrase_dict["PROPN (IS_STOP = False)"]                 = [{"POS": "PROPN", "IS_STOP": False}]
-        noun_phrase_dict["PRON (IS_STOP = False)"]                  = [{"POS": "PRON", "IS_STOP": False}]
+        noun_phrase_dict["NOUN"] = [{"POS": "NOUN"}]
+        noun_phrase_dict["PROPN (IS_STOP = False)"] = [
+            {"POS": "PROPN", "IS_STOP": False}
+        ]
+        noun_phrase_dict["PRON (IS_STOP = False)"] = [{"POS": "PRON", "IS_STOP": False}]
 
         if self.lang == "russian":
-            noun_phrase_dict["NOUN + NOUN (OP+)"]                   = [{"POS": "NOUN"}, {"POS": "NOUN", "OP": "+"}]
-            noun_phrase_dict["NOUN + NOUN (OP+)"]                   = [{"POS": "NOUN"}, {"POS": "PROPN", "OP": "+"}]
-            noun_phrase_dict["ADJ (OP+) + NOUN"]                    = [{"POS": "ADJ", "OP": "+"}, {"POS": "NOUN"}]
-            noun_phrase_dict["PROPN (OP+) + PROPN"]                 = [{"POS": "PROPN", "OP": "+"}, {"POS": "PROPN"}]
-            noun_phrase_dict["NOUN (OP+) + LEMMA(-) + NOUN (OP+)"]  = [{"POS": "NOUN", "OP": "+"},{"LEMMA": "-", "OP": "+"},{"POS": "NOUN", "OP": "+"}]
-        
+            noun_phrase_dict["NOUN + NOUN (OP+)"] = [
+                {"POS": "NOUN"},
+                {"POS": "NOUN", "OP": "+"},
+            ]
+            noun_phrase_dict["NOUN + NOUN (OP+)"] = [
+                {"POS": "NOUN"},
+                {"POS": "PROPN", "OP": "+"},
+            ]
+            noun_phrase_dict["ADJ (OP+) + NOUN"] = [
+                {"POS": "ADJ", "OP": "+"},
+                {"POS": "NOUN"},
+            ]
+            noun_phrase_dict["PROPN (OP+) + PROPN"] = [
+                {"POS": "PROPN", "OP": "+"},
+                {"POS": "PROPN"},
+            ]
+            noun_phrase_dict["NOUN (OP+) + LEMMA(-) + NOUN (OP+)"] = [
+                {"POS": "NOUN", "OP": "+"},
+                {"LEMMA": "-", "OP": "+"},
+                {"POS": "NOUN", "OP": "+"},
+            ]
+
         relations = []
 
         for span in relation_spans:
@@ -131,9 +159,15 @@ class RelationService(implements(IRelation)):
             )
 
             if (not left_noun is None) and (not right_noun is None):
-                relations.append(RelationDto(left_noun, span, right_noun, 
-                                                left_match_pattern, 
-                                                right_match_pattern))
+                relations.append(
+                    RelationDto(
+                        left_noun,
+                        span,
+                        right_noun,
+                        left_match_pattern,
+                        right_match_pattern,
+                    )
+                )
         return relations
 
     def get_relation_spans(self, doc):
@@ -209,7 +243,7 @@ class RelationService(implements(IRelation)):
     def get_noun_kz(self, nlp, doc, pattern):
         matcher = Matcher(nlp.vocab)
 
-        for k,v in pattern.items():
+        for k, v in pattern.items():
             matcher.add(k, [v])
 
         matches = matcher(doc.doc)
@@ -223,18 +257,16 @@ class RelationService(implements(IRelation)):
         if any(nouns):
             nouns.sort(key=lambda s: len(s.text), reverse=True)
             return nouns[0], self.get_mather_by_word(
-                                doc.doc.vocab, 
-                                matchers, 
-                                nouns[0].text
-                            )
+                doc.doc.vocab, matchers, nouns[0].text
+            )
         return None, None
 
     def find_nearest_pattern(
         self, doc, pattern, text_span, search_before, developer=False
     ):
         matcher = doc.matcher
-        
-        for k,v in pattern.items():
+
+        for k, v in pattern.items():
             matcher.add(k, [v])
 
         matches = matcher(doc.doc)
@@ -263,11 +295,11 @@ class RelationService(implements(IRelation)):
         if developer == True:
             for span in spans_to_search:
                 print("Span: %s" % (span.sentence))
-        
+
         _ready = False
         _span = spans_to_search[0]
         _matcher = None
-        
+
         if len(spans_to_search) > 2:
             for span in spans_to_search:
                 if (
@@ -283,11 +315,9 @@ class RelationService(implements(IRelation)):
                 if spans_to_search[1].sentence.startswith(spans_to_search[0].sentence):
                     _span = spans_to_search[1]
 
-        return _span, \
-               self.get_mather_by_word(
-                   doc.doc.vocab,
-                   matches_list, 
-                   _span.sentence)
+        return _span, self.get_mather_by_word(
+            doc.doc.vocab, matches_list, _span.sentence
+        )
 
     def get_mather_by_word(self, vocab, matchers, word):
         if any(matchers):
@@ -350,7 +380,7 @@ class RelationService(implements(IRelation)):
         sorted_spans = sorted(text_spans, key=lambda s: s.length, reverse=True)
         return sorted_spans[0]
 
-    def find_dublicates(self, nlp, line, developer = False):
+    def find_dublicates(self, nlp, line, developer=False):
         nlp_line = nlp(line)
         doc = DocumentDto(nlp, nlp_line)
 

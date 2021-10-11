@@ -1,7 +1,7 @@
 from interface import Interface
 
-class IRedisApi(Interface):
 
+class IRedisApi(Interface):
     def send(self, redis):
         pass
 

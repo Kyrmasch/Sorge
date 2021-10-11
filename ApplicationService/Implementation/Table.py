@@ -14,12 +14,11 @@ import json
 
 
 class Table(implements(ITable)):
-
     def __init__(self, config) -> None:
         self.config = config
         self.wd = os.getcwd()
 
-    def concatRows(self, df, indexs, spliter:str =" "):
+    def concatRows(self, df, indexs, spliter: str = " "):
         rows = df[df.index.isin(indexs)]
 
         heads = []
@@ -92,7 +91,7 @@ class Table(implements(ITable)):
             for index, value in Lempty.items():
                 if ((value * 100) / Ncolumn) < 20 and df.index[index] not in LDrop:
                     LDrop.append(df.index[index])
-            
+
             df = df.drop(LDrop)
 
         return df
@@ -101,7 +100,7 @@ class Table(implements(ITable)):
         for col in df.columns:
             a = df[col].unique()
             if len(a) == 1:
-                if a[0] in string.punctuation:   
+                if a[0] in string.punctuation:
                     print(a[0])
 
         return df
@@ -116,9 +115,9 @@ class Table(implements(ITable)):
             df = self.transform(df)
         except:
             pass
-        
+
         df = self.merge(df)
-        
+
         df = df.replace(np.nan, "-", regex=True)
         df = df.replace(",", "-", regex=False)
 
@@ -132,18 +131,16 @@ class Table(implements(ITable)):
         save = False
         if os.path.exists(path) == False:
             save = True
-            table = df.to_json(orient='index', force_ascii=False)
+            table = df.to_json(orient="index", force_ascii=False)
             try:
-                with io.open(path, 'w') as f:
-                    json.dump({
-                                    "table": table,
-                                    "core": [core],
-                                    "guid": ["%s" % (sha)]
-                                },
-                                f,
-                                sort_keys = True, 
-                                indent = 4,
-                                ensure_ascii=False)
+                with io.open(path, "w") as f:
+                    json.dump(
+                        {"table": table, "core": [core], "guid": ["%s" % (sha)]},
+                        f,
+                        sort_keys=True,
+                        indent=4,
+                        ensure_ascii=False,
+                    )
             except Exception as e:
                 print(str(e))
         else:
@@ -163,7 +160,7 @@ class Table(implements(ITable)):
                 try:
                     v = str(dataFrame[i].iloc[1])
                     if v.isnumeric() == False:
-                        dataFrame[i] = dataFrame[i].str.replace('\d+ ', '', regex=True)
+                        dataFrame[i] = dataFrame[i].str.replace("\d+ ", "", regex=True)
                         column = i
                         break
                 except Exception as err:

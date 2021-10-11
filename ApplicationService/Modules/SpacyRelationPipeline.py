@@ -63,7 +63,9 @@ class RelationExtractor(TrainablePipe):
     def add_label(self, label: str) -> int:
         """Add a new label to the pipe."""
         if not isinstance(label, str):
-            raise ValueError("Only strings can be added as labels to the RelationExtractor")
+            raise ValueError(
+                "Only strings can be added as labels to the RelationExtractor"
+            )
         if label in self.labels:
             return 0
         self.cfg["labels"] = list(self.labels) + [label]
@@ -74,7 +76,7 @@ class RelationExtractor(TrainablePipe):
         # check that there are actually any candidate instances in this batch of examples
         total_instances = len(self.model.attrs["get_instances"](doc))
         if total_instances == 0:
-            #msg.info("Could not determine any instances in doc - returning doc as is.")
+            # msg.info("Could not determine any instances in doc - returning doc as is.")
             return doc
 
         predictions = self.predict([doc])
@@ -86,7 +88,9 @@ class RelationExtractor(TrainablePipe):
         get_instances = self.model.attrs["get_instances"]
         total_instances = sum([len(get_instances(doc)) for doc in docs])
         if total_instances == 0:
-            msg.info("Could not determine any instances in any docs - can not make any predictions.")
+            msg.info(
+                "Could not determine any instances in any docs - can not make any predictions."
+            )
         scores = self.model.predict(docs)
         return self.model.ops.asarray(scores)
 
@@ -172,8 +176,10 @@ class RelationExtractor(TrainablePipe):
         doc_sample = [eg.reference for eg in subbatch]
         label_sample = self._examples_to_truth(subbatch)
         if label_sample is None:
-            raise ValueError("Call begin_training with relevant entities and relations annotated in "
-                             "at least a few reference examples!")
+            raise ValueError(
+                "Call begin_training with relevant entities and relations annotated in "
+                "at least a few reference examples!"
+            )
         self.model.initialize(X=doc_sample, Y=label_sample)
 
     def _examples_to_truth(self, examples: List[Example]) -> Optional[numpy.ndarray]:

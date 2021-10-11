@@ -1,5 +1,4 @@
 class RelationCollectionDto:
-
     def __init__(self, relations):
         self.relations = relations
 

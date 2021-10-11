@@ -11,6 +11,7 @@ app.container = container
 
 socket.init_app(app, cors_allowed_origins="*", async_mode="threading")
 
+
 def create_app():
 
     app.add_url_rule(
@@ -150,115 +151,59 @@ def create_app():
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
     )
-    app.config['JSON_AS_ASCII'] = False
+    app.config["JSON_AS_ASCII"] = False
 
     swagger_template = {
-        'components': {
-            'securitySchemes': {
-                'ApiKeyAuth': {
-                    'type': 'apiKey',
-                    'in': 'header',
-                    'name': 'X-API-KEY'
-                }
+        "components": {
+            "securitySchemes": {
+                "ApiKeyAuth": {"type": "apiKey", "in": "header", "name": "X-API-KEY"}
             },
-            'security': {
-                'APIKeyHeader': []
+            "security": {"APIKeyHeader": []},
+            "schemas": {
+                "RelationMethod": {
+                    "type": "string",
+                    "enum": ["basic", "knowlegegraph", "spacy"],
+                },
+                "Languages": {
+                    "type": "string",
+                    "enum": ["russain", "english", "kazakh"],
+                },
+                "Graph": {
+                    "type": "object",
+                    "properties": {
+                        "nodes": {"type": "array", "items": {"type": "object"}},
+                        "edges": {"type": "array", "items": {"type": "object"}},
+                        "words": {"type": "array", "items": {"type": "object"}},
+                    },
+                },
+                "Guids": {"type": "array", "items": {"type": "string"}},
+                "ResultTables": {
+                    "type": "object",
+                    "properties": {
+                        "result": {"type": "array", "items": {"type": "object"}},
+                        "cores": {"type": "array", "items": {"type": "string"}},
+                        "guids": {"type": "array", "items": {"type": "string"}},
+                    },
+                },
+                "Wiki": {
+                    "type": "object",
+                    "properties": {
+                        "pages": {"type": "array", "items": {"type": "string"}},
+                        "info": {"type": "string"},
+                    },
+                },
             },
-            'schemas': {
-                'RelationMethod': {
-                    'type': 'string',
-                    'enum': [
-                        'basic',
-                        'knowlegegraph',
-                        'spacy'
-                    ]
-                },
-                'Languages': {
-                    'type': 'string',
-                    'enum': [
-                        'russain',
-                        'english',
-                        'kazakh'
-                    ]
-                },
-                'Graph': {
-                    'type': 'object',
-                    'properties': {
-                        'nodes': {
-                            'type': 'array',
-                            'items':{
-                                'type': 'object'
-                            }
-                        },
-                        'edges': {
-                            'type': 'array',
-                            'items':{
-                                'type': 'object'
-                            }
-                        },
-                        'words': {
-                            'type': 'array',
-                            'items':{
-                                'type': 'object'
-                            }
-                        }
-                    }
-                },
-                'Guids': {
-                    'type': 'array',
-                    'items':{
-                        'type': 'string'
-                    }
-                },
-                'ResultTables': {
-                    'type': 'object',
-                    'properties': {
-                        'result': {
-                            'type': 'array',
-                            'items':{
-                                'type': 'object'
-                            }
-                        },
-                        'cores': {
-                            'type': 'array',
-                            'items':{
-                                'type': 'string'
-                            }
-                        },
-                        'guids': {
-                            'type': 'array',
-                            'items':{
-                                'type': 'string'
-                            }
-                        }
-                    }
-                },
-                'Wiki': {
-                    'type': 'object',
-                    'properties': {
-                        'pages': {
-                            'type': 'array',
-                            'items':{
-                                'type': 'string'
-                            }
-                        },
-                        'info': {
-                            'type': 'string'
-                        }
-                    }
-                }
-            }
         }
     }
     swagger_config = {
         "swagger_version": "2.0",
         "title": "Sorge Api",
         "description": "Описание",
-        'openapi': '3.0.3',
+        "openapi": "3.0.3",
         "headers": [
-            ('Access-Control-Allow-Origin', '*'),
-            ('Access-Control-Allow-Methods', "GET, POST, PUT, DELETE, OPTIONS"),
-            ('Access-Control-Allow-Credentials', "true"),
+            ("Access-Control-Allow-Origin", "*"),
+            ("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"),
+            ("Access-Control-Allow-Credentials", "true"),
         ],
         "swagger_ui": True,
         "specs_route": "/api/",
@@ -266,24 +211,24 @@ def create_app():
             {
                 "version": "1.0.0",
                 "title": "Sorge",
-                "endpoint": 'parse_api',
-                "description": 'Анализ таблиц',
-                "route": '/api/sorge.json',
+                "endpoint": "parse_api",
+                "description": "Анализ таблиц",
+                "route": "/api/sorge.json",
                 "termsOfService": None,
-                "rule_filter": lambda rule: rule.endpoint.startswith('parse_'),
+                "rule_filter": lambda rule: rule.endpoint.startswith("parse_"),
                 "model_filter": lambda tag: True,
             },
             {
                 "version": "1.0.0",
                 "title": "Concept Maps",
-                "endpoint": 'map_api',
-                "description": 'Концепт карты',
-                "route": '/api/maps.json',
+                "endpoint": "map_api",
+                "description": "Концепт карты",
+                "route": "/api/maps.json",
                 "termsOfService": None,
-                "rule_filter": lambda rule: rule.endpoint.startswith('map_'),
+                "rule_filter": lambda rule: rule.endpoint.startswith("map_"),
                 "model_filter": lambda tag: False,
-            }
-        ]
+            },
+        ],
     }
     swagger = Swagger(app, config=swagger_config, template=swagger_template)
 

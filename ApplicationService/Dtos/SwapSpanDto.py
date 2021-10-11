@@ -1,8 +1,8 @@
 import spacy
 from spacy.matcher import Matcher
 
-class SwapSpanDto:
 
+class SwapSpanDto:
     def __init__(self, new_span, swapped_span):
         self.new_span = new_span
         self.swapped_span = swapped_span

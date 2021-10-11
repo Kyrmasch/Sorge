@@ -41,15 +41,15 @@ class ImageParserService(implements(IImageParserService)):
         )
         return (cnts, boundingBoxes)
 
-    def download_image_to_tempdir(self, url: str, filename = None) -> str:
+    def download_image_to_tempdir(self, url: str, filename=None) -> str:
         if filename is None:
             filename = os.path.basename(url)
         headers = {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'GET',
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Access-Control-Max-Age': '3600',
-                'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Max-Age": "3600",
+            "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0",
         }
 
         response = requests.get(url, stream=True, headers=headers)
@@ -68,7 +68,7 @@ class ImageParserService(implements(IImageParserService)):
             guids = []
 
             try:
-                req = Request(data.url, headers={'User-Agent': 'Mozilla/5.0'})
+                req = Request(data.url, headers={"User-Agent": "Mozilla/5.0"})
                 webpage = urlopen(req).read()
                 website_is_up = webpage is not None
             except Exception as e:
@@ -88,12 +88,14 @@ class ImageParserService(implements(IImageParserService)):
 
                 mediatr.send(ProgressCommand(30, "Обработка изображения OpenCV"))
 
-                img = cv2.imread(image_filepath,0)
+                img = cv2.imread(image_filepath, 0)
                 img.shape
 
-                thresh,img_bin = cv2.threshold(img,128,255,cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-                img_bin = 255-img_bin
-                kernel_len = np.array(img).shape[1]//100
+                thresh, img_bin = cv2.threshold(
+                    img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU
+                )
+                img_bin = 255 - img_bin
+                kernel_len = np.array(img).shape[1] // 100
                 ver_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, kernel_len))
                 hor_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_len, 1))
                 kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
@@ -104,16 +106,26 @@ class ImageParserService(implements(IImageParserService)):
                 image_2 = cv2.erode(img_bin, hor_kernel, iterations=3)
                 horizontal_lines = cv2.dilate(image_2, hor_kernel, iterations=3)
 
-                img_vh = cv2.addWeighted(vertical_lines, 0.5, horizontal_lines, 0.5, 0.0)
+                img_vh = cv2.addWeighted(
+                    vertical_lines, 0.5, horizontal_lines, 0.5, 0.0
+                )
                 img_vh = cv2.erode(~img_vh, kernel, iterations=2)
-                thresh, img_vh = cv2.threshold(img_vh,128,255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-                bitxor = cv2.bitwise_xor(img,img_vh)
+                thresh, img_vh = cv2.threshold(
+                    img_vh, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU
+                )
+                bitxor = cv2.bitwise_xor(img, img_vh)
                 bitnot = cv2.bitwise_not(bitxor)
 
-                mediatr.send(ProgressCommand(50, "Поиск контуров таблиц на изображении"))
+                mediatr.send(
+                    ProgressCommand(50, "Поиск контуров таблиц на изображении")
+                )
 
-                contours, hierarchy = cv2.findContours(img_vh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-                contours, boundingBoxes = self.sort_contours(contours, method="top-to-bottom")
+                contours, hierarchy = cv2.findContours(
+                    img_vh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
+                )
+                contours, boundingBoxes = self.sort_contours(
+                    contours, method="top-to-bottom"
+                )
 
                 heights = [boundingBoxes[i][3] for i in range(len(boundingBoxes))]
                 mean = np.mean(heights)
@@ -121,78 +133,114 @@ class ImageParserService(implements(IImageParserService)):
                 box = []
                 for c in contours:
                     x, y, w, h = cv2.boundingRect(c)
-                    if (w<1000 and h<500):
-                        image = cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
-                        box.append([x,y,w,h])
-                        
-                row=[]
-                column=[]
-                j=0
+                    if w < 1000 and h < 500:
+                        image = cv2.rectangle(
+                            img, (x, y), (x + w, y + h), (0, 255, 0), 2
+                        )
+                        box.append([x, y, w, h])
 
-                for i in range(len(box)):    
-                    if(i==0):
+                row = []
+                column = []
+                j = 0
+
+                for i in range(len(box)):
+                    if i == 0:
                         column.append(box[i])
-                        previous=box[i]    
-                    
+                        previous = box[i]
+
                     else:
-                        if(box[i][1]<=previous[1]+mean/2):
+                        if box[i][1] <= previous[1] + mean / 2:
                             column.append(box[i])
-                            previous=box[i]            
-                            
-                            if(i==len(box)-1):
-                                row.append(column)        
-                            
+                            previous = box[i]
+
+                            if i == len(box) - 1:
+                                row.append(column)
+
                         else:
                             row.append(column)
-                            column=[]
+                            column = []
                             previous = box[i]
                             column.append(box[i])
-                            
+
                 countcol = 0
                 for i in range(len(row)):
                     countcol = len(row[i])
                     if countcol > countcol:
                         countcol = countcol
 
-                center = [int(row[i][j][0]+row[i][j][2]/2) for j in range(len(row[i])) if row[0]]
+                center = [
+                    int(row[i][j][0] + row[i][j][2] / 2)
+                    for j in range(len(row[i]))
+                    if row[0]
+                ]
 
-                center=np.array(center)
+                center = np.array(center)
                 center.sort()
 
                 finalboxes = []
                 for i in range(len(row)):
-                    lis=[]
+                    lis = []
                     for k in range(countcol):
                         lis.append([])
                     for j in range(len(row[i])):
-                        diff = abs(center-(row[i][j][0]+row[i][j][2]/4))
+                        diff = abs(center - (row[i][j][0] + row[i][j][2] / 4))
                         minimum = min(diff)
                         indexing = list(diff).index(minimum)
                         lis[indexing].append(row[i][j])
                     finalboxes.append(lis)
 
-                mediatr.send(ProgressCommand(70, "Сортировка позиций найденных ячеек таблиц и распознание текста"))
+                mediatr.send(
+                    ProgressCommand(
+                        70,
+                        "Сортировка позиций найденных ячеек таблиц и распознание текста",
+                    )
+                )
 
-                outer=[]
+                outer = []
                 for i in range(len(finalboxes)):
                     for j in range(len(finalboxes[i])):
-                        inner=''
-                        if(len(finalboxes[i][j])==0):
-                            outer.append(' ')
+                        inner = ""
+                        if len(finalboxes[i][j]) == 0:
+                            outer.append(" ")
                         else:
                             for k in range(len(finalboxes[i][j])):
-                                y,x,w,h = finalboxes[i][j][k][0],finalboxes[i][j][k][1], finalboxes[i][j][k][2],finalboxes[i][j][k][3]
-                                finalimg = bitnot[x:x+h, y:y+w]
-                                kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 1))
-                                border = cv2.copyMakeBorder(finalimg,2,2,2,2, cv2.BORDER_CONSTANT,value=[255,255])
-                                resizing = cv2.resize(border, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
-                                dilation = cv2.dilate(resizing, kernel,iterations=1)
-                                erosion = cv2.erode(dilation, kernel,iterations=2)
-                                
-                                out = pytesseract.image_to_string(erosion, lang='eng+rus')
-                                if(len(out)==0):
-                                    out = pytesseract.image_to_string(erosion, config='--psm 3', lang='eng+rus')
-                                inner = inner +" "+ out
+                                y, x, w, h = (
+                                    finalboxes[i][j][k][0],
+                                    finalboxes[i][j][k][1],
+                                    finalboxes[i][j][k][2],
+                                    finalboxes[i][j][k][3],
+                                )
+                                finalimg = bitnot[x : x + h, y : y + w]
+                                kernel = cv2.getStructuringElement(
+                                    cv2.MORPH_RECT, (2, 1)
+                                )
+                                border = cv2.copyMakeBorder(
+                                    finalimg,
+                                    2,
+                                    2,
+                                    2,
+                                    2,
+                                    cv2.BORDER_CONSTANT,
+                                    value=[255, 255],
+                                )
+                                resizing = cv2.resize(
+                                    border,
+                                    None,
+                                    fx=2,
+                                    fy=2,
+                                    interpolation=cv2.INTER_CUBIC,
+                                )
+                                dilation = cv2.dilate(resizing, kernel, iterations=1)
+                                erosion = cv2.erode(dilation, kernel, iterations=2)
+
+                                out = pytesseract.image_to_string(
+                                    erosion, lang="eng+rus"
+                                )
+                                if len(out) == 0:
+                                    out = pytesseract.image_to_string(
+                                        erosion, config="--psm 3", lang="eng+rus"
+                                    )
+                                inner = inner + " " + out
                             outer.append(inner)
 
                 mediatr.send(ProgressCommand(90, "Форматирование таблицы"))
@@ -201,7 +249,7 @@ class ImageParserService(implements(IImageParserService)):
                 dataframe = pd.DataFrame(arr.reshape(len(row), countcol))
                 dataframe = Atable.aks(dataframe)
                 core, dataframe = Atable.getCoreColumn(dataframe)
-                if (core is not None):
+                if core is not None:
                     cores.append(core)
 
                 save, sha = Atable.save_json(dataframe, core)
@@ -213,7 +261,6 @@ class ImageParserService(implements(IImageParserService)):
                 Tresult = ResultTablesDto(Rlist, cores, guids)
 
                 return Tresult
-
 
         return ResultTablesDto([])
 
@@ -234,7 +281,7 @@ class ImageParserService(implements(IImageParserService)):
 
             image_tables = table_ocr.extract_tables.main([image_filepath])
             for image, tables in image_tables:
-                
+
                 list = []
                 cores = []
                 guids = []
@@ -246,7 +293,7 @@ class ImageParserService(implements(IImageParserService)):
                     csv = table_ocr.ocr_to_csv.text_files_to_csv(ocr)
                     df = pd.read_csv(StringIO(csv), sep=",")
 
-                    df = Atable.aks(df)  
+                    df = Atable.aks(df)
                     core, df = Atable.getCoreColumn(df)
                     if core is not None:
                         cores.append(core)

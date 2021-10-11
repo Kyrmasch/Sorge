@@ -56,7 +56,9 @@ def create_tensors(
     )
 
 
-def instance_forward(model: Model[List[Doc], Floats2d], docs: List[Doc], is_train: bool) -> Tuple[Floats2d, Callable]:
+def instance_forward(
+    model: Model[List[Doc], Floats2d], docs: List[Doc], is_train: bool
+) -> Tuple[Floats2d, Callable]:
     pooling = model.get_ref("pooling")
     tok2vec = model.get_ref("tok2vec")
     get_instances = model.attrs["get_instances"]

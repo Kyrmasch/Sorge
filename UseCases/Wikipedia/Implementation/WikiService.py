@@ -93,7 +93,7 @@ class WikiService(implements(IWikiService)):
             % (wd)
         )
         return self.execute_query(query)
-    
+
     def get_relation(self, wd: str):
         query = (
             "PREFIX wd: <http://www.wikidata.org/entity/>\
@@ -103,13 +103,14 @@ class WikiService(implements(IWikiService)):
             PREFIX v: <http://www.wikidata.org/prop/statement/>\
             PREFIX q: <http://www.wikidata.org/prop/qualifier/>\
             PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\
-            SELECT ?pLabel ?oLabel WHERE { ?s ?predicate ?o . " +            
-            'BIND(IRI(REPLACE(STR(?predicate), "prop/direct/", "entity/")) AS ?p)\
+            SELECT ?pLabel ?oLabel WHERE { ?s ?predicate ?o . "
+            + 'BIND(IRI(REPLACE(STR(?predicate), "prop/direct/", "entity/")) AS ?p)\
             SERVICE wikibase:label {\
                 bd:serviceParam wikibase:language "ru" .\
-            } ' +  
-            "FILTER(?predicate IN (wdt:P279, wdt:P460, wdt:P361, wdt:P527, wdt:P1382))\
-            FILTER(?s = %s) } LIMIT 100" % (wd)
+            } '
+            + "FILTER(?predicate IN (wdt:P279, wdt:P460, wdt:P361, wdt:P527, wdt:P1382))\
+            FILTER(?s = %s) } LIMIT 100"
+            % (wd)
         )
 
         return self.execute_query(query)

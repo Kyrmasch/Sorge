@@ -55,3 +55,4 @@ networkx==2.3
 textacy
 spacy
 spacy-udpipe
+spacy[transformers]

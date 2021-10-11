@@ -1,15 +1,16 @@
 import simplejson
 import os
 
-def parse_get_guids():  
+
+def parse_get_guids():
     """
-    Получить GUID 
+    Получить GUID
     GUID сохраненных таблиц
     ---
     tags:
-      - Developer 
+      - Developer
     security:
-        - ApiKeyAuth: []  
+        - ApiKeyAuth: []
     responses:
       200:
         description: Список
@@ -25,10 +26,7 @@ def parse_get_guids():
         files = [os.path.splitext(f)[0] for f in files]
 
     result = simplejson.dumps(
-        files,
-        ignore_nan=True,
-        encoding="utf-8",
-        ensure_ascii=False
+        files, ignore_nan=True, encoding="utf-8", ensure_ascii=False
     )
 
     return result

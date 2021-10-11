@@ -1,6 +1,7 @@
 import os
 
 from ApplicationService.Dtos.RelationTripletsParamsDto import RelationTripletsParamsDto
+
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 from typing import List
@@ -16,7 +17,7 @@ class KnowledgeGraphService(implements(IRelation)):
         self.lang = "english"
 
     def get_triplets(self, args: RelationTripletsParamsDto) -> List[tuple]:
-        
+
         self.nlp = args.nlp
 
         triplets = []
@@ -58,7 +59,7 @@ class KnowledgeGraphService(implements(IRelation)):
         objectConstruction = ""
 
         __obj = "obj"
-        if (self.lang == "russian"):
+        if self.lang == "russian":
             __obj = "conj"
         for token in tokens:
 
@@ -79,7 +80,7 @@ class KnowledgeGraphService(implements(IRelation)):
                 subject = self.appendChunk(subject, token.text)
                 subject = self.appendChunk(subjectConstruction, subject)
                 subjectConstruction = ""
-            if  __obj in token.dep_:
+            if __obj in token.dep_:
                 object = self.appendChunk(object, token.text)
                 object = self.appendChunk(objectConstruction, object)
                 objectConstruction = ""
@@ -106,8 +107,16 @@ class KnowledgeGraphService(implements(IRelation)):
 
         pos = nx.spring_layout(G)
         plt.figure()
-        nx.draw(G, pos, edge_color='black', width=1, linewidths=1,
-                node_size=500, node_color='seagreen', alpha=0.9,
-                labels={node: node for node in G.nodes()})
-        plt.axis('off')
+        nx.draw(
+            G,
+            pos,
+            edge_color="black",
+            width=1,
+            linewidths=1,
+            node_size=500,
+            node_color="seagreen",
+            alpha=0.9,
+            labels={node: node for node in G.nodes()},
+        )
+        plt.axis("off")
         plt.savefig("Graph.png", format="PNG")

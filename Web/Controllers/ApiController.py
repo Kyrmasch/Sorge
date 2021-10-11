@@ -13,25 +13,27 @@ from ApplicationService.Dtos.ResultTablesDto import ResultTablesDto
 import os
 import json
 
+
 def get_tabs():
     tabs = []
 
     if current_user.system == "sorge":
-        tabs.append(TabItemDto("Парсер", "",1).__dict__)
+        tabs.append(TabItemDto("Парсер", "", 1).__dict__)
         tabs.append(TabItemDto("Sorge Api", "api", 2).__dict__)
     elif current_user.system == "maps":
         tabs.append(TabItemDto("Концепт карта", "maps", 1).__dict__)
         tabs.append(TabItemDto("Sorge Api", "api", 2).__dict__)
         tabs.append(TabItemDto("Prodigy", "prodigy", 3).__dict__)
         # tabs.append(TabItemDto("Prodigy Api", "prodigy_api", 4).__dict__)
-    
 
     return simplejson.dumps(
-      GetTabsDto(current_user.system, tabs).__dict__, 
-      ignore_nan=True, 
-      encoding="utf-8")
+        GetTabsDto(current_user.system, tabs).__dict__,
+        ignore_nan=True,
+        encoding="utf-8",
+    )
 
-def parse_get_tables():  
+
+def parse_get_tables():
     """
     Парсер таблиц
     Получение таблиц из указанной ссылки
@@ -47,20 +49,20 @@ def parse_get_tables():
                 type : object
                 properties:
                   url:
-                    type: string    
+                    type: string
             examples:
-                Url: 
-                  value: 
-                    url: "https://aviapoisk.kz/raspisanie/aeroporta/ustkamenogorsk"  
+                Url:
+                  value:
+                    url: "https://aviapoisk.kz/raspisanie/aeroporta/ustkamenogorsk"
     security:
-        - ApiKeyAuth: []      
+        - ApiKeyAuth: []
     responses:
       200:
         description: Массив таблиц с ключевым столбцом
         content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResultTables' 
+                $ref: '#/components/schemas/ResultTables'
     """
 
     data = request.json
@@ -70,9 +72,9 @@ def parse_get_tables():
         parseDto.settings = (
             "settings" in data
             and SettingsUrlDto(
-                _from   =   data["settings"]["from"],
-                _to     =   data["settings"]["to"],
-                _merge  =   data["settings"]["merge"],
+                _from=data["settings"]["from"],
+                _to=data["settings"]["to"],
+                _merge=data["settings"]["merge"],
             )
             or SettingsUrlDto(0, 0)
         )
@@ -92,7 +94,7 @@ def parse_get_tables():
         ).__dict__,
         ignore_nan=True,
         encoding="utf-8",
-        ensure_ascii=False
+        ensure_ascii=False,
     )
 
     return result
@@ -113,45 +115,45 @@ def parse_get_table_by_guid():
                 type : object
                 properties:
                   guid:
-                    type: string    
+                    type: string
             examples:
-                Saved: 
-                  value: 
-                    guid: "7075105353550151027"  
+                Saved:
+                  value:
+                    guid: "7075105353550151027"
     security:
-        - ApiKeyAuth: []           
+        - ApiKeyAuth: []
     responses:
       200:
         description: Массив таблиц с ключевым столбцом
         content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResultTables' 
+                $ref: '#/components/schemas/ResultTables'
     """
 
     data = request.json
-    table = GetTablesDto(
-            [], [], []
-        ).__dict__,
+    table = (GetTablesDto([], [], []).__dict__,)
 
     if "guid" in data:
-      guid = data["guid"]
-      try:
-          with open("%s/ApplicationService/Files/tables/%s.json" % (os.getcwd(), guid), encoding='utf-8') as json_file:
-            content = json.load(json_file)
-            table = GetTablesDto(
-                        content['table'], content['core'], content['guid']
+        guid = data["guid"]
+        try:
+            with open(
+                "%s/ApplicationService/Files/tables/%s.json" % (os.getcwd(), guid),
+                encoding="utf-8",
+            ) as json_file:
+                content = json.load(json_file)
+                table = (
+                    GetTablesDto(
+                        content["table"], content["core"], content["guid"]
                     ).__dict__,
-      except Exception as e:
-          print(str(e))
-      finally:
-          pass
+                )
+        except Exception as e:
+            print(str(e))
+        finally:
+            pass
 
     result = simplejson.dumps(
-        table,
-        ignore_nan=True,
-        encoding="utf-8",
-        ensure_ascii=False
+        table, ignore_nan=True, encoding="utf-8", ensure_ascii=False
     )
 
     return result
@@ -172,13 +174,13 @@ def parse_get_wiki():
                 type : object
                 properties:
                   word:
-                    type: string    
+                    type: string
             examples:
-                Wiki: 
-                  value: 
-                    word: "КазмунайГаз" 
+                Wiki:
+                  value:
+                    word: "КазмунайГаз"
     security:
-        - ApiKeyAuth: []    
+        - ApiKeyAuth: []
     responses:
       200:
         description: Дополнительная информация
@@ -210,8 +212,8 @@ def parse_get_wiki():
                     pass
 
     return simplejson.dumps(
-        GetWikiDto(pages,info).__dict__, 
-        ignore_nan=True, 
+        GetWikiDto(pages, info).__dict__,
+        ignore_nan=True,
         encoding="utf-8",
-        ensure_ascii=False
+        ensure_ascii=False,
     )

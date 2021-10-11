@@ -62,9 +62,11 @@ def get_models():
     options = [
         ModelItemDto("withTransformer", "С трансформерами", False, True).__dict__,
         ModelItemDto("ru_geo_gpu_v1", "Модель ГЕО").__dict__,
+        ModelItemDto("ru_geo_gpu_v2", "Модель ГЕО (v2)").__dict__,
         ModelItemDto("withTransformerDeliver", "", False, False, True).__dict__,
         ModelItemDto("outTransformer", "Без трансформеров", False, True).__dict__,
         ModelItemDto("ru_geo_cpu_v1", "Модель ГЕО").__dict__,
+        ModelItemDto("ru_geo_cpu_v2", "Модель ГЕО (v2)").__dict__,
     ]
 
     return simplejson.dumps(

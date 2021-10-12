@@ -100,14 +100,14 @@ export default function Maps() {
     },
     {
       key: "spacy",
-      text: "Spacy",
+      text: "Rule-based",
       action: "knowlegegraph",
       iconProps: { iconName: "GitGraph" },
       disabled: false,
     },
     {
       key: "bert",
-      text: "Bert",
+      text: "Deep learning",
       action: "knowlegegraph",
       iconProps: { iconName: "GitGraph" },
       disabled: false,
@@ -583,14 +583,9 @@ export default function Maps() {
                                 <Stack tokens={{ childrenGap: 24 }} horizontal={false}>
                                   <Stack.Item>
                                     <Toggle
-                                      styles={{
-                                        root: {
-                                          marginTop: '28px'
-                                        }
-                                      }}
-                                      label="С трансформерами"
+                                      label="Использовать трансформеры"
                                       checked={useTransformers}
-                                      inlineLabel
+                                      onText="Да" offText="Нет"
                                       onChange={handleTransormersChange}
                                     />
                                   </Stack.Item>

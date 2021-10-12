@@ -27,11 +27,11 @@ class SpacyRelationService(implements(IRelation)):
     def __init__(self, config):
         self.nlp = None
         self.relationAlias = {
-            "river-mouth": "устье",
+            "river-mouth": "впадает в",
             "river-region": "регион",
-            "river-source": "исток",
+            "river-source": "начинается в",
             "river-construct": "сооружение",
-            "river-settlement": "населённый пункт",
+            "river-settlement": "протекает через",
             "other": "другое",
         }
 

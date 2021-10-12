@@ -42,7 +42,17 @@ var languages = [
 
 var optionsMap = {
   locale: "ru",
-  physics: true,
+  physics: {
+    enabled: true,
+    maxVelocity: 10,
+    solver: 'repulsion',
+    stabilization: {
+      enabled: false
+    },
+    repulsion: {
+      centralGravity: 0.1
+    }
+  },
   autoResize: true,
   edges: {
     color: "#0078d4",
@@ -174,6 +184,8 @@ export default function Maps() {
   const [isDemo, setIsDemo] = React.useState(true);
   const [analize, setAnalize] = React.useState(false);
 
+  const [useTransformers, setUseTransformers] = React.useState(true);
+
   React.useEffect(() => {
     document.title = "Sorge - Концепт карта";
     getDemoText(language);
@@ -263,7 +275,7 @@ export default function Maps() {
           if (i.isdeliver == true) {
             return { key: i.key, text: '-', itemType: DropdownMenuItemType.Divider, language: i.language }
           }
-          return { key: i.key, text: i.text, language: i.language}
+          return { key: i.key, text: i.text, language: i.language }
         })
         setBertModels(items);
       });
@@ -292,6 +304,10 @@ export default function Maps() {
       setEmpty();
 
       let _text = text.replace(/\s+/g, " ");
+      let _model = selectedModel
+      if (_model) {
+        _model = _model.replace('{0}', (useTransformers == true ? 'gpu' : 'cpu'))
+      }
 
       fetch(`/maps/${relationMethod.action}`, {
         method: "post",
@@ -304,7 +320,7 @@ export default function Maps() {
           method: method,
           relation: relationMethod.key,
           language: language,
-          sa: selectedModel,
+          sa: _model,
         }),
       })
         .then((res) => res.json())
@@ -365,6 +381,10 @@ export default function Maps() {
 
   const handleDemoChange = (e, v) => {
     setIsDemo(v);
+  };
+
+  const handleTransormersChange = (e, v) => {
+    setUseTransformers(v);
   };
 
   const handleSelectModel = (e, o) => {
@@ -523,38 +543,60 @@ export default function Maps() {
                         }
                         {
                           ['bert'].includes(relationMethod.key) && (
-                            <>
-                              <Stack tokens={{ childrenGap: 24 }} horizontal={false}>
-                                <Stack.Item>
-                                  <Dropdown
-                                    required={true}
-                                    placeholder="Выберите модель"
-                                    label="Обученные модели"
-                                    options={bertModels.filter(x => x.language == language)}
-                                    styles={{
-                                      dropdown: {
-                                        width: 292
-                                      }
-                                    }}
-                                    onChanged={handleSelectModel}
-                                  />
-                                </Stack.Item>
-                                <Stack.Item>
-                                  <PrimaryButton
-                                    styles={{
-                                      root: {
-                                        width: 292,
-                                      },
-                                    }}
-                                    text="Построить"
-                                    onClick={() => build()}
-                                    allowDisabledFocus
-                                    disabled={text.length == 0 || load || selectedModel == null}
-                                    checked={false}
-                                  />
-                                </Stack.Item>
-                              </Stack>
-                            </>
+                            <Stack
+                              tokens={{ childrenGap: 24 }}
+                              horizontal={true}
+                            >
+                              <Stack.Item>
+                                <Stack tokens={{ childrenGap: 24 }} horizontal={false}>
+                                  <Stack.Item>
+                                    <Dropdown
+                                      required={true}
+                                      placeholder="Выберите модель"
+                                      label="Обученные модели"
+                                      options={bertModels.filter(x => x.language == language)}
+                                      styles={{
+                                        dropdown: {
+                                          width: 292
+                                        }
+                                      }}
+                                      onChanged={handleSelectModel}
+                                    />
+                                  </Stack.Item>
+                                  <Stack.Item>
+                                    <PrimaryButton
+                                      styles={{
+                                        root: {
+                                          width: 292,
+                                        },
+                                      }}
+                                      text="Построить"
+                                      onClick={() => build()}
+                                      allowDisabledFocus
+                                      disabled={text.length == 0 || load || selectedModel == null}
+                                      checked={false}
+                                    />
+                                  </Stack.Item>
+                                </Stack>
+                              </Stack.Item>
+                              <Stack.Item>
+                                <Stack tokens={{ childrenGap: 24 }} horizontal={false}>
+                                  <Stack.Item>
+                                    <Toggle
+                                      styles={{
+                                        root: {
+                                          marginTop: '28px'
+                                        }
+                                      }}
+                                      label="С трансформерами"
+                                      checked={useTransformers}
+                                      inlineLabel
+                                      onChange={handleTransormersChange}
+                                    />
+                                  </Stack.Item>
+                                </Stack>
+                              </Stack.Item>
+                            </Stack>
                           )
                         }
                       </Stack.Item>
@@ -624,19 +666,19 @@ export default function Maps() {
                         primaryButtonProps={
                           {
                             children: 'Применить',
-                            onClick: () => {}
+                            onClick: () => { }
                           }
                         }
                         secondaryButtonProps={
                           {
                             children: 'Сбросить',
-                            onClick: () => {}
+                            onClick: () => { }
                           }
                         }
                         onDismiss={() => setGraphSliderShow(false)}
                         headline="Настроить порог связи между сущностями"
                       >
-                        <Slider 
+                        <Slider
                           styles={{
                             titleLabel: {
                               color: 'white'
@@ -654,14 +696,14 @@ export default function Maps() {
                               color: 'white'
                             },
                           }}
-                          label="Значение" 
-                          min={0} 
-                          max={1} 
-                          step={0.1} 
+                          label="Значение"
+                          min={0}
+                          max={1}
+                          step={0.1}
                           value={graphEdgeLimit}
-                          defaultValue={graphEdgeLimit} 
+                          defaultValue={graphEdgeLimit}
                           onChange={(e) => setGraphEdgeLimit(e)}
-                          showValue 
+                          showValue
                           snapToStep />
                       </TeachingBubble>
                     )}

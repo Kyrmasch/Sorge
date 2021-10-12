@@ -60,15 +60,8 @@ def get_example_text():
 
 def get_models():
     options = [
-        ModelItemDto("withTransformer", "С трансформерами", 'russian', False, True).__dict__,
-        ModelItemDto("ru_geo_gpu_v1", "Модель ГЕО", 'russian').__dict__,
-        ModelItemDto("ru_geo_gpu_v2", "Модель ГЕО (v2)", 'russian').__dict__,
-        ModelItemDto("ru_geo_gpu_v2_other", "Модель ГЕО (v2 - without Other)", 'russian').__dict__,
-        ModelItemDto("withTransformerDeliver", "", 'russian', False, False, True).__dict__,
-        ModelItemDto("outTransformer", "Без трансформеров", 'russian', False, True).__dict__,
-        ModelItemDto("ru_geo_cpu_v1", "Модель ГЕО", 'russian').__dict__,
-        ModelItemDto("ru_geo_cpu_v2", "Модель ГЕО (v2)", 'russian').__dict__,
-        ModelItemDto("ru_geo_cpu_v2_other", "Модель ГЕО (v2 - without Other)", 'russian').__dict__,
+        ModelItemDto("ru_geo_{0}_v1", "Модель ГЕО", "russian").__dict__,
+        ModelItemDto("ru_geo_{0}_v2", "Модель ГЕО (v2)", "russian").__dict__,
     ]
 
     return simplejson.dumps(

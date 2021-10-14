@@ -27,12 +27,12 @@ class SpacyRelationService(implements(IRelation)):
     def __init__(self, config):
         self.nlp = None
         self.relationAlias = {
-            "river-mouth": "впадает в",
-            "river-region": "протекает по",
-            "river-source": "начинается в",
-            "river-construct": "сооружение",
-            "river-settlement": "протекает через",
-            "other": "другое",
+            "russian_river-mouth": "впадает в",
+            "russian_river-region": "протекает по",
+            "russian_river-source": "начинается в",
+            "russian_river-construct": "сооружение",
+            "russian_river-settlement": "протекает через",
+            "russian_other": "другое",
         }
 
     def get_triplets(self, args: RelationTripletsParamsDto, queue=None) -> List[tuple]:
@@ -91,11 +91,12 @@ class SpacyRelationService(implements(IRelation)):
                                             if t[0] == e.text and t[2] == b.text
                                         ]
                                         if not any(include):
+                                            key = "%s_%s" % (args.lang, m.lower())
                                             triplets.append(
                                                 (
                                                     e.text,
-                                                    m.lower() in self.relationAlias
-                                                    and self.relationAlias[m.lower()]
+                                                    key in self.relationAlias
+                                                    and self.relationAlias[key]
                                                     or m,
                                                     b.text,
                                                     (e.label_, pr, b.label_),

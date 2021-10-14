@@ -28,7 +28,7 @@ class SpacyRelationService(implements(IRelation)):
         self.nlp = None
         self.relationAlias = {
             "river-mouth": "впадает в",
-            "river-region": "регион",
+            "river-region": "протекает по",
             "river-source": "начинается в",
             "river-construct": "сооружение",
             "river-settlement": "протекает через",

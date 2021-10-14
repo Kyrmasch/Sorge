@@ -202,25 +202,6 @@ export default function Maps() {
   }, [graph]);
 
   React.useEffect(() => {
-    if (text != "") {
-      fetch("/maps/detect", {
-        method: "post",
-        headers: {
-          Accept: "application/json, text/plain, */*",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          text: text,
-        }),
-      })
-        .then((res) => res.json())
-        .then((lang) => {
-          setLanguage(lang.value);
-        });
-    }
-  }, [text]);
-
-  React.useEffect(() => {
     if (language != "" && maps) {
       let $maps = [...maps];
       if (language == languages[2].key) {
@@ -261,6 +242,25 @@ export default function Maps() {
       setSelectedModel(null);
     }
   }, [relationMethod]);
+
+  const detectLanguage = (text) => {
+    if (text != "") {
+      fetch("/maps/detect", {
+        method: "post",
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: text,
+        }),
+      })
+        .then((res) => res.json())
+        .then((lang) => {
+          setLanguage(lang.value);
+        });
+    }
+  };
 
   const getModels = () => {
     fetch("/maps/get_models", {
@@ -471,6 +471,7 @@ export default function Maps() {
                         value={text}
                         readOnly={load}
                         description={`${text.length} символов`}
+                        onBlur={() => detectLanguage(text)}
                         onChange={(e) => handleChangeText(e.target.value)}
                       />
                     </Stack>

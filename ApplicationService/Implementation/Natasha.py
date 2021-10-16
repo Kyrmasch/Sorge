@@ -23,15 +23,18 @@ class NatashaService:
     def get_lammas(self, text: str, queue=None) -> dict:
         lemmas = {}
 
-        doc = Doc(text)
+        try:
+            doc = Doc(text)
 
-        doc.segment(self.segmenter)
-        doc.tag_morph(self.morph_tagger)
-        doc.tag_ner(self.ner_tagger)
+            doc.segment(self.segmenter)
+            doc.tag_morph(self.morph_tagger)
+            doc.tag_ner(self.ner_tagger)
 
-        for span in doc.spans:
-            span.normalize(self.morph_vocab)
-        lemmas = {_.text: _.normal for _ in doc.spans if _.text != _.normal}
+            for span in doc.spans:
+                span.normalize(self.morph_vocab)
+            lemmas = {_.text: _.normal for _ in doc.spans if _.text != _.normal}
+        except:
+            pass
 
         if queue is not None:
             queue.put(lemmas)

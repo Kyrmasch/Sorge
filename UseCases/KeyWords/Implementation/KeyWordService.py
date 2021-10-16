@@ -12,6 +12,7 @@ from ApplicationService.DepentencyInjection import (
     knowlege_graph,
     relation,
     spacy_relation,
+    natasha
 )
 from ApplicationService.Dtos.RelationTripletsParamsDto import RelationTripletsParamsDto
 from interface import implements
@@ -222,32 +223,50 @@ class KeyWordService(implements(IKeyWordService)):
                     line = line[:-1]
                 sentences.append(line)
 
+            rel_lemmas = {}
             if args.lang == "russian":
-                queue = Queue()
-                subprocess = Process(
-                    target=spacy_relation.get_triplets,
-                    args=(
-                        RelationTripletsParamsDto(
-                            "/home/user/Sorge/Sorge/ApplicationService/Files/models/%s"
-                            % (args.sa),
-                            sentences,
-                            args.lang,
-                            develop_mode,
-                        ),
-                        queue,
-                    ),
-                )
-                try:
-                    subprocess.start()
-                    subprocess.join()
-                    triplets = queue.get()
-                    if triplets is None:
-                        triplets = []
-                except:
-                    pass
+                rel_lemmas = natasha.get_lammas(data)
 
-                del subprocess
-                del queue
+            queue = Queue()
+            subprocess = Process(
+                target=spacy_relation.get_triplets,
+                args=(
+                    RelationTripletsParamsDto(
+                        "/home/user/Sorge/Sorge/ApplicationService/Files/models/%s"
+                        % (args.sa),
+                        sentences,
+                        args.lang,
+                        develop_mode,
+                    ),
+                    queue,
+                ),
+            )
+            try:
+                subprocess.start()
+                subprocess.join()
+                relations = queue.get()
+                
+                if relations is None:
+                    triplets = []
+                else:
+                    for t in relations:
+                        rigth = t[0].replace(',', '').strip()
+                        rigth_lemma = rigth in rel_lemmas and rel_lemmas[rigth] or rigth
+
+                        left = t[2].replace(',', '').strip()
+                        left_lemma = left in rel_lemmas and rel_lemmas[left] or left
+
+                        triplets.append(
+                            (rigth_lemma,
+                            t[1],
+                            left_lemma,
+                            t[3])
+                        )
+            except:
+                pass
+
+            del subprocess
+            del queue
 
         if args.method == "spacy":
             if args.lang in ["russian"]:

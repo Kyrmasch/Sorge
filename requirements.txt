@@ -56,3 +56,4 @@ textacy
 spacy
 spacy-udpipe
 spacy[transformers]
+natasha

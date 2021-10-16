@@ -42,6 +42,9 @@ class SpacyRelationService(implements(IRelation)):
         nlp = spacy.load(args.nlp)
 
         for text in args.sentences:
+            if args.lang == "russian":
+                pass
+
             doc_entities = nlp(text)
             entities = []
 

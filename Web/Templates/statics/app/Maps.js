@@ -93,7 +93,7 @@ export default function Maps() {
   const [maps, setMaps] = React.useState([
     {
       key: "basic",
-      text: "Базовый",
+      text: "Low-resource",
       action: "build",
       iconProps: { iconName: "GitGraph" },
       checked: true,

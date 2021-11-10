@@ -27,12 +27,20 @@ class SpacyRelationService(implements(IRelation)):
     def __init__(self, config):
         self.nlp = None
         self.relationAlias = {
+            # Russian
             "russian_river-mouth": "впадает в",
             "russian_river-region": "протекает по",
             "russian_river-source": "начинается в",
             "russian_river-construct": "сооружение",
             "russian_river-settlement": "протекает через",
             "russian_other": "другое",
+            # English
+            "english_river-mouth": "falls into",
+            "english_river-region": "flows through",
+            "english_river-source": "starts at",
+            "english_river-construct": "construction",
+            "english_river-settlement": "flows through",
+            "english_other": "other",
         }
 
     def get_triplets(self, args: RelationTripletsParamsDto, queue=None) -> List[tuple]:

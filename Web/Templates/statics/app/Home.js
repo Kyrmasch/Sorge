@@ -9,6 +9,7 @@ import { Spinner } from '@fluentui/react/lib/Spinner';
 import { Pivot, PivotItem } from '@fluentui/react';
 import { FontIcon } from '@fluentui/react/lib/Icon';
 import { Text } from '@fluentui/react/lib/Text';
+import { Link } from '@fluentui/react/lib/Link';
 
 import { socket } from './IO'
 import Header from './Header';
@@ -304,6 +305,25 @@ export default function Home() {
                                                                         <PivotItem headerText={`Таблица #${index + 1}`}>
                                                                             <div>
                                                                                 <DataFrame table={table} index={index} core={tables.cores[index]} />
+                                                                            </div>
+                                                                            <div>
+                                                                                {
+                                                                                    guids.length == tables.data.length && (
+                                                                                        <>
+                                                                                            <div style={{
+                                                                                                    display: 'flex',
+                                                                                                    justifyContent: 'center',
+                                                                                                    height: '50px',
+                                                                                                    alignItems: 'center',
+                                                                                                    fontWeight: 600
+                                                                                            }}>
+                                                                                                <Link href={`/api/get_table/${guids[index]}`} underline target="_blank">
+                                                                                                    {`Скачать ${guids[index]}.json`}
+                                                                                                </Link>
+                                                                                            </div>
+                                                                                        </>
+                                                                                    )
+                                                                                }
                                                                             </div>
                                                                         </PivotItem>
 

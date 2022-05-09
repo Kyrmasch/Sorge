@@ -29,7 +29,7 @@ class ApplicationContainer(containers.DeclarativeContainer):
 
     get_tabs_api = flask.View(ApiController.get_tabs)
     get_tables_api = flask.View(ApiController.parse_get_tables)
-    get_table_by_guid_api = flask.View(ApiController.parse_get_table_by_guid)
+    get_table_by_guid = flask.View(ApiController.parse_get_table_by_guid)
 
     login_api = flask.View(AuthController.signin)
     logout_api = flask.View(AuthController.signout)

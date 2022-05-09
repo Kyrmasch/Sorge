@@ -3,7 +3,7 @@ from Web.Dtos.GetTablesDto import GetTablesDto
 from Web.Dtos.GetWikiDto import GetWikiDto
 from Web.Dtos.GetTabsDto import GetTabsDto
 from Web.Dtos.TabItemDto import TabItemDto
-from flask import request
+from flask import Response, request
 import asyncio
 from flask_login import current_user
 import simplejson
@@ -100,7 +100,7 @@ def parse_get_tables():
     return result
 
 
-def parse_get_table_by_guid():
+def parse_get_table_by_guid(guid = "7075105353550151027"):
     """
     Получить сохраненные таблицы
     Получить таблицы сохраненные после выполнения парсинга по GUID
@@ -131,17 +131,16 @@ def parse_get_table_by_guid():
                 $ref: '#/components/schemas/ResultTables'
     """
 
-    data = request.json
     table = (GetTablesDto([], [], []).__dict__,)
 
-    if "guid" in data:
-        guid = data["guid"]
+    if guid is not None:
         try:
             with open(
                 "%s/ApplicationService/Files/tables/%s.json" % (os.getcwd(), guid),
                 encoding="utf-8",
             ) as json_file:
                 content = json.load(json_file)
+                content["table"] = json.loads(content["table"])
                 table = (
                     GetTablesDto(
                         content["table"], content["core"], content["guid"]
@@ -153,10 +152,12 @@ def parse_get_table_by_guid():
             pass
 
     result = simplejson.dumps(
-        table, ignore_nan=True, encoding="utf-8", ensure_ascii=False
+        table, ignore_nan=True, encoding="utf-8", ensure_ascii=False, indent=4, sort_keys=True
     )
 
-    return result
+    return Response(result, 
+            mimetype='application/json',
+            headers={'Content-Disposition':'attachment;filename=%s.json' % (guid)})
 
 
 def parse_get_wiki():

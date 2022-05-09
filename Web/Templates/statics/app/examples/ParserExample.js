@@ -22,13 +22,13 @@ const urls = [
     },
     {
         type: 'FileHTML',
-        url: 'https://aviapoisk.kz/raspisanie/aeroporta/ustkamenogorsk',
-        title: 'Расписание вылетов и прилетов Усть-Каменогорска'
+        url: 'https://poezdato.net/raspisanie-po-stancyi/kazahstan/poezda/',
+        title: 'Расписание поездов КТЖ'
     },
     {
         type: 'FileHTML',
-        url: 'https://www.gks.ru/bgd/regl/b09_47/IssWWW.exe/Stg/2-13.htm',
-        title: 'ПРОИЗВОДСТВО МОЛОКА В КРЕСТЬЯНСКИХ (фермерских) ХОЗЯЙСТВАХ'
+        url: 'https://bilet.railways.kz/post/schedule',
+        title: 'Перечень пассажирских поездов'
     },
     {
         type: 'FileImage',

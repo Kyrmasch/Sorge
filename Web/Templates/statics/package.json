@@ -5,7 +5,7 @@
   "scripts": {
     "build": "babel-node ./node_modules/webpack/bin/webpack",
     "watch": "babel-node ./node_modules/webpack/bin/webpack --watch",
-    "prod_build": "webpack"
+    "prod_build": "webpack --mode=production"
   },
   "author": "Kyrmasch",
   "license": "ISC",

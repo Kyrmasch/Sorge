@@ -85,7 +85,7 @@ export default function Home() {
     React.useEffect(() => {
         if (url) {
             window.localStorage.setItem('tables', JSON.stringify(tables));
-            window.localStorage.setItem('url', url);           
+            window.localStorage.setItem('url', url);
         }
     }, [tables])
 
@@ -108,8 +108,31 @@ export default function Home() {
         return false;
     }
 
-    const changeUrl = (e, value) => {
+    const changeUrl = (e, value, index = null) => {
         if (e) {
+            if (index) {
+                switch (index) {
+                    case 0: {
+                        setSettingsUrl({
+                            from: 327,
+                            to: 328,
+                            merge: false
+                        });
+                        break;
+                    }
+                    case 6: {
+                        setSettingsUrl({
+                            from: 10,
+                            to: 10,
+                            merge: false
+                        });
+                        break;
+                    }
+                    default: {
+                        break;
+                    }
+                }
+            }
             setUrl(value);
         }
     }
@@ -311,11 +334,11 @@ export default function Home() {
                                                                                     guids.length == tables.data.length && (
                                                                                         <>
                                                                                             <div style={{
-                                                                                                    display: 'flex',
-                                                                                                    justifyContent: 'center',
-                                                                                                    height: '50px',
-                                                                                                    alignItems: 'center',
-                                                                                                    fontWeight: 600
+                                                                                                display: 'flex',
+                                                                                                justifyContent: 'center',
+                                                                                                height: '50px',
+                                                                                                alignItems: 'center',
+                                                                                                fontWeight: 600
                                                                                             }}>
                                                                                                 <Link href={`/api/get_table/${guids[index]}`} underline target="_blank">
                                                                                                     {`Скачать ${guids[index]}.json`}
@@ -364,7 +387,7 @@ export default function Home() {
             }
             {
                 exampleDialog == true && (
-                    <ParserExample 
+                    <ParserExample
                         toggle={setExampleDialogState}
                         select={changeUrl}
                         hidden={!exampleDialog} />

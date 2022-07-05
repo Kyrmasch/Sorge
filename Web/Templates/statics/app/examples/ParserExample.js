@@ -17,7 +17,7 @@ const classNames = mergeStyleSets({
 const urls = [
     {
         type: 'PDF',
-        url: 'https://ecsocman.hse.ru/data/2010/05/26/1212617593/Doklad-Pages-001-392-posle-obreza-170x240mm.pdf',
+        url: 'https://www.hse.ru/data/2010/05/25/1216899390/Doklad.pdf',
         title: 'ГЕОЭКОНОМИКА И КОНКУРЕНТОСПОСОБНОСТЬ РОССИИ'
     },
     {
@@ -39,6 +39,16 @@ const urls = [
         type: 'FileImage',
         url: 'https://cf.ppt-online.org/files/slide/d/dgbFzC08V4m5usoPBvipOU2ZjRYWLcktDHflaq/slide-1.jpg',
         title: 'Основные технико-экономические показатели'
+    },
+    {
+        type: 'FileImage',
+        url: 'https://uchitel.pro/wp-content/uploads/2017/09/%D0%B2%D0%B0%D0%B6%D0%BD%D0%B5%D0%B9%D1%88%D0%B8%D0%B5-%D1%80%D0%B5%D0%BA%D0%B8.jpg',
+        title: 'Важнейший реки'
+    },
+    {
+        type: 'PDF',
+        url: 'http://www.riverbp.net/%D0%9D%D0%B0%D1%86%20%D0%B4%D0%BE%D0%BA%D0%BB%D0%B0%D0%B4%20%D0%BE%20%D1%81%D0%BE%D1%81%D1%82%D0%BE%D1%8F%D0%BD%D0%B8%D0%B8%20%D0%BE%D0%BA%D1%80%20%D1%81%D1%80%D0%B5%D0%B4%D1%8B%20%D0%B2%D0%BE%D0%B4%D0%BD%D1%8B%D0%B5%20%D1%80%D0%B5%D1%81%D1%83%D1%80%D1%81%D1%8B.pdf',
+        title: 'Забор воды из природных источников по регионам Республики Казахстан'
     }
 ]
 
@@ -78,7 +88,7 @@ export default function ParserExample(props) {
                     key={1}
                     className={classNames.nameText}
                     onClick={() => {
-                        select(e.url);;
+                        select(e.url, index);;
                     }}
                   >
                     {e.title}
@@ -103,8 +113,8 @@ export default function ParserExample(props) {
 
     }, []);
 
-    const select = (url) => {
-        selectEvent(true, url);
+    const select = (url, index) => {
+        selectEvent(true, url, index);
         toggleStateEvent(false);
     }
 
